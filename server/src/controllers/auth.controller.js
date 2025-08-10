@@ -46,12 +46,12 @@ export async function signinController(req, res, next) {
       .select(["+password"]);
 
     if (!userExists) {
-      throw createHttpError.Unauthorized("Invalid email or password");
+      throw createHttpError.BadRequest("Invalid email or password");
     }
     // compare password
     const isMatchPassword = await userExists.isPasswordMatch(body.password);
     if (!isMatchPassword) {
-      throw createHttpError.Unauthorized("Invalid email or password");
+      throw createHttpError.BadRequest("Invalid email or password");
     }
 
     const payload = {
