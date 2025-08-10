@@ -8,11 +8,12 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-// ✅ Add access token nếu bạn dùng Authorization Header
+// Add access token
 instance.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -20,30 +21,42 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor với tránh vòng lặp vô hạn
+// Handle response
 instance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
-    const responseStatus = error.response?.status;
 
-    // ❗ Tránh gọi refreshToken nhiều lần
-    if (responseStatus === 401 && !originalRequest?._retry) {
+    const responseStatus = error.response?.status;
+    const customError = error.response?.data ?? error;
+
+    const authState = useAuthStore.getState();
+
+    // ⛔️ Không refresh nếu chưa signin
+    if (!authState.isAuthenticated) {
+      return Promise.reject(customError);
+    }
+
+    // ✅ Tránh gọi refresh nhiều lần hoặc gọi chính nó
+    if (
+      responseStatus === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== "/auth/refresh-token"
+    ) {
       originalRequest._retry = true;
 
       try {
         const refreshResponse = await refreshTokenApi();
 
         if (refreshResponse.status === 200) {
-          // Sau khi refresh thành công, gửi lại request gốc
+          // Gửi lại request gốc
           return instance(originalRequest);
         }
 
-        // Nếu refresh trả về 401
         if (refreshResponse.status === 401) {
-          await useAuthStore.getState().signout();
+          await authState.signout();
           return Promise.reject({ status: 401, message: "Please login again" });
         }
       } catch (refreshError) {
@@ -51,15 +64,13 @@ instance.interceptors.response.use(
           refreshError instanceof AxiosError &&
           refreshError.response?.status === 401
         ) {
-          await useAuthStore.getState().signout();
+          await authState.signout();
           return Promise.reject({ status: 401, message: "Please login again" });
         }
         return Promise.reject(refreshError);
       }
     }
 
-    // ✅ Trả lỗi phù hợp hơn
-    const customError = error.response?.data ?? error;
     return Promise.reject(customError);
   }
 );

@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import type { IUser } from "../types/auth";
+import type { IUpdateMeDTO } from "../types/auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
@@ -41,7 +41,7 @@ const formSchema = z.object({
   link_website: z.string().optional(),
 });
 
-const initValues: Partial<IUser> = {
+const initValues: IUpdateMeDTO = {
   name: "",
   gender: "",
   avatar: "",
@@ -79,7 +79,7 @@ const UpdateMeForm = () => {
     }
   }, [getMeResult.data, getMeResult.isSuccess, form]);
   const submitResult = useMutation({
-    mutationFn: (data: Partial<IUser>) => {
+    mutationFn: (data: IUpdateMeDTO) => {
       return updateMe(data);
     },
     onSuccess(data) {

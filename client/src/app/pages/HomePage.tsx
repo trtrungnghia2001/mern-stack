@@ -12,20 +12,10 @@ const HomePage = () => {
       return signout();
     },
     onSuccess(data) {
-      toast(data?.message, {
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
-      });
+      toast.success(data?.message);
     },
     onError(error) {
-      toast(error.message, {
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
-      });
+      toast.error(error.message);
     },
   });
   return (

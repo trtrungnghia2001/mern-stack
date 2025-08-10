@@ -19,7 +19,7 @@ const io = new Server(httpServer, {
 
 export { io, httpServer };
 
-// khoi tao
+// khoi tao user online {key:userId, value:socketId}
 export const onlineUserMap = new Map();
 
 export async function connectIo() {

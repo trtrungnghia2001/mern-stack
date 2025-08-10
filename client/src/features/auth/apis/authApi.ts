@@ -9,6 +9,7 @@ import type {
   ISigninDTO,
   ISigninResponseData,
   ISignupDTO,
+  IUpdateMeDTO,
   IUser,
 } from "../types/auth";
 
@@ -59,7 +60,7 @@ export async function getMeApi() {
   const url = baseUrl + `/get-me`;
   return (await instance.get<ResponseSuccessType<IUser>>(url)).data;
 }
-export async function updateMe(data: Partial<IUser>) {
+export async function updateMe(data: IUpdateMeDTO | FormData) {
   const url = baseUrl + `/update-me`;
   return (await instance.put<ResponseSuccessType<IUser>>(url, data)).data;
 }

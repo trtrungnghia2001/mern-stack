@@ -225,8 +225,8 @@ export async function forgotPasswordController(req, res, next) {
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenExpires = Date.now() + 3600000; // 1 giờ
 
-    user.resetPasswordToken = resetToken; // Bạn cần thêm trường này vào user schema
-    user.resetPasswordExpires = resetTokenExpires; // Bạn cần thêm trường này vào user schema
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpires;
     await user.save();
 
     // --- Gửi email cho người dùng ---

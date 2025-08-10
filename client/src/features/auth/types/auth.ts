@@ -44,6 +44,19 @@ export interface IChangePasswordDTO {
   confirm_password: string;
 }
 
+export interface IUpdateMeDTO {
+  name: string;
+  gender?: string;
+  avatar?: string;
+  phoneNumber?: string;
+  address?: string;
+  birthday?: string;
+  work?: string;
+  education?: string;
+  bio?: string;
+  link_website?: string;
+}
+
 export interface IAuthStore {
   // --- State ---
   user: null | IUser;
@@ -67,7 +80,7 @@ export interface IAuthStore {
     ResponseSuccessType<ISigninResponseData> | undefined
   >;
   updateMe: (
-    data: Partial<IUser>
+    data: IUpdateMeDTO | FormData
   ) => Promise<ResponseSuccessType<IUser> | undefined>;
   getMe: () => Promise<ResponseSuccessType<IUser> | undefined>;
   changePassword: (

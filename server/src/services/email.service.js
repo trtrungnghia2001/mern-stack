@@ -4,21 +4,21 @@ import path from "path"; // Để xử lý đường dẫn file
 import ejs from "ejs";
 import { fileURLToPath } from "url";
 
+// 1. Tạo transporter: Đây là đối tượng chịu trách nhiệm gửi email.
+// Cấu hình transporter với thông tin SMTP của nhà cung cấp email của bạn (ví dụ: Gmail, SendGrid, Mailgun)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: ENV_CONFIG.EMAIL_USER, // Email của bạn (từ đó email sẽ được gửi đi)
+    pass: ENV_CONFIG.EMAIL_PASSWORD, // Mật khẩu email của bạn hoặc App Password (đối với Gmail)
+  },
+  tls: {
+    rejectUnauthorized: ENV_CONFIG.IS_PRODUCTION,
+  },
+});
+
 // Hàm chung để gửi email
 const sendEmail = async (options) => {
-  // 1. Tạo transporter: Đây là đối tượng chịu trách nhiệm gửi email.
-  // Cấu hình transporter với thông tin SMTP của nhà cung cấp email của bạn (ví dụ: Gmail, SendGrid, Mailgun)
-  const transporter = nodemailer.createTransport({
-    host: ENV_CONFIG.EMAIL_HOST, // Ví dụ: 'smtp.gmail.com' hoặc SMTP server của bạn
-    port: ENV_CONFIG.EMAIL_PORT, // Ví dụ: 587 (TLS) hoặc 465 (SSL)
-    secure: ENV_CONFIG.EMAIL_PORT == 465 ? true : false, // true nếu cổng là 465, false nếu là 587 hoặc khác
-    service: "gmail",
-    auth: {
-      user: ENV_CONFIG.EMAIL_USER, // Email của bạn (từ đó email sẽ được gửi đi)
-      pass: ENV_CONFIG.EMAIL_PASSWORD, // Mật khẩu email của bạn hoặc App Password (đối với Gmail)
-    },
-  });
-
   // 2. Render template EJS
   const __dirname = path.resolve(fileURLToPath(import.meta.url));
   const templatePath = path.join(

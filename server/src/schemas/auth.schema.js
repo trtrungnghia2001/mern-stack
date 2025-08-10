@@ -57,7 +57,7 @@ export const schemaForgotPassword = Joi.object({
 
 // Schema đặt lại mật khẩu
 export const schemaResetPassword = Joi.object({
-  token: Joi.string().uuid().required(), // Giả sử token là UUID
+  token: Joi.string().required(),
   password: Joi.string()
     .min(8)
     .regex(
