@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
+import { useRedirect } from "../contexts/RedirectContext";
 
 const formSchema = z.object({
   email: z.string().min(1, {
@@ -33,6 +34,7 @@ const initValues: ISigninDTO = {
 
 const SigninForm = () => {
   const navigate = useNavigate();
+  const { redirectTo, setRedirectTo } = useRedirect();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,11 +54,16 @@ const SigninForm = () => {
     },
     onSuccess(data) {
       toast.success(data?.message);
-      if (data?.data.user.role === "admin") {
-        navigate(`/admin`);
-        return;
+      if (redirectTo) {
+        navigate(redirectTo.pathname + redirectTo.search, { replace: true });
+        setRedirectTo(null);
+      } else {
+        if (data?.data.user.role === "admin") {
+          navigate(`/admin`, { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       }
-      navigate(`/`);
     },
     onError(error) {
       toast.error(error.message);

@@ -1,23 +1,12 @@
 import { Button } from "@/shared/components/ui/button";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
-import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import { IMAGE_NOTFOUND } from "@/shared/constants/image.constanr";
+import ThemeButton from "@/features/theme/components/ThemeButton";
+import SignoutButton from "@/features/auth/components/SignoutButton";
 
 const HomePage = () => {
-  const { user, signout } = useAuthStore();
-  const signoutResult = useMutation({
-    mutationFn: () => {
-      return signout();
-    },
-    onSuccess(data) {
-      toast.success(data?.message);
-    },
-    onError(error) {
-      toast.error(error.message);
-    },
-  });
+  const { user } = useAuthStore();
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md text-center space-y-8">
@@ -44,14 +33,7 @@ const HomePage = () => {
         )}
         <div className="flex flex-wrap items-center justify-center gap-2">
           {user ? (
-            <Button
-              disabled={signoutResult.isPending}
-              onClick={() => {
-                signoutResult.mutate();
-              }}
-            >
-              Signout
-            </Button>
+            <SignoutButton />
           ) : (
             <Link to="/signin">
               <Button>Đăng nhập</Button>
@@ -69,6 +51,7 @@ const HomePage = () => {
           <Link to="/chat">
             <Button>Chat</Button>
           </Link>
+          <ThemeButton />
         </div>
       </div>
     </div>

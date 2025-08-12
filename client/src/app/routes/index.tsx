@@ -1,0 +1,39 @@
+import { memo } from "react";
+import { Route, Routes } from "react-router-dom";
+import HomePage from "../pages/HomePage";
+import SearchPage from "../pages/SearchPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import SignupSigninPage from "@/features/auth/pages/SignupSigninPage";
+import AuthProtectedRoute from "./AuthProtectedRoute";
+import UpdateMeForm from "@/features/auth/components/UpdateMeForm";
+import ChangePasswordForm from "@/features/auth/components/ChangePasswordForm";
+
+const MainRouter = () => {
+  return (
+    <Routes>
+      {/* public */}
+      <Route index element={<HomePage />} />
+      <Route path="search" element={<SearchPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+
+      {/* auth */}
+      <Route path="signin" element={<SignupSigninPage />} />
+      <Route path="signup" element={<SignupSigninPage />} />
+      <Route path="forgot-password" element={<SignupSigninPage />} />
+      <Route path="reset-password" element={<SignupSigninPage />} />
+
+      {/* auth protected */}
+      <Route element={<AuthProtectedRoute />}>
+        {/*  */}
+
+        {/*  */}
+        <Route path="me">
+          <Route path="update-me" element={<UpdateMeForm />} />
+          <Route path="change-password" element={<ChangePasswordForm />} />
+        </Route>
+      </Route>
+    </Routes>
+  );
+};
+
+export default memo(MainRouter);

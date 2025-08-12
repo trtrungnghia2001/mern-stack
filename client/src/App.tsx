@@ -1,51 +1,40 @@
-import { Route, Routes } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "./shared/components/ui/sonner";
-import SignupSigninPage from "./features/auth/pages/SignupSigninPage";
 import { useAuthStore } from "./features/auth/stores/auth.store";
-import HomePage from "./app/pages/HomePage";
-import SearchPage from "./app/pages/SearchPage";
-import NotFoundPage from "./app/pages/NotFoundPage";
 import { useEffect } from "react";
-import UpdateMeForm from "./features/auth/components/UpdateMeForm";
-import AuthProtectedRoute from "./app/routes/AuthProtectedRoute";
-import ChangePasswordForm from "./features/auth/components/ChangePasswordForm";
+import MainRouter from "./app/routes";
+import { useRedirect } from "./features/auth/contexts/RedirectContext";
 
 const App = () => {
   const { user, signinWithSocialMediaSuccess } = useAuthStore();
+  const { redirectTo, setRedirectTo } = useRedirect();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
-      signinWithSocialMediaSuccess();
+      (async () => {
+        await signinWithSocialMediaSuccess().then((data) => {
+          if (redirectTo) {
+            navigate(redirectTo.pathname + redirectTo.search, {
+              replace: true,
+            });
+            setRedirectTo(null);
+          } else {
+            if (data?.data.user.role === "admin") {
+              navigate(`/admin`, { replace: true });
+            } else {
+              navigate("/", { replace: true });
+            }
+          }
+        });
+      })();
     }
   }, []);
 
   return (
     <div>
       <Toaster />
-
-      <Routes>
-        {/* public */}
-        <Route index element={<HomePage />} />
-        <Route path="search" element={<SearchPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-
-        {/* auth */}
-        <Route path="signin" element={<SignupSigninPage />} />
-        <Route path="signup" element={<SignupSigninPage />} />
-        <Route path="forgot-password" element={<SignupSigninPage />} />
-        <Route path="reset-password" element={<SignupSigninPage />} />
-
-        {/* auth protected */}
-        <Route element={<AuthProtectedRoute />}>
-          {/*  */}
-
-          {/*  */}
-          <Route path="me">
-            <Route path="update-me" element={<UpdateMeForm />} />
-            <Route path="change-password" element={<ChangePasswordForm />} />
-          </Route>
-        </Route>
-      </Routes>
+      <MainRouter />
     </div>
   );
 };

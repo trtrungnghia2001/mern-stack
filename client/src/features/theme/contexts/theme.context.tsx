@@ -1,7 +1,17 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { IThemeContextProps, ThemeModeType } from "../types/theme.type";
 
-const ThemeContext = createContext<IThemeContextProps | null>(null);
+const ThemeContext = createContext<IThemeContextProps>({
+  theme: "system",
+  setTheme: () => {},
+  toggleTheme: () => {},
+});
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<ThemeModeType>(() => {
@@ -17,6 +27,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       // Nếu theme hiện tại là 'system', cập nhật lại
       if (theme === "system") {
         const newTheme = event.matches ? "dark" : "light";
+
         document.documentElement.setAttribute("data-theme", newTheme);
       }
     };
@@ -51,7 +62,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const toggleTheme = useCallback(() => {
     setThemeState((prevTheme) => {
       if (prevTheme === "light") return "dark";
-      if (prevTheme === "dark") return "system";
       return "light";
     });
   }, []);
@@ -62,3 +72,5 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     </ThemeContext.Provider>
   );
 };
+
+export const useThemeContext = () => useContext(ThemeContext);
