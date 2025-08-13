@@ -2,14 +2,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocation, type Location } from "react-router-dom";
 
+type RedirectType = Location | null;
+
 // Xác định rõ kiểu context
-interface RedirectContextType {
-  redirectTo: Location | null;
-  setRedirectTo: (loc: Location | null) => void;
+interface IRedirectContext {
+  redirectTo: RedirectType;
+  setRedirectTo: (loc: RedirectType) => void;
 }
 
 // Mặc định initial context
-const RedirectContext = createContext<RedirectContextType>({
+const RedirectContext = createContext<IRedirectContext>({
   redirectTo: null,
   setRedirectTo: () => {},
 });
@@ -27,12 +29,14 @@ export const RedirectProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [redirectTo, setRedirectTo] = useState<Location | null>(() => {
+  const [redirectTo, setRedirectTo] = useState<RedirectType>(() => {
     const storedRedirect = sessionStorage.getItem("redirectTo");
     return storedRedirect ? JSON.parse(storedRedirect) : null;
   });
   const location = useLocation();
 
+  // Kiểm tra nếu đường dẫn hiện tại không phải là một trong các đường dẫn auth
+  // thì cập nhật redirectTo với đường dẫn hiện tại
   useEffect(() => {
     const isAuthPath = authPaths.some((path) =>
       location.pathname.includes(path)
@@ -40,9 +44,18 @@ export const RedirectProvider = ({
 
     if (!isAuthPath) {
       setRedirectTo(location);
-      sessionStorage.setItem("redirectTo", JSON.stringify(location));
     }
   }, [location]);
+
+  // Lưu redirectTo vào sessionStorage mỗi khi nó thay đổi
+  // Điều này giúp giữ nguyên redirectTo khi người dùng refresh trang
+  useEffect(() => {
+    if (redirectTo) {
+      sessionStorage.setItem("redirectTo", JSON.stringify(redirectTo));
+    } else {
+      sessionStorage.removeItem("redirectTo");
+    }
+  }, [redirectTo]);
 
   return (
     <RedirectContext.Provider value={{ redirectTo, setRedirectTo }}>
@@ -51,4 +64,4 @@ export const RedirectProvider = ({
   );
 };
 
-export const useRedirect = () => useContext(RedirectContext);
+export const useRedirectContext = () => useContext(RedirectContext);

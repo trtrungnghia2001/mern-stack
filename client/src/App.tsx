@@ -3,11 +3,11 @@ import { Toaster } from "./shared/components/ui/sonner";
 import { useAuthStore } from "./features/auth/stores/auth.store";
 import { useEffect } from "react";
 import MainRouter from "./app/routes";
-import { useRedirect } from "./features/auth/contexts/RedirectContext";
+import { useRedirectContext } from "./features/auth/contexts/RedirectContext";
 
 const App = () => {
   const { user, signinWithSocialMediaSuccess } = useAuthStore();
-  const { redirectTo, setRedirectTo } = useRedirect();
+  const { redirectTo, setRedirectTo } = useRedirectContext();
   const navigate = useNavigate();
 
   useEffect(() => {

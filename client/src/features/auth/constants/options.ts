@@ -1,4 +1,6 @@
-export const gender_options = [
+import type { IOption } from "../types/options";
+
+export const gender_options: IOption[] = [
   {
     value: "male",
     label: "Male",

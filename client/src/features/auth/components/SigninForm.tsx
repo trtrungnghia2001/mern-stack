@@ -16,7 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
-import { useRedirect } from "../contexts/RedirectContext";
+import { useRedirectContext } from "../contexts/RedirectContext";
 
 const formSchema = z.object({
   email: z.string().min(1, {
@@ -34,7 +34,7 @@ const initValues: ISigninDTO = {
 
 const SigninForm = () => {
   const navigate = useNavigate();
-  const { redirectTo, setRedirectTo } = useRedirect();
+  const { redirectTo, setRedirectTo } = useRedirectContext();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({

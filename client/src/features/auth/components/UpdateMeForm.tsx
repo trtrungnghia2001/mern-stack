@@ -10,12 +10,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/shared/components/ui/form";
-import { Input } from "@/shared/components/ui/input";
 import type { IUpdateMeDTO } from "../types/auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { memo, useEffect } from "react";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { gender_options } from "../constants/options";
-import { useEffect } from "react";
+import type { IOption } from "../types/options";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -77,7 +78,8 @@ const UpdateMeForm = () => {
     if (getMeResult.data && getMeResult.isSuccess) {
       form.reset(getMeResult.data.data);
     }
-  }, [getMeResult.data, getMeResult.isSuccess, form]);
+  }, [getMeResult.data, getMeResult.isSuccess]);
+
   const submitResult = useMutation({
     mutationFn: (data: IUpdateMeDTO) => {
       return updateMe(data);
@@ -93,70 +95,72 @@ const UpdateMeForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {(
-          Object.keys(formSchema.shape).filter(
-            (item) => item !== "avatar"
-          ) as Array<keyof typeof formSchema.shape>
-        ).map((key) => {
-          const label = key.replace(/_/gi, " ");
-          return (
+        {Object.keys(initValues)
+          .filter((key) => key !== "avatar")
+          .map((key) => (
             <FormField
               key={key}
+              name={key as keyof typeof formSchema.shape}
               control={form.control}
-              name={key}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="capitalize">{label}</FormLabel>
-                  {key === "bio" ? (
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                  ) : key === "gender" ? (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a gender" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {gender_options.map((item, idx) => (
-                          <SelectItem key={idx} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type={
-                          key === "phoneNumber"
-                            ? "tel"
-                            : key === "birthday"
-                            ? "date"
-                            : "text"
-                        }
-                        onChange={(e) => {
-                          if (key === "phoneNumber") {
-                            const newValue = e.target.value.replace(/\D/g, ""); // Loại bỏ các ký tự không phải số
-                            field.onChange(newValue);
-                          } else if (key === "birthday") {
-                            field.onChange(e.target.value);
-                          } else {
-                            field.onChange(e);
-                          }
-                        }}
-                      />
-                    </FormControl>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          );
-        })}
+              render={({ field }) => {
+                const label = key.replace(/_/gi, " ");
+                let options: IOption[] = [];
+                if (key === "gender") options = gender_options;
 
+                return (
+                  <FormItem>
+                    <FormLabel className="capitalize">{label}</FormLabel>
+                    {["bio"].includes(key) ? (
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                    ) : ["gender"].includes(key) ? (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={`Select a ${key}`} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {options?.map((item, idx) => (
+                            <SelectItem key={idx} value={item.value}>
+                              {item.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={
+                            key === "phoneNumber"
+                              ? "tel"
+                              : key === "birthday"
+                              ? "date"
+                              : "text"
+                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (key === "phoneNumber") {
+                              field.onChange(value.replace(/\D/g, ""));
+                            } else {
+                              field.onChange(value);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                    )}
+
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          ))}
         <Button
           disabled={submitResult.isPending}
           type="submit"
@@ -169,4 +173,4 @@ const UpdateMeForm = () => {
   );
 };
 
-export default UpdateMeForm;
+export default memo(UpdateMeForm);
