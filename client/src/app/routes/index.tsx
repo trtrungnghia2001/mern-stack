@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { Route, Routes } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import SearchPage from "../pages/SearchPage";
-import NotFoundPage from "../pages/NotFoundPage";
+import HomePage from "../pages/home-page";
+import SearchPage from "../pages/search-page";
+import NotFoundPage from "../pages/notfound-page";
 import SignupSigninPage from "@/features/auth/pages/SignupSigninPage";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import UpdateMeForm from "@/features/auth/components/UpdateMeForm";
@@ -24,13 +24,12 @@ const MainRouter = () => {
 
       {/* auth protected */}
       <Route element={<AuthProtectedRoute />}>
-        {/*  */}
-
-        {/*  */}
+        {/* user */}
         <Route path="me">
           <Route path="update-me" element={<UpdateMeForm />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
         </Route>
+        {/* admin */}
       </Route>
     </Routes>
   );
