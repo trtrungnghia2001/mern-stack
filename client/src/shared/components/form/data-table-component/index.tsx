@@ -24,15 +24,14 @@ import PaginationComponent, {
 } from "../pagination-component";
 import { useEffect, useMemo, useState } from "react";
 import { Checkbox } from "../../ui/checkbox";
-import { Grip, Loader2 } from "lucide-react";
-import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { Loader2 } from "lucide-react";
+import { DragHandle } from "./components/DragHandle";
+import SortableRow from "./components/SortableRow";
+import DndWrapper from "./components/DndWrapper";
+import { Button } from "../../ui/button";
+import { exportToCSV } from "./utils/export";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pagination?: IPaginationComponentProps;
@@ -43,7 +42,7 @@ interface DataTableProps<TData, TValue> {
   onDragEnd?: (newData: TData[]) => void;
 }
 
-export function DataTableComponent<TData, TValue>({
+export function DataTableComponent<TData extends { id: string }, TValue>({
   columns,
   data,
   pagination,
@@ -53,6 +52,7 @@ export function DataTableComponent<TData, TValue>({
   isDragAndDrop,
   onDragEnd,
 }: DataTableProps<TData, TValue>) {
+  // config
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -90,20 +90,13 @@ export function DataTableComponent<TData, TValue>({
       : [];
   }, [isSelect]);
 
-  // dnd
   const dragColumn = useMemo(() => {
     return isDragAndDrop
       ? [
           {
             id: "drag",
             header: "",
-            cell: ({ row }: { row: Row<TData> }) => {
-              return (
-                <div>
-                  <Grip className="w-4 h-4 text-muted-foreground cursor-move" />
-                </div>
-              );
-            },
+            cell: ({ row }: { row: Row<TData> }) => <DragHandle id={row.id} />,
             enableSorting: false,
             enableHiding: false,
           },
@@ -114,6 +107,7 @@ export function DataTableComponent<TData, TValue>({
   const table = useReactTable({
     data,
     columns: [...dragColumn, ...selectColumn, ...columns],
+    getRowId: (row) => String(row.id),
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -138,102 +132,115 @@ export function DataTableComponent<TData, TValue>({
     }
   }, [rowSelection]);
 
+  // dnd
+  // csv
+  const handleExportCSV = () => {
+    const selected = table.getSelectedRowModel().rows.map((r) => r.original);
+
+    if (selected.length === 0) {
+      alert("Vui lòng chọn ít nhất một dòng để export.");
+      return;
+    }
+
+    exportToCSV(selected as Record<string, unknown>[], "selected-rows.csv");
+  };
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{
-                        minWidth: header.column.columnDef.minSize,
-                        maxWidth: header.column.columnDef.maxSize,
-                      }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <Loader2 className="animate-spin mx-auto h-6 w-6 text-gray-600" />
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              <DndContext
-                collisionDetection={closestCenter}
-                onDragEnd={(event: DragEndEvent) => {
-                  const { active, over } = event;
-                  if (active.id !== over?.id) {
-                    const oldIndex = table
-                      .getRowModel()
-                      .rows.findIndex((r) => r.id === active.id);
-                    const newIndex = table
-                      .getRowModel()
-                      .rows.findIndex((r) => r.id === over?.id);
-
-                    const newData = arrayMove(data, oldIndex, newIndex);
-                    onDragEnd?.(newData);
-                  }
-                }}
-              >
-                <SortableContext
-                  items={table.getRowModel().rows.map((r) => r.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {table.getRowModel().rows.map((row) => {
+        <DndWrapper
+          data={data}
+          onDragEnd={(value) => {
+            if (onDragEnd) {
+              onDragEnd(value as unknown as TData[]);
+            }
+          }}
+        >
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
                     return (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => {
-                          return (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
+                      <TableHead
+                        key={header.id}
+                        style={{
+                          minWidth: header.column.columnDef.minSize,
+                          maxWidth: header.column.columnDef.maxSize,
+                        }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     );
                   })}
-                </SortableContext>
-              </DndContext>
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    <Loader2 className="animate-spin mx-auto h-6 w-6 text-gray-600" />
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <SortableRow key={row.id} id={row.id}>
+                    {row.getVisibleCells().map((cell) => {
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </SortableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DndWrapper>
       </div>
-      {pagination && (
-        <div className="flex justify-end">
-          <PaginationComponent {...pagination} />
+      {/* footer */}
+      <div className="flex items-center justify-between">
+        {/* left */}
+        <div className="space-x-2">
+          <span className="text-gray-500 text-sm">
+            {table.getSelectedRowModel().rows.length} of {data.length} row(s)
+            selected.
+          </span>
+
+          <Button variant="outline" size="sm" onClick={() => handleExportCSV()}>
+            Export CSV
+          </Button>
         </div>
-      )}
+        {/* right */}
+        <div>
+          {pagination && (
+            <div className="flex justify-end">
+              <PaginationComponent {...pagination} />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

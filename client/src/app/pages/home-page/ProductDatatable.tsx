@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import axios from "axios";
 import { ArrowUpDown } from "lucide-react";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 
 export interface IProductList {
   products: IProduct[];
@@ -15,7 +15,7 @@ export interface IProductList {
 }
 
 export interface IProduct {
-  id: number;
+  id: string;
   title: string;
   description: string;
   category: string;
@@ -133,11 +133,18 @@ const ProductDatatable = () => {
         `https://dummyjson.com/products?limit=10&skip=${(productPage - 1) * 10}`
       ),
   });
+  const [products, setProducts] = useState<IProduct[]>([]);
+  useEffect(() => {
+    if (getProductsResult.isSuccess && getProductsResult.data) {
+      setProducts(getProductsResult.data.data.products);
+    }
+  }, [getProductsResult.isSuccess, getProductsResult.data]);
+
   return (
     <div className="bg-white p-4 rounded-lg shadow-xl w-full">
       <DataTableComponent
         columns={productColumn}
-        data={getProductsResult.data?.data.products || []}
+        data={products}
         pagination={{
           currentPage: productPage,
           onPageChange(page) {
@@ -153,6 +160,9 @@ const ProductDatatable = () => {
         }}
         isLoading={getProductsResult.isLoading}
         isDragAndDrop
+        onDragEnd={(newData) => {
+          setProducts(newData);
+        }}
       />
     </div>
   );
