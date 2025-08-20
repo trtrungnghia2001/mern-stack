@@ -81,7 +81,7 @@ export const schemaResetPassword = Joi.object({
 export const schemaUpdateMe = Joi.object({
   name: Joi.string().trim().min(3).max(50).optional(),
   gender: Joi.string().optional(),
-  avatar: Joi.string().uri().optional(), // Xác thực URL
+  avatar: Joi.string().uri().allow("").optional(), // Xác thực URL
   phoneNumber: Joi.string()
     .length(10)
     .pattern(/^[0-9]+$/)

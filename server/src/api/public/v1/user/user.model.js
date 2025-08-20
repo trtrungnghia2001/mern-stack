@@ -1,6 +1,6 @@
-import { GENDER, ROLE } from "#server/constants/user.constant";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { GENDER, ROLE } from "./user.constant.js";
 
 const userSchema = new mongoose.Schema(
   {

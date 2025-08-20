@@ -7,8 +7,8 @@ import { toast } from "sonner";
 const SignoutButton = () => {
   const { signout } = useAuthStore();
   const signoutResult = useMutation({
-    mutationFn: () => {
-      return signout();
+    mutationFn: async () => {
+      return await signout();
     },
     onSuccess(data) {
       toast.success(data?.message);

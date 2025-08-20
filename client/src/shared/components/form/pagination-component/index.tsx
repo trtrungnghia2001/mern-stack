@@ -2,20 +2,22 @@ import React, { memo } from "react";
 import { Button } from "../../ui/button";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 
-export interface IPaginationComponentProps {
+export interface PaginationComponentProps {
   currentPage: number;
   onPageChange: (page: number) => void;
   totalPages: number;
   maxPageNumbersToShow?: number; // default = 5
+  size?: "default" | "sm" | "lg" | "icon";
 }
 
 type PageItem = number | string | { type: "first" | "last" };
 
-const PaginationComponent: React.FC<IPaginationComponentProps> = ({
+const PaginationComponent: React.FC<PaginationComponentProps> = ({
   currentPage,
   onPageChange,
   totalPages,
   maxPageNumbersToShow = 5,
+  size,
 }) => {
   const generatePageNumbers = (): PageItem[] => {
     const pages: PageItem[] = [];
@@ -71,6 +73,7 @@ const PaginationComponent: React.FC<IPaginationComponentProps> = ({
     <div className="flex items-center gap-2 flex-wrap">
       {pageItems.map((item, idx) => (
         <Button
+          size={size}
           key={idx}
           variant={
             typeof item === "number" && item === currentPage

@@ -10,7 +10,7 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table";
-
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,95 +18,81 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/shared/components/ui/table";
-import PaginationComponent, {
-  type IPaginationComponentProps,
-} from "../pagination-component";
-import { useEffect, useMemo, useState } from "react";
-import { Checkbox } from "../../ui/checkbox";
+} from "../../ui/table";
 import { Loader2 } from "lucide-react";
-import { DragHandle } from "./components/DragHandle";
-import SortableRow from "./components/SortableRow";
-import DndWrapper from "./components/DndWrapper";
+import type { PaginationComponentProps } from "../pagination-component";
+import PaginationComponent from "../pagination-component";
+import { Checkbox } from "../../ui/checkbox";
+import { exportToCSV } from "./utils/csv";
+import DragAndDropComponent from "./components/DragAndDropComponent";
+import SortableRow, { DragHandle } from "./components/SortableRow";
 import { Button } from "../../ui/button";
-import { exportToCSV } from "./utils/export";
 
-interface DataTableProps<TData extends { id: string }, TValue> {
+type WithId = { id: string };
+
+export interface DataTableComponentProps<TData extends WithId, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  pagination?: IPaginationComponentProps;
+  isLoading?: boolean;
+  pagination?: PaginationComponentProps;
   isSelect?: boolean;
   onSelect?: (rows: TData[]) => void;
-  isLoading?: boolean;
   isDragAndDrop?: boolean;
-  onDragEnd?: (newData: TData[]) => void;
+  onDragAndDrop?: (rows: TData[]) => void;
+  isExportCSV?: boolean;
 }
 
-export function DataTableComponent<TData extends { id: string }, TValue>({
+const selectColumnKey = "data-table-select";
+const dragColumnKey = "data-table-drag-and-drop";
+export function DataTableComponent<TData extends WithId, TValue>({
   columns,
   data,
+  isLoading,
   pagination,
   isSelect,
   onSelect,
-  isLoading,
   isDragAndDrop,
-  onDragEnd,
-}: DataTableProps<TData, TValue>) {
+  onDragAndDrop,
+  isExportCSV,
+}: DataTableComponentProps<TData, TValue>) {
   // config
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
 
-  const selectColumn = useMemo(() => {
-    return isSelect
-      ? [
-          {
-            id: "select",
-            header: ({ table }: HeaderContext<TData, unknown>) => (
-              <Checkbox
-                className="mx-2"
-                checked={
-                  table.getIsAllPageRowsSelected() ||
-                  (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                  table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-              />
-            ),
-            cell: ({ row }: { row: Row<TData> }) => (
-              <Checkbox
-                className="mx-2"
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-              />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-          },
-        ]
-      : [];
-  }, [isSelect]);
-
-  const dragColumn = useMemo(() => {
-    return isDragAndDrop
-      ? [
-          {
-            id: "drag",
-            header: "",
-            cell: ({ row }: { row: Row<TData> }) => <DragHandle id={row.id} />,
-            enableSorting: false,
-            enableHiding: false,
-          },
-        ]
-      : [];
-  }, [isDragAndDrop]);
+  const selectColumn: ColumnDef<TData, unknown> = {
+    id: selectColumnKey,
+    header: ({ table }: HeaderContext<TData, unknown>) => (
+      <Checkbox
+        className="mx-2"
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }: { row: Row<TData> }) => (
+      <Checkbox
+        className="mx-2"
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  };
+  const dragColumn: ColumnDef<TData, unknown> = {
+    id: dragColumnKey,
+    enableSorting: false,
+    enableHiding: false,
+  };
 
   const table = useReactTable({
     data,
-    columns: [...dragColumn, ...selectColumn, ...columns],
+    columns: [dragColumn, selectColumn, ...columns],
     getRowId: (row) => String(row.id),
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
@@ -119,6 +105,10 @@ export function DataTableComponent<TData extends { id: string }, TValue>({
       sorting,
       columnFilters,
       rowSelection,
+      columnVisibility: {
+        selectColumnKey: !!isSelect,
+        dragColumnKey: !!isDragAndDrop,
+      },
     },
   });
 
@@ -132,8 +122,7 @@ export function DataTableComponent<TData extends { id: string }, TValue>({
     }
   }, [rowSelection]);
 
-  // dnd
-  // csv
+  //   csv
   const handleExportCSV = () => {
     const selected = table.getSelectedRowModel().rows.map((r) => r.original);
 
@@ -144,16 +133,14 @@ export function DataTableComponent<TData extends { id: string }, TValue>({
 
     exportToCSV(selected as Record<string, unknown>[], "selected-rows.csv");
   };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* table */}
       <div className="overflow-x-auto rounded-md border">
-        <DndWrapper
+        <DragAndDropComponent
+          onDragEnd={(newData) => onDragAndDrop?.(newData as TData[])}
           data={data}
-          onDragEnd={(value) => {
-            if (onDragEnd) {
-              onDragEnd(value as unknown as TData[]);
-            }
-          }}
         >
           <Table>
             <TableHeader>
@@ -193,16 +180,25 @@ export function DataTableComponent<TData extends { id: string }, TValue>({
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <SortableRow key={row.id} id={row.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      );
-                    })}
+                    {(attributes, listeners) =>
+                      row
+                        .getVisibleCells()
+                        .map((cell) => (
+                          <TableCell key={cell.id}>
+                            {cell.column.id === dragColumnKey ? (
+                              <DragHandle
+                                attributes={attributes}
+                                listeners={listeners}
+                              />
+                            ) : (
+                              flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )
+                            )}
+                          </TableCell>
+                        ))
+                    }
                   </SortableRow>
                 ))
               ) : (
@@ -217,28 +213,23 @@ export function DataTableComponent<TData extends { id: string }, TValue>({
               )}
             </TableBody>
           </Table>
-        </DndWrapper>
+        </DragAndDropComponent>
       </div>
       {/* footer */}
       <div className="flex items-center justify-between">
-        {/* left */}
-        <div className="space-x-2">
+        <div className="flex items-center justify-end gap-4">
           <span className="text-gray-500 text-sm">
             {table.getSelectedRowModel().rows.length} of {data.length} row(s)
             selected.
           </span>
-
-          <Button variant="outline" size="sm" onClick={() => handleExportCSV()}>
-            Export CSV
-          </Button>
-        </div>
-        {/* right */}
-        <div>
-          {pagination && (
-            <div className="flex justify-end">
-              <PaginationComponent {...pagination} />
-            </div>
+          {isExportCSV && (
+            <Button variant="link" size="sm" onClick={() => handleExportCSV()}>
+              Export CSV
+            </Button>
           )}
+        </div>
+        <div className="flex items-center justify-end gap-4">
+          {pagination && <PaginationComponent {...pagination} size="sm" />}
         </div>
       </div>
     </div>

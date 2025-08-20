@@ -1,6 +1,6 @@
 import express from "express";
-import { validateAuth } from "#server/middlewares/validation.middleware";
-import { authMiddleware } from "#server/middlewares/auth.middleware";
+import passport from "passport";
+import { validateAuth } from "./auth.validate.js";
 import {
   schemaChangePassword,
   schemaForgotPassword,
@@ -8,7 +8,7 @@ import {
   schemaSignin,
   schemaSignup,
   schemaUpdateMe,
-} from "#server/schemas/auth.schema";
+} from "./auth.schema.js";
 import {
   changePasswordController,
   forgotPasswordController,
@@ -21,9 +21,9 @@ import {
   signoutController,
   signupController,
   updateMeController,
-} from "#server/controllers/auth.controller";
+} from "./auth.controller.js";
+import { authMiddleware } from "#server/shared/middlewares/auth.middleware";
 import upload from "#server/configs/multer.config";
-import passport from "passport";
 import ENV_CONFIG from "#server/configs/env.config";
 
 const authRouter = express.Router();
@@ -39,7 +39,7 @@ authRouter.get(`/get-me`, authMiddleware, getMeController);
 authRouter.put(
   `/update-me`,
   authMiddleware,
-  upload.single("file-avatar"),
+  upload.single("avatarFile"),
   validateAuth(schemaUpdateMe),
   updateMeController
 );

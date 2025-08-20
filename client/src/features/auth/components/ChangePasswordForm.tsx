@@ -49,8 +49,8 @@ const ChangePasswordForm = () => {
 
   const { changePassword } = useAuthStore();
   const submitResult = useMutation({
-    mutationFn: (data: IChangePasswordDTO) => {
-      return changePassword(data);
+    mutationFn: async (data: IChangePasswordDTO) => {
+      return await changePassword(data);
     },
     onSuccess(data) {
       toast.success(data?.message);

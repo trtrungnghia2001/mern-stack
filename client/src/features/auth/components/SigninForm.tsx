@@ -49,8 +49,8 @@ const SigninForm = () => {
 
   const { signin } = useAuthStore();
   const submitResult = useMutation({
-    mutationFn: (data: ISigninDTO) => {
-      return signin(data);
+    mutationFn: async (data: ISigninDTO) => {
+      return await signin(data);
     },
     onSuccess(data) {
       toast.success(data?.message);

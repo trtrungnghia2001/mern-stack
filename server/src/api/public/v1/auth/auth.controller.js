@@ -2,16 +2,16 @@ import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import userModel from "#server/models/user.model";
-import { handleResponse } from "#server/utils/response.util";
-import { generateAuthTokensAndSetCookies } from "#server/services/auth.service";
+import userModel from "../user/user.model.js";
+import { handleResponse } from "#server/shared/utils/response.util";
 import ENV_CONFIG from "#server/configs/env.config";
-import { clearCookie } from "#server/utils/cookie.util";
-import sendEmail from "#server/services/email.service";
+import { generateAuthTokensAndSetCookies } from "./auth.service.js";
+import { clearCookie } from "#server/shared/utils/cookie.util";
 import {
-  deleteImageToCloudinary,
-  uploadImageToCloudinary,
-} from "#server/services/cloudinary.service";
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "#server/shared/services/cloudinary.service";
+import { sendPasswordResetEmail } from "#server/shared/services/email.service";
 
 export async function signupController(req, res, next) {
   try {
@@ -126,8 +126,10 @@ export async function updateMeController(req, res, next) {
     let avatar = body.avatar;
     // upload file
     if (file) {
-      avatar = (await uploadImageToCloudinary(file)).url;
-      await deleteImageToCloudinary(body.avatar);
+      avatar = (await uploadToCloudinary(file)).url;
+      if (body.avatar) {
+        await deleteFromCloudinary(body.avatar);
+      }
     }
 
     const userUpdate = await userModel.findByIdAndUpdate(
@@ -231,12 +233,7 @@ export async function forgotPasswordController(req, res, next) {
 
     // --- Gửi email cho người dùng ---
     const resetUrl = `${ENV_CONFIG.URL_CLIENT}/reset-password?token=${resetToken}`; // URL của frontend để đặt lại mật khẩu
-    await sendEmail({
-      email: user.email,
-      subject: "Password Reset Request",
-      templateName: "password-reset.ejs", // Tên template
-      templateData: { resetUrl: resetUrl }, // Dữ liệu truyền vào template
-    });
+    await sendPasswordResetEmail(user.email, resetUrl);
 
     return handleResponse(res, {
       status: StatusCodes.OK,

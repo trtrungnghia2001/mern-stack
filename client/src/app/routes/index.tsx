@@ -7,6 +7,7 @@ import SignupSigninPage from "@/features/auth/pages/SignupSigninPage";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import UpdateMeForm from "@/features/auth/components/UpdateMeForm";
 import ChangePasswordForm from "@/features/auth/components/ChangePasswordForm";
+import UploadPage from "../pages/upload-page";
 
 const MainRouter = () => {
   return (
@@ -14,6 +15,7 @@ const MainRouter = () => {
       {/* public */}
       <Route index element={<HomePage />} />
       <Route path="search" element={<SearchPage />} />
+      <Route path="upload" element={<UploadPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
       {/* auth */}

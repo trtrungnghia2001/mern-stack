@@ -133,6 +133,7 @@ const ProductDatatable = () => {
         `https://dummyjson.com/products?limit=10&skip=${(productPage - 1) * 10}`
       ),
   });
+
   const [products, setProducts] = useState<IProduct[]>([]);
   useEffect(() => {
     if (getProductsResult.isSuccess && getProductsResult.data) {
@@ -143,6 +144,7 @@ const ProductDatatable = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-xl w-full">
       <DataTableComponent
+        isLoading={getProductsResult.isLoading}
         columns={productColumn}
         data={products}
         pagination={{
@@ -158,11 +160,11 @@ const ProductDatatable = () => {
         onSelect={(rows) => {
           console.log(rows);
         }}
-        isLoading={getProductsResult.isLoading}
         isDragAndDrop
-        onDragEnd={(newData) => {
+        onDragAndDrop={(newData) => {
           setProducts(newData);
         }}
+        isExportCSV
       />
     </div>
   );

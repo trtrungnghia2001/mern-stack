@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 import express from "express";
-import { ORIGIN_URLS } from "#server/constants/url.constant";
+import { ORIGIN_URLS } from "#server/shared/constants/url.constant";
 
 const app = express();
 

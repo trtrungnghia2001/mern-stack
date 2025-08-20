@@ -41,4 +41,18 @@ const sendEmail = async (options) => {
   await transporter.sendMail(mailOptions);
 };
 
+export const sendPasswordResetEmail = async (email, resetUrl) => {
+  try {
+    await sendEmail({
+      email: email,
+      subject: "Password Reset Request",
+      templateName: "password-reset.ejs", // Tên template
+      templateData: { resetUrl: resetUrl }, // Dữ liệu truyền vào template
+    });
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw new Error("Failed to send password reset email!");
+  }
+};
+
 export default sendEmail;

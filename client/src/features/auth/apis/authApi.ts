@@ -1,6 +1,6 @@
-import instance from "@/shared/configs/axios.config";
+import instance from "@/configs/axios.config";
 import type { ResponseSuccessType } from "@/shared/types/response";
-import ENV_CONFIG from "@/shared/configs/env.config";
+import ENV_CONFIG from "@/configs/env.config";
 import axios from "axios";
 import type {
   IChangePasswordDTO,

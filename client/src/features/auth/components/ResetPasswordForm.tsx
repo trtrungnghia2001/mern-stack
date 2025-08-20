@@ -62,8 +62,8 @@ const ResetPasswordForm = () => {
 
   const { resetPassword } = useAuthStore();
   const submitResult = useMutation({
-    mutationFn: (data: IResetPasswordDTO) => {
-      return resetPassword(data);
+    mutationFn: async (data: IResetPasswordDTO) => {
+      return await resetPassword(data);
     },
     onSuccess(data) {
       toast.success(data?.message);

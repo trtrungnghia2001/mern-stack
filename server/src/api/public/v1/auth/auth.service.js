@@ -1,10 +1,10 @@
 import ENV_CONFIG from "#server/configs/env.config";
+import { addCookie } from "#server/shared/utils/cookie.util";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "#server/utils/jwt.util";
-import userModel from "#server/models/user.model";
-import { addCookie } from "#server/utils/cookie.util";
+} from "#server/shared/utils/jwt.util";
+import userModel from "../user/user.model.js";
 
 export async function generateAuthTokensAndSetCookies(res, payload) {
   // generate token

@@ -9,8 +9,8 @@ import CORS_CONFIG from "./configs/cors.config.js";
 import ENV_CONFIG from "./configs/env.config.js";
 import passportConfig from "./configs/passport.config.js";
 import SESSION_CONFIG from "./configs/session.configs.js";
-import { handleError } from "./utils/response.util.js";
-import v1Router from "./routers/v1/index.router.js";
+import { handleError } from "./shared/utils/response.util.js";
+import routerV1 from "./api/public/v1/index.js";
 
 await connectMongoDB();
 await connectIo();
@@ -33,6 +33,6 @@ app.listen(ENV_CONFIG.PORT, function () {
 });
 
 // router
-app.use("/api/v1", v1Router);
+app.use("/api/v1", routerV1);
 
 app.use(handleError);

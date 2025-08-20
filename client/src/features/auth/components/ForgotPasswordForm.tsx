@@ -41,8 +41,8 @@ const ForgotPasswordForm = () => {
 
   const { forgotPassword } = useAuthStore();
   const submitResult = useMutation({
-    mutationFn: (data: IForgotPasswordDTO) => {
-      return forgotPassword(data);
+    mutationFn: async (data: IForgotPasswordDTO) => {
+      return await forgotPassword(data);
     },
     onSuccess(data) {
       toast.success(data?.message);

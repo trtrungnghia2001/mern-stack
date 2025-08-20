@@ -19,12 +19,13 @@ const AccountOverviewBox = () => {
       </p>
       {user && (
         <div className="flex flex-col items-center gap-3">
-          <img
-            src={user.avatar || IMAGE_NOTFOUND.avatar_notfound}
-            alt="avatar"
-            loading="lazy"
-            className="object-cover object-center aspect-square w-24 rounded-full overflow-hidden block"
-          />
+          <div className="aspect-square w-40 rounded-full overflow-hidden block border-4">
+            <img
+              src={user.avatar || IMAGE_NOTFOUND.avatar_notfound}
+              alt="avatar"
+              loading="lazy"
+            />
+          </div>
           <h3>
             Hi, my name is{" "}
             <span className="italic font-medium">{user.name}</span>
@@ -47,6 +48,9 @@ const AccountOverviewBox = () => {
         </Link>
         <Link to="/me/change-password">
           <Button>Đổi mật khẩu</Button>
+        </Link>
+        <Link to="/upload">
+          <Button>Upload</Button>
         </Link>
         <Link to="/chat">
           <Button>Chat</Button>

@@ -12,7 +12,7 @@ import {
   updateMe,
 } from "../apis/authApi";
 import type { IAuthStore } from "../types/auth";
-import ENV_CONFIG from "@/shared/configs/env.config";
+import ENV_CONFIG from "@/configs/env.config";
 export const useAuthStore = create<IAuthStore>()(
   devtools(
     persist(

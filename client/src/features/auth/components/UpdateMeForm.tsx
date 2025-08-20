@@ -15,7 +15,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Input } from "@/shared/components/ui/input";
 import {
   Select,
@@ -26,6 +26,7 @@ import {
 } from "@/shared/components/ui/select";
 import { gender_options } from "../constants/options";
 import type { IOption } from "../types/options";
+import UploadImageComponent from "@/shared/components/form/upload-image-component";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -81,8 +82,13 @@ const UpdateMeForm = () => {
   }, [getMeResult.data, getMeResult.isSuccess]);
 
   const submitResult = useMutation({
-    mutationFn: (data: IUpdateMeDTO) => {
-      return updateMe(data);
+    mutationFn: async (data: IUpdateMeDTO) => {
+      const formData = new FormData();
+      if (avatarFile) formData.append("avatarFile", avatarFile);
+      Object.entries(data).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
+      return await updateMe(formData);
     },
     onSuccess(data) {
       toast.success(data?.message);
@@ -92,20 +98,46 @@ const UpdateMeForm = () => {
     },
   });
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  const keys = useMemo(() => {
+    return Object.keys(formSchema.shape) as Array<
+      keyof typeof formSchema.shape
+    >;
+  }, []);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {Object.keys(initValues)
+        <UploadImageComponent
+          previewType="avatar"
+          data={[form.getValues("avatar")]
+            .filter(Boolean)
+            .map((file) => ({ type: "image", url: file as string }))}
+          onChangeFile={(e) => {
+            setAvatarFile(e[0]);
+          }}
+          accept="image/*"
+          width={160}
+        />
+
+        {keys
           .filter((key) => key !== "avatar")
           .map((key) => (
             <FormField
               key={key}
-              name={key as keyof typeof formSchema.shape}
+              name={key}
               control={form.control}
               render={({ field }) => {
                 const label = key.replace(/_/gi, " ");
+                // options select
                 let options: IOption[] = [];
                 if (key === "gender") options = gender_options;
+
+                // type input
+                let type: React.HTMLInputTypeAttribute = "text";
+                if (key === "phoneNumber") type = "tel";
+                if (key === "birthday") type = "date";
 
                 return (
                   <FormItem>
@@ -136,13 +168,7 @@ const UpdateMeForm = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          type={
-                            key === "phoneNumber"
-                              ? "tel"
-                              : key === "birthday"
-                              ? "date"
-                              : "text"
-                          }
+                          type={type}
                           onChange={(e) => {
                             const value = e.target.value;
                             if (key === "phoneNumber") {

@@ -1,5 +1,5 @@
+import { ORIGIN_URLS } from "#server/shared/constants/url.constant";
 import cors from "cors";
-import { ORIGIN_URLS } from "#server/constants/url.constant";
 
 const CORS_CONFIG = cors({
   origin: ORIGIN_URLS,

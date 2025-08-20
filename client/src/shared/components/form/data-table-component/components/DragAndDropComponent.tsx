@@ -2,6 +2,7 @@ import {
   closestCenter,
   DndContext,
   DragOverlay,
+  type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
 import {
@@ -9,36 +10,43 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import React, { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
-interface IDndWrapperProps<T extends { id: string }> {
+type WithId = { id: string };
+
+interface DragAndDropComponentProps<T extends WithId> {
   children: React.ReactNode;
   data: T[];
   onDragEnd?: (newData: T[]) => void;
 }
 
-const DndWrapper = <T extends { id: string }>({
+const DragAndDropComponent = <T extends WithId>({
   children,
   data,
   onDragEnd,
-}: IDndWrapperProps<T>) => {
+}: DragAndDropComponentProps<T>) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const ids = useMemo(() => {
-    return data.map((item) => item.id);
+    return data.map((item) => item.id.toString());
   }, [data]);
 
+  const handleDragStart = (event: DragEndEvent) => {
+    setActiveId(event.active.id.toString());
+  };
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
+    console.log({ activeId, active, over });
+
     if (!active || !over || active.id === over?.id) return;
 
-    const oldIndex = data.findIndex((r) => String(r.id) === active.id);
-    const newIndex = data.findIndex((r) => String(r.id) === over?.id);
+    const activeIndex = data.findIndex((r) => String(r.id) === active.id);
+    const overIndex = data.findIndex((r) => String(r.id) === over.id);
 
-    if (oldIndex === -1 || newIndex === -1) return;
+    if (activeIndex === -1 || overIndex === -1) return;
 
     requestAnimationFrame(() => {
-      const newData = arrayMove(data, oldIndex, newIndex);
+      const newData = arrayMove(data, activeIndex, overIndex);
       onDragEnd?.(newData);
     });
   };
@@ -46,8 +54,8 @@ const DndWrapper = <T extends { id: string }>({
   return (
     <DndContext
       collisionDetection={closestCenter}
-      onDragStart={(e) => setActiveId(e.active.id.toString())}
-      onDragOver={handleDragOver}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragOver}
       onDragCancel={() => setActiveId(null)}
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
@@ -58,4 +66,4 @@ const DndWrapper = <T extends { id: string }>({
   );
 };
 
-export default memo(DndWrapper);
+export default memo(DragAndDropComponent);
