@@ -1,5 +1,6 @@
 import {
-  getMediaByFolderApi,
+  getMediaImageApi,
+  getMediaVideoApi,
   uploadArrayFileApi,
   uploadSingleFileApi,
 } from "@/features/upload/apis/uploadApi";
@@ -13,9 +14,14 @@ const UploadPage = () => {
   const [singleFile, setSingleFile] = useState<File | null>(null);
   const [arrayFile, setArrayFile] = useState<File[] | null>(null);
 
-  const getMediaByFolderResult = useQuery({
+  const getMediaResult = useQuery({
     queryKey: ["upload"],
-    queryFn: async () => getMediaByFolderApi("project-name"),
+    queryFn: async () => {
+      const imageResult = await getMediaImageApi();
+      const videoResult = await getMediaVideoApi();
+
+      return { image: imageResult.data, video: videoResult.data };
+    },
   });
 
   const submitSingleFileResult = useMutation({
@@ -57,15 +63,33 @@ const UploadPage = () => {
           Upload single or multiple files using the form below.
         </p>
       </div>
+      {/* view */}
       <div>
-        <UploadImageComponent
-          data={getMediaByFolderResult.data?.data.map((file) => ({
-            url: file.url,
-            type: file.resource_type,
-          }))}
-          previewType="image"
-          disabled
-        />
+        {getMediaResult.isLoading && <div>Loading...</div>}
+        <ul className="flex flex-wrap  gap-x-4 gap-y-2">
+          {getMediaResult.data?.image.map((media, idx) => (
+            <li
+              key={idx}
+              style={{
+                maxWidth: 160,
+                width: media.width,
+              }}
+            >
+              <img src={media.url} alt={`img-${idx}`} />
+            </li>
+          ))}
+          {getMediaResult.data?.video.map((media, idx) => (
+            <li
+              key={idx}
+              style={{
+                maxWidth: 160,
+                width: media.width,
+              }}
+            >
+              <video src={media.url} controls />
+            </li>
+          ))}
+        </ul>
       </div>
       {/* single */}
       <form

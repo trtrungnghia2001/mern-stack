@@ -4,8 +4,13 @@ import type { IUploadFile } from "../types/upload.type";
 
 const baseUrl = `/api/v1/upload`;
 
-export async function getMediaByFolderApi(folderName: string) {
-  const url = baseUrl + `/media/folder/` + folderName;
+export async function getMediaImageApi() {
+  const url = baseUrl + `/media/image`;
+  return (await instance.get<ResponseSuccessType<IUploadFile[]>>(url)).data;
+}
+
+export async function getMediaVideoApi() {
+  const url = baseUrl + `/media/video`;
   return (await instance.get<ResponseSuccessType<IUploadFile[]>>(url)).data;
 }
 

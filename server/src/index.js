@@ -10,7 +10,8 @@ import ENV_CONFIG from "./configs/env.config.js";
 import passportConfig from "./configs/passport.config.js";
 import SESSION_CONFIG from "./configs/session.configs.js";
 import { handleError } from "./shared/utils/response.util.js";
-import routerV1 from "./api/public/v1/index.js";
+import routerV2 from "./api/v2/index.js";
+import routerV1 from "./api/v1/index.js";
 
 await connectMongoDB();
 await connectIo();
@@ -34,5 +35,6 @@ app.listen(ENV_CONFIG.PORT, function () {
 
 // router
 app.use("/api/v1", routerV1);
+app.use("/api/v2", routerV2);
 
 app.use(handleError);

@@ -118,7 +118,6 @@ const UpdateMeForm = () => {
             setAvatarFile(e[0]);
           }}
           accept="image/*"
-          width={160}
         />
 
         {keys

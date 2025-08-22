@@ -55,6 +55,12 @@ export function DataTableComponent<TData extends WithId, TValue>({
   onDragAndDrop,
   isExportCSV,
 }: DataTableComponentProps<TData, TValue>) {
+  // data
+  const [dataTable, setDataTable] = useState<TData[]>(data);
+  useEffect(() => {
+    setDataTable(data);
+  }, [data]);
+
   // config
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -91,7 +97,7 @@ export function DataTableComponent<TData extends WithId, TValue>({
   };
 
   const table = useReactTable({
-    data,
+    data: dataTable,
     columns: [dragColumn, selectColumn, ...columns],
     getRowId: (row) => String(row.id),
     columnResizeMode: "onChange",
@@ -122,6 +128,12 @@ export function DataTableComponent<TData extends WithId, TValue>({
     }
   }, [rowSelection]);
 
+  useEffect(() => {
+    if (onDragAndDrop) {
+      onDragAndDrop(dataTable);
+    }
+  }, [dataTable, onDragAndDrop]);
+
   //   csv
   const handleExportCSV = () => {
     const selected = table.getSelectedRowModel().rows.map((r) => r.original);
@@ -139,8 +151,8 @@ export function DataTableComponent<TData extends WithId, TValue>({
       {/* table */}
       <div className="overflow-x-auto rounded-md border">
         <DragAndDropComponent
-          onDragEnd={(newData) => onDragAndDrop?.(newData as TData[])}
-          data={data}
+          onDragEnd={(newData) => setDataTable(newData as TData[])}
+          data={dataTable}
         >
           <Table>
             <TableHeader>

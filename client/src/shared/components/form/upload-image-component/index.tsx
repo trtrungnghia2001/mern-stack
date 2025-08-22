@@ -5,6 +5,7 @@ import {
   useState,
   type ChangeEvent,
   type FC,
+  type HTMLAttributes,
 } from "react";
 import { Button } from "../../ui/button";
 import { Upload, X } from "lucide-react";
@@ -16,9 +17,11 @@ type PreviewType = "avatar" | "thumbnail" | "image";
 interface IPreviewFile {
   type: "image" | "video";
   url: string;
+  width?: number;
+  height?: number;
 }
 
-interface UploadImageListComponentProps {
+interface UploadImageListComponentProps extends HTMLAttributes<HTMLElement> {
   data?: IPreviewFile[];
   onChangeFile?: (files: File[]) => void;
   accept?: string;
@@ -26,9 +29,8 @@ interface UploadImageListComponentProps {
   disabled?: boolean;
   previewType?: PreviewType;
   max?: number;
-  width?: number;
-  height?: number;
-  className?: string;
+  mediaWidth?: number;
+  mediaHeight?: number;
 }
 
 const UploadImageComponent: FC<UploadImageListComponentProps> = ({
@@ -39,8 +41,8 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
   disabled = false,
   previewType = "thumbnail",
   max,
-  width = 160,
-  height,
+  mediaWidth,
+  mediaHeight,
   className,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +82,6 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
       toast.error(`You can only upload up to ${max} files.`);
       return;
     }
-    console.log({ newFiles });
 
     setFiles(newFiles);
     onChangeFile?.(Array.from(newFiles));
@@ -99,11 +100,11 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
             <li
               key={idx}
               style={{
-                width: width,
-                height: height,
+                width: mediaWidth || media.width || 160,
+                height: mediaHeight || media.height || "auto",
               }}
               className={clsx([
-                "relative rounded overflow-hidden group border-4",
+                "relative rounded overflow-hidden group border-2",
                 previewType === "avatar" && "aspect-square !rounded-full",
                 previewType === "thumbnail" && "aspect-video ",
                 previewType === "image" && "aspect-[9/14] ",
@@ -112,20 +113,18 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
               <button
                 type="button"
                 onClick={() => handleRemoveImage(idx)}
-                className="absolute top-1 right-1 hidden group-hover:block"
+                className="absolute z-10 top-1 right-1 rounded-full overflow-hidden p-0.5 bg-gray-200 hidden group-hover:block"
               >
-                <X />
+                <X size={16} />
               </button>
-              {media.type === "video" && (
-                <video
-                  src={media.url}
-                  controls
-                  style={{ width: width, height: height }}
-                  className="rounded"
-                />
-              )}
+              {media.type === "video" && <video src={media.url} controls />}
               {media.type === "image" && (
-                <img src={media.url} alt={`preview-${idx}`} loading="lazy" />
+                <img
+                  src={media.url}
+                  alt={`preview-${idx}`}
+                  loading="lazy"
+                  className="img"
+                />
               )}
             </li>
           ))}

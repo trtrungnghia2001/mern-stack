@@ -162,7 +162,7 @@ const ProductDatatable = () => {
         }}
         isDragAndDrop
         onDragAndDrop={(newData) => {
-          setProducts(newData);
+          console.log({ newData });
         }}
         isExportCSV
       />

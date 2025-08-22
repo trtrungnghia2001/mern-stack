@@ -24,6 +24,7 @@ const AccountOverviewBox = () => {
               src={user.avatar || IMAGE_NOTFOUND.avatar_notfound}
               alt="avatar"
               loading="lazy"
+              className="img"
             />
           </div>
           <h3>

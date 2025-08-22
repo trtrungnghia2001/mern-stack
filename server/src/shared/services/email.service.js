@@ -47,7 +47,7 @@ export const sendPasswordResetEmail = async (email, resetUrl) => {
       email: email,
       subject: "Password Reset Request",
       templateName: "password-reset.ejs", // Tên template
-      templateData: { resetUrl: resetUrl }, // Dữ liệu truyền vào template
+      templateData: { resetUrl }, // Dữ liệu truyền vào template
     });
   } catch (error) {
     console.error("Error sending password reset email:", error);

@@ -65,7 +65,8 @@
   body {
     @apply bg-background text-foreground text-sm leading-tight;
   }
-  img {
+  .img,
+  .video {
     @apply object-cover origin-center w-full h-full block;
   }
 }

@@ -36,7 +36,6 @@ const DragAndDropComponent = <T extends WithId>({
   };
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    console.log({ activeId, active, over });
 
     if (!active || !over || active.id === over?.id) return;
 
