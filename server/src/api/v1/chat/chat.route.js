@@ -1,20 +1,89 @@
 import express from "express";
-import chatModel from "./chat.model.js";
-import { deleteFromCloudinary } from "#server/shared/services/cloudinary.service";
+import { chatMessageModel } from "./chat.model.js";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "#server/shared/services/cloudinary.service";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import upload from "#server/configs/multer.config";
+import {
+  checkRommAdminMiddleware,
+  checkRommOwneMiddleware,
+} from "./chat.middleware.js";
+import {
+  chatRoomCreate,
+  chatRoomIdAddMember,
+  chatRoomIdDelete,
+  chatRoomIdRemoveMember,
+  chatRoomIdUpdate,
+} from "./chatRoom.controller.js";
 
 const chatRouter = express.Router();
 
+// room
+chatRouter.post("/room/create", chatRoomCreate);
+
+chatRouter.put(
+  "/room/:roomId/update",
+  checkRommOwneMiddleware,
+  upload.single("avatar"),
+  chatRoomIdUpdate
+);
+
+chatRouter.delete("/room/:roomId", checkRommOwneMiddleware, chatRoomIdDelete);
+
+chatRouter.put(
+  "/room/:roomId/add-member",
+  checkRommAdminMiddleware,
+  chatRoomIdAddMember
+);
+
+chatRouter.put(
+  "/room/:roomId/remove-member",
+  checkRommAdminMiddleware,
+  chatRoomIdRemoveMember
+);
+
+chatRouter.put(
+  "/room/:roomId/transfer-owner",
+  checkRommAdminMiddleware,
+  async (req, res, next) => {
+    try {
+      const { roomId } = req.params;
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+chatRouter.put("/room/:roomId/leave", async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+  } catch (error) {
+    next(error);
+  }
+});
+
+chatRouter.put("/room/:roomId/set-role", async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+  } catch (error) {
+    next(error);
+  }
+});
+
+// message
 chatRouter.get("/room/:roomId", async (req, res, next) => {
   try {
     const { roomId } = req.params;
 
-    const messages = await chatModel.find({ roomId }).populate(["sender"]);
+    const messages = await chatMessageModel
+      .find({ roomId })
+      .populate(["sender"]);
 
     return handleResponseList(res, {
       status: StatusCodes.OK,
@@ -43,7 +112,7 @@ chatRouter.post(
       let filesUpload = [];
       if (files && files.length > 0) {
       }
-      const newMessage = await chatModel.create({
+      const newMessage = await chatMessageModel.create({
         roomId,
         sender,
         message,
@@ -63,7 +132,7 @@ chatRouter.post(
 chatRouter.delete("/delete-message/:messageId", async (req, res, next) => {
   try {
     const { messageId } = req.params;
-    const deletedMessage = await chatModel.findByIdAndDelete(messageId);
+    const deletedMessage = await chatMessageModel.findByIdAndDelete(messageId);
 
     if (deletedMessage.file.url) {
       await deleteFromCloudinary(deletedMessage.file.url);

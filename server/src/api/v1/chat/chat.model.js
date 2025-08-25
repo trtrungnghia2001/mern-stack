@@ -1,8 +1,10 @@
 import mongoose, { Schema } from "mongoose";
+import { ROLE } from "./chat.constant.js";
 
-const chatSchema = new mongoose.Schema(
+// message
+const chatMessageSchema = new mongoose.Schema(
   {
-    roomId: { type: String, require: true },
+    room: { type: Schema.Types.ObjectId, ref: "chatRoom", require: true },
     sender: { type: Schema.Types.ObjectId, ref: "user", require: true },
     message: String,
     files: [
@@ -17,6 +19,32 @@ const chatSchema = new mongoose.Schema(
   }
 );
 
-const chatModel = mongoose.models.chat || mongoose.model("chat", chatSchema);
+export const chatMessageModel =
+  mongoose.models.chatMessage ||
+  mongoose.model("chatMessage", chatMessageSchema);
 
-export default chatModel;
+// room
+const chatRoomSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    avatar: String,
+    description: String,
+    members: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "user" },
+        role: {
+          type: String,
+          enum: Object.values(ROLE.MEMBER),
+          default: ROLE.MEMBER,
+        },
+      },
+    ],
+    isGroup: { type: Boolean, default: true }, // có thể phân biệt phòng nhóm hay 1-1 chat
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const chatRoomModel =
+  mongoose.models.chatRoom || mongoose.model("chatRoom", chatRoomSchema);
