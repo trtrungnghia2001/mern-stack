@@ -1,151 +1,82 @@
 import express from "express";
-import { chatMessageModel } from "./chat.model.js";
-import {
-  deleteFromCloudinary,
-  uploadToCloudinary,
-} from "#server/shared/services/cloudinary.service";
-import {
-  handleResponse,
-  handleResponseList,
-} from "#server/shared/utils/response.util";
-import { StatusCodes } from "http-status-codes";
 import upload from "#server/configs/multer.config";
+import { checkRommRoleMiddleware } from "./chat.middleware.js";
+import { ROOM_ROLE } from "./chat.constant.js";
 import {
-  checkRommAdminMiddleware,
-  checkRommOwneMiddleware,
-} from "./chat.middleware.js";
-import {
-  chatRoomCreate,
-  chatRoomIdAddMember,
-  chatRoomIdDelete,
-  chatRoomIdRemoveMember,
-  chatRoomIdUpdate,
+  chatRoomCreateController,
+  chatRoomIdAddMemberController,
+  chatRoomIdConversationsController,
+  chatRoomIdDeleteController,
+  chatRoomIdLeaveController,
+  chatRoomIdRemoveMemberController,
+  chatRoomIdSetRoleController,
+  chatRoomIdTransferOwnerController,
+  chatRoomIdUpdateController,
 } from "./chatRoom.controller.js";
+import {
+  chatMessageDeleteMessageIdController,
+  chatMessageRoomIdController,
+  chatMessageSendMessageController,
+} from "./chatMessage.controller.js";
 
 const chatRouter = express.Router();
 
 // room
-chatRouter.post("/room/create", chatRoomCreate);
+chatRouter.post("/room/create", chatRoomCreateController);
 
 chatRouter.put(
   "/room/:roomId/update",
-  checkRommOwneMiddleware,
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
   upload.single("avatar"),
-  chatRoomIdUpdate
+  chatRoomIdUpdateController
 );
 
-chatRouter.delete("/room/:roomId", checkRommOwneMiddleware, chatRoomIdDelete);
+chatRouter.delete(
+  "/room/:roomId",
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
+  chatRoomIdDeleteController
+);
 
 chatRouter.put(
   "/room/:roomId/add-member",
-  checkRommAdminMiddleware,
-  chatRoomIdAddMember
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER, ROOM_ROLE.ADMIN]),
+  chatRoomIdAddMemberController
 );
 
 chatRouter.put(
   "/room/:roomId/remove-member",
-  checkRommAdminMiddleware,
-  chatRoomIdRemoveMember
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
+  chatRoomIdRemoveMemberController
 );
+
+chatRouter.put("/room/:roomId/leave", chatRoomIdLeaveController);
 
 chatRouter.put(
   "/room/:roomId/transfer-owner",
-  checkRommAdminMiddleware,
-  async (req, res, next) => {
-    try {
-      const { roomId } = req.params;
-    } catch (error) {
-      next(error);
-    }
-  }
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
+  chatRoomIdTransferOwnerController
 );
 
-chatRouter.put("/room/:roomId/leave", async (req, res, next) => {
-  try {
-    const { roomId } = req.params;
-  } catch (error) {
-    next(error);
-  }
-});
+chatRouter.put(
+  "/room/:roomId/set-role",
+  checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
+  chatRoomIdSetRoleController
+);
 
-chatRouter.put("/room/:roomId/set-role", async (req, res, next) => {
-  try {
-    const { roomId } = req.params;
-  } catch (error) {
-    next(error);
-  }
-});
+chatRouter.get("/room/conversations", chatRoomIdConversationsController);
 
 // message
-chatRouter.get("/room/:roomId", async (req, res, next) => {
-  try {
-    const { roomId } = req.params;
+chatRouter.get("/message/room/:roomId", chatMessageRoomIdController);
 
-    const messages = await chatMessageModel
-      .find({ roomId })
-      .populate(["sender"]);
-
-    return handleResponseList(res, {
-      status: StatusCodes.OK,
-      message: "Get messages successfully!",
-      data: messages,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-chatRouter.get("/conversations", async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-});
 chatRouter.post(
-  "/send-message",
+  "/message/send-message",
   upload.array("files"),
-  async (req, res, next) => {
-    try {
-      const { roomId, message } = req.body;
-      const files = req.files;
-      const sender = req.user._id;
-
-      let filesUpload = [];
-      if (files && files.length > 0) {
-      }
-      const newMessage = await chatMessageModel.create({
-        roomId,
-        sender,
-        message,
-        files: filesUpload,
-      });
-
-      return handleResponse(res, {
-        status: StatusCodes.CREATED,
-        message: "Message sent successfully!",
-        data: newMessage,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  chatMessageSendMessageController
 );
-chatRouter.delete("/delete-message/:messageId", async (req, res, next) => {
-  try {
-    const { messageId } = req.params;
-    const deletedMessage = await chatMessageModel.findByIdAndDelete(messageId);
 
-    if (deletedMessage.file.url) {
-      await deleteFromCloudinary(deletedMessage.file.url);
-    }
-
-    return handleResponse(res, {
-      status: StatusCodes.OK,
-      message: "Delete message successfully!",
-      data: deletedMessage,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+chatRouter.delete(
+  "/message/delete-message/:messageId",
+  chatMessageDeleteMessageIdController
+);
 
 export default chatRouter;

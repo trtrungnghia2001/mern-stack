@@ -12,7 +12,7 @@ export const authMiddleware = async (req, res, next) => {
 
     if (tokenCookies) {
       // Ưu tiên lấy từ cookie nếu có
-      accessToken = req.cookies.access_token.split(" ")?.[1]; // Loại bỏ "Bearer "
+      accessToken = tokenCookies.split(" ")?.[1]; // Loại bỏ "Bearer "
     } else if (tokenHeader) {
       // Lấy từ Authorization header nếu không có trong cookie
       accessToken = tokenHeader.split(" ")?.[1]; // Loại bỏ "Bearer "

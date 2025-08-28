@@ -1,4 +1,4 @@
-export const ROLE = {
+export const ROOM_ROLE = {
   OWNER: "owner",
   ADMIN: "admin",
   MEMBER: "member",
@@ -6,4 +6,5 @@ export const ROLE = {
 };
 export const ROOM_TYPE = {
   GROUP: "group",
+  DIRECT: "direct",
 };

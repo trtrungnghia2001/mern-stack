@@ -16,6 +16,8 @@ export const uploadToCloudinary = async (file) => {
 };
 
 export const deleteFromCloudinary = async (url) => {
+  if (!url?.startsWith("http://res.cloudinary.com")) return;
+
   const parts = new URL(url).pathname.split("/");
   const fileName = parts[parts.length - 1]; // e.g. abcdefg.jpg
   const folder = parts[parts.length - 2]; // e.g. your-folder

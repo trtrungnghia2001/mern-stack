@@ -6,6 +6,7 @@ export default {
     extend: {
       fontSize: {
         xxs: "10px",
+        13: "13px",
       },
       borderRadius: {
         lg: "var(--radius)",

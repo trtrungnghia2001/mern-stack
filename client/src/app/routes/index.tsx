@@ -8,6 +8,7 @@ import AuthProtectedRoute from "./AuthProtectedRoute";
 import UpdateMeForm from "@/features/auth/components/UpdateMeForm";
 import ChangePasswordForm from "@/features/auth/components/ChangePasswordForm";
 import UploadPage from "../pages/upload-page";
+import ChatPage from "@/features/chat/pages";
 
 const MainRouter = () => {
   return (
@@ -33,6 +34,8 @@ const MainRouter = () => {
         </Route>
         {/* admin */}
       </Route>
+
+      <Route path="chat" element={<ChatPage />} />
     </Routes>
   );
 };
