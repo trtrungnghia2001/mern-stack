@@ -4,7 +4,7 @@ import { timeAgo } from "../utils/time";
 
 const MessageCard = ({ data }: { data: IChatRoom }) => {
   return (
-    <div key={data._id} className="flex items-center gap-3 p-4 py-2">
+    <div className="flex items-center gap-3 p-4 py-2">
       <div className="relative">
         <div className="w-8 aspect-square rounded-full overflow-hidden">
           <img

@@ -5,14 +5,49 @@ import { timeAgo } from "../utils/time";
 import type { IChatMessage } from "../types/chat.type";
 import clsx from "clsx";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { Button } from "@/shared/components/ui/button";
+import { Phone, Video } from "lucide-react";
+
+const user = useAuthStore.getState().user;
 
 const MessageContainer = () => {
   return (
-    <div className="flex flex-col h-screen w-full p-4">
+    <div className="flex flex-col h-screen w-full space-y-4">
       {/* header */}
-      <div></div>
+      <div className="p-4 border-b flex items-center justify-between gap-8 shadow">
+        {/*  */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-8 aspect-square rounded-full overflow-hidden">
+              <img
+                src={user?.avatar}
+                alt="avatar"
+                loading="lazy"
+                className="img"
+              />
+            </div>
+            <div className="absolute bottom-0 right-0 outline outline-white w-2 aspect-square rounded-full bg-green-500"></div>
+          </div>
+          <div className="flex-1">
+            <h4 className="font-medium line-clamp-1">{user?.name}</h4>
+            <div className="mt-0.5 text-green-500">online</div>
+          </div>
+        </div>
+        {/*  */}
+        <div className="space-x-2">
+          <Button size={"sm"} variant={"outline"}>
+            <Video />
+          </Button>
+          <Button size={"sm"} variant={"outline"}>
+            <Phone />
+          </Button>
+          <Button size={"sm"} variant={"outline"}>
+            <Video />
+          </Button>
+        </div>
+      </div>
       {/* messages */}
-      <ul className="flex-1 overflow-y-auto py-4 space-y-6">
+      <ul className="flex-1 overflow-y-auto space-y-6 px-4">
         {dataMess.map((item) => (
           <li key={item._id}>
             <MessageItem data={item} />
@@ -58,7 +93,7 @@ const MessageItem = ({ data }: { data: IChatMessage }) => {
           <div
             className={clsx([
               `border rounded p-2 w-max`,
-              isYour ? "ml-auto" : "mr-auto",
+              isYour ? "ml-auto bg-gray-100" : "mr-auto",
             ])}
           >
             {data.message}
