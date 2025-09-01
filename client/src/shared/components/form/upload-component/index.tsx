@@ -21,7 +21,7 @@ interface IPreviewFile {
   height?: number;
 }
 
-interface UploadImageListComponentProps extends HTMLAttributes<HTMLElement> {
+interface UploadComponentProps extends HTMLAttributes<HTMLElement> {
   data?: IPreviewFile[];
   onChangeFile?: (files: File[]) => void;
   accept?: string;
@@ -33,7 +33,7 @@ interface UploadImageListComponentProps extends HTMLAttributes<HTMLElement> {
   mediaHeight?: number;
 }
 
-const UploadImageComponent: FC<UploadImageListComponentProps> = ({
+const UploadComponent: FC<UploadComponentProps> = ({
   data,
   onChangeFile,
   accept,
@@ -100,7 +100,7 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
             <li
               key={idx}
               style={{
-                width: mediaWidth || media.width || 160,
+                width: mediaWidth || media.width || 120,
                 height: mediaHeight || media.height || "auto",
               }}
               className={clsx([
@@ -152,4 +152,4 @@ const UploadImageComponent: FC<UploadImageListComponentProps> = ({
   );
 };
 
-export default memo(UploadImageComponent);
+export default memo(UploadComponent);

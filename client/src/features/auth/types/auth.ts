@@ -64,31 +64,25 @@ export interface IAuthStore {
   isAuthenticated: boolean;
 
   // --- Actions ---
-  signup: (data: ISignupDTO) => Promise<ResponseSuccessType<IUser> | undefined>;
+  signup: (data: ISignupDTO) => Promise<ResponseSuccessType<IUser>>;
   signin: (
     data: ISigninDTO
-  ) => Promise<ResponseSuccessType<ISigninResponseData> | undefined>;
-  signout: () => Promise<ResponseSuccessType | undefined>;
-  forgotPassword: (
-    data: IForgotPasswordDTO
-  ) => Promise<ResponseSuccessType | undefined>;
-  resetPassword: (
-    data: IResetPasswordDTO
-  ) => Promise<ResponseSuccessType | undefined>;
+  ) => Promise<ResponseSuccessType<ISigninResponseState>>;
+  signout: () => Promise<ResponseSuccessType>;
+  forgotPassword: (data: IForgotPasswordDTO) => Promise<ResponseSuccessType>;
+  resetPassword: (data: IResetPasswordDTO) => Promise<ResponseSuccessType>;
   signinWithSocialMedia: (social: SocialMediaType) => void;
   signinWithSocialMediaSuccess: () => Promise<
-    ResponseSuccessType<ISigninResponseData> | undefined
+    ResponseSuccessType<ISigninResponseState>
   >;
   updateMe: (
     data: IUpdateMeDTO | FormData
-  ) => Promise<ResponseSuccessType<IUser> | undefined>;
-  getMe: () => Promise<ResponseSuccessType<IUser> | undefined>;
-  changePassword: (
-    data: IChangePasswordDTO
-  ) => Promise<ResponseSuccessType | undefined>;
+  ) => Promise<ResponseSuccessType<IUser>>;
+  getMe: () => Promise<ResponseSuccessType<IUser>>;
+  changePassword: (data: IChangePasswordDTO) => Promise<ResponseSuccessType>;
 }
 
-export interface ISigninResponseData {
+export interface ISigninResponseState {
   access_token: string;
   user: IUser;
 }

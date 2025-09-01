@@ -4,7 +4,7 @@ import {
   uploadArrayFileApi,
   uploadSingleFileApi,
 } from "@/features/upload/apis/uploadApi";
-import UploadImageComponent from "@/shared/components/form/upload-image-component";
+import UploadComponent from "@/shared/components/form/upload-component";
 import { Button } from "@/shared/components/ui/button";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -100,7 +100,7 @@ const UploadPage = () => {
         className="space-y-4 border-t pt-4"
       >
         <label htmlFor="">Single File</label>
-        <UploadImageComponent
+        <UploadComponent
           onChangeFile={(e) => setSingleFile(e[0])}
           accept="image/*, video/*"
           disabled={submitSingleFileResult.isPending}
@@ -118,7 +118,7 @@ const UploadPage = () => {
         className="space-y-4 border-t pt-4"
       >
         <label htmlFor="">Array File</label>
-        <UploadImageComponent
+        <UploadComponent
           previewType="image"
           multiple
           onChangeFile={(e) => setArrayFile(e)}

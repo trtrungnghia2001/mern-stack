@@ -91,12 +91,7 @@ const SigninForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <Link to={`/forgot-password`} className="text-sm underline">
-                  Forgot your password?
-                </Link>
-              </div>
+              <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input {...field} type="password" />
               </FormControl>
@@ -112,9 +107,17 @@ const SigninForm = () => {
         >
           Submit
         </Button>
+        <div>
+          <Link
+            to={`/auth/forgot-password`}
+            className="text-sm underline text-center block"
+          >
+            Forgot your password?
+          </Link>
+        </div>
         <div className="text-center text-sm">
           Already have account?{" "}
-          <Link to={`/signup`} className="underline underline-offset-4">
+          <Link to={`/auth/signup`} className="underline underline-offset-4">
             Sign up
           </Link>
         </div>

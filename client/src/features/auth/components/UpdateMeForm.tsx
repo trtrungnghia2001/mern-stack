@@ -26,7 +26,7 @@ import {
 } from "@/shared/components/ui/select";
 import { gender_options } from "../constants/options";
 import type { IOption } from "../types/options";
-import UploadImageComponent from "@/shared/components/form/upload-image-component";
+import UploadComponent from "@/shared/components/form/upload-component";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -109,7 +109,7 @@ const UpdateMeForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <UploadImageComponent
+        <UploadComponent
           previewType="avatar"
           data={[form.getValues("avatar")]
             .filter(Boolean)
@@ -186,6 +186,7 @@ const UpdateMeForm = () => {
               }}
             />
           ))}
+
         <Button
           disabled={submitResult.isPending}
           type="submit"

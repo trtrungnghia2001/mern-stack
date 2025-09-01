@@ -5,10 +5,15 @@ import clsx from "clsx";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import { useMutation } from "@tanstack/react-query";
+import { useMessageStore } from "../stores/message.store";
+import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 const size = 16;
 
 const MessageInput = () => {
+  const { id } = useParams();
   const {
     transcript,
     listening,
@@ -20,7 +25,6 @@ const MessageInput = () => {
   const [showEmoji, setShowEmoji] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
   const inputFileRef = useRef<HTMLInputElement | null>(null);
-  console.log({ files });
 
   const handleMicClick = () => {
     if (!browserSupportsSpeechRecognition) {
@@ -43,8 +47,32 @@ const MessageInput = () => {
     }
   }, [listening]);
 
+  const { sendMess } = useMessageStore();
+  const submitResult = useMutation({
+    mutationFn: async () => {
+      if (!files && !message) return;
+      const formData = new FormData();
+
+      formData.append("message", message);
+      formData.append("roomId", id as string);
+
+      if (files && files?.length > 0) {
+        Array.from(files).forEach((file) => formData.append("files", file));
+      }
+
+      return await sendMess(formData);
+    },
+    onSuccess: () => {
+      setMessage("");
+      setFiles(null);
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
   return (
-    <div className="px-4 pb-4 relative top-0">
+    <div className="relative top-0">
       {showEmoji && (
         <div className={`absolute bottom-full right-4`}>
           <EmojiPicker
@@ -88,7 +116,7 @@ const MessageInput = () => {
         >
           <Mic size={size} />
         </button>
-        <button>
+        <button onClick={() => submitResult.mutate()}>
           <Send size={size} />
         </button>
       </div>

@@ -157,13 +157,7 @@ const ProductDatatable = () => {
             : 0,
         }}
         isSelect
-        onSelect={(rows) => {
-          console.log(rows);
-        }}
         isDragAndDrop
-        onDragAndDrop={(newData) => {
-          console.log({ newData });
-        }}
         isExportCSV
       />
     </div>

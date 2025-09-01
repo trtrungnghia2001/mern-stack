@@ -50,7 +50,7 @@ const chatRoomSchema = new Schema(
     lastMessage: { type: Schema.Types.ObjectId, ref: "chatMessage" },
 
     // if group
-    name: { type: String, required: true },
+    name: { type: String, required: true, default: "" },
     avatar: String,
     description: String,
   },

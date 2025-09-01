@@ -10,7 +10,7 @@ export async function chatMessageRoomIdController(req, res, next) {
     const { roomId } = req.params;
 
     const messages = await chatMessageModel
-      .find({ roomId })
+      .find({ room: roomId })
       .populate(["sender"]);
 
     return handleResponseList(res, {
@@ -32,16 +32,21 @@ export async function chatMessageSendMessageController(req, res, next) {
     let filesUpload = [];
     if (files && files.length > 0) {
     }
-    const newMessage = await chatMessageModel.create({
-      roomId,
+
+    let newMessage = await chatMessageModel.create({
+      room: roomId,
       sender,
       message,
       files: filesUpload,
     });
 
+    newMessage = await chatMessageModel
+      .findById(newMessage._id)
+      .populate(["sender"]);
+
     return handleResponse(res, {
       status: StatusCodes.CREATED,
-      message: "Message sent successfully!",
+      message: "Message send successfully!",
       data: newMessage,
     });
   } catch (error) {

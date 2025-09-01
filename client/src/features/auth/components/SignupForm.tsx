@@ -60,7 +60,7 @@ const SignupForm = () => {
     },
     onSuccess(data) {
       toast.success(data?.message);
-      navigate("/signin");
+      navigate("/auth/signin");
     },
     onError(error) {
       toast.error(error.message);
@@ -129,9 +129,17 @@ const SignupForm = () => {
         >
           Submit
         </Button>
+        <div>
+          <Link
+            to={`/auth/forgot-password`}
+            className="text-sm underline text-center block"
+          >
+            Forgot your password?
+          </Link>
+        </div>
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link to={`/signin`} className="underline underline-offset-4">
+          <Link to={`/auth/signin`} className="underline underline-offset-4">
             Sign in
           </Link>
         </div>

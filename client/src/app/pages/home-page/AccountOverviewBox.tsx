@@ -6,6 +6,30 @@ import { IMAGE_NOTFOUND } from "@/shared/constants/image.constanr";
 import { memo } from "react";
 import { Link } from "react-router-dom";
 
+const links = [
+  {
+    path: "auth/profile",
+    title: "Hồ sơ của tôi",
+  },
+  {
+    path: "auth/update-me",
+    title: "Cập nhật thông tin",
+  },
+  {
+    path: "auth/change-password",
+    title: "Đổi mật khẩu",
+  },
+  //
+  {
+    path: "upload",
+    title: "Upload",
+  },
+  {
+    path: "chat",
+    title: "Chat",
+  },
+];
+
 const AccountOverviewBox = () => {
   const { user } = useAuthStore();
   return (
@@ -37,25 +61,16 @@ const AccountOverviewBox = () => {
         {user ? (
           <SignoutButton />
         ) : (
-          <Link to="/signin">
+          <Link to="/auth/signin">
             <Button>Đăng nhập</Button>
           </Link>
         )}
-        <Link to="/me/profile">
-          <Button>Hồ sơ của tôi</Button>
-        </Link>
-        <Link to="/me/update-me">
-          <Button>Cập nhật thông tin</Button>
-        </Link>
-        <Link to="/me/change-password">
-          <Button>Đổi mật khẩu</Button>
-        </Link>
-        <Link to="/upload">
-          <Button>Upload</Button>
-        </Link>
-        <Link to="/chat">
-          <Button>Chat</Button>
-        </Link>
+        {links.map((item) => (
+          <Link to={item.path} key={item.path}>
+            <Button>{item.title}</Button>
+          </Link>
+        ))}
+
         <ThemeButton />
       </div>
     </div>

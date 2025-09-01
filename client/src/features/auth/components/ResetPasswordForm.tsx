@@ -67,7 +67,7 @@ const ResetPasswordForm = () => {
     },
     onSuccess(data) {
       toast.success(data?.message);
-      navigate("/signin");
+      navigate("/auth/signin");
     },
     onError(error) {
       toast.error(error.message);

@@ -80,16 +80,17 @@ export const schemaResetPassword = Joi.object({
 // Schema cập nhật thông tin người dùng
 export const schemaUpdateMe = Joi.object({
   name: Joi.string().trim().min(3).max(50).optional(),
-  gender: Joi.string().optional(),
+  gender: Joi.string().allow("").optional(),
   avatar: Joi.string().uri().allow("").optional(), // Xác thực URL
   phoneNumber: Joi.string()
     .length(10)
     .pattern(/^[0-9]+$/)
+    .allow("")
     .optional(), // Ví dụ cho số điện thoại 10 chữ số
-  address: Joi.string().optional(),
-  birthday: Joi.date().optional(), // Xác thực định dạng ngày
-  work: Joi.string().optional(),
-  education: Joi.string().optional(),
-  bio: Joi.string().max(255).optional(), // Giới hạn độ dài bio
-  link_website: Joi.string().uri().optional(), // Xác thực URL
+  address: Joi.string().allow("").optional(),
+  birthday: Joi.date().allow("").optional(), // Xác thực định dạng ngày
+  work: Joi.string().allow("").optional(),
+  education: Joi.string().allow("").optional(),
+  bio: Joi.string().max(255).allow("").optional(), // Giới hạn độ dài bio
+  link_website: Joi.string().allow("").uri().optional(), // Xác thực URL
 });

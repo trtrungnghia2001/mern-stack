@@ -3,7 +3,10 @@ import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "#server/shared/services/cloudinary.service";
-import { handleResponse } from "#server/shared/utils/response.util";
+import {
+  handleResponse,
+  handleResponseList,
+} from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import { ROOM_ROLE } from "./chat.constant.js";
 
@@ -11,6 +14,8 @@ export async function chatRoomCreateController(req, res, next) {
   try {
     const body = req.body;
     const ownerId = req.user._id;
+    const file = req.file;
+
     body.members = [
       {
         user: ownerId,
@@ -18,7 +23,19 @@ export async function chatRoomCreateController(req, res, next) {
       },
     ];
 
-    const newRoom = await chatRoomModel.create(body);
+    let avatar = body.avatar;
+    if (file) {
+      avatar = (await uploadToCloudinary(file)).url;
+      if (body.avatar) {
+        await deleteFromCloudinary(body.avatar);
+      }
+    }
+
+    const newRoom = await chatRoomModel.create({
+      ...body,
+      avatar,
+      type: "group",
+    });
 
     return handleResponse(res, {
       status: StatusCodes.CREATED,
@@ -244,14 +261,21 @@ export async function chatRoomIdSetRoleController(req, res, next) {
     next(error);
   }
 }
-export async function chatRoomIdConversationsController(req, res, next) {
+export async function chatRoomConversationsController(req, res, next) {
   try {
     const user = req.user;
+    const _type = req.query._type || "group";
+
     const rooms = await chatRoomModel
       .find({
-        "members.user": user._id,
+        type: _type,
       })
-      .select(["members.user", "lastMessage"])
+      //   .find(
+      //     {
+      //     "members.user": user._id,
+      //   }
+      // )
+      .populate(["members.user", "lastMessage"])
       .sort({ updatedAt: -1 });
 
     return handleResponseList(res, {

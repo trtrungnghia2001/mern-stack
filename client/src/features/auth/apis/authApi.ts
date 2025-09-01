@@ -7,7 +7,7 @@ import type {
   IForgotPasswordDTO,
   IResetPasswordDTO,
   ISigninDTO,
-  ISigninResponseData,
+  ISigninResponseState,
   ISignupDTO,
   IUpdateMeDTO,
   IUser,
@@ -22,7 +22,7 @@ export async function signupApi(data: ISignupDTO) {
 export async function signinApi(data: ISigninDTO) {
   const url = baseUrl + `/signin`;
   return (
-    await instance.post<ResponseSuccessType<ISigninResponseData>>(url, data)
+    await instance.post<ResponseSuccessType<ISigninResponseState>>(url, data)
   ).data;
 }
 export async function signoutApi() {
@@ -40,7 +40,7 @@ export async function resetPasswordApi(data: IResetPasswordDTO) {
 export async function signinWithSocialMediaSuccessApi() {
   const url = baseUrl + `/passport/signin-success`;
   return (
-    await instance.get<ResponseSuccessType<ISigninResponseData>>(url, {
+    await instance.get<ResponseSuccessType<ISigninResponseState>>(url, {
       withCredentials: true,
     })
   ).data;

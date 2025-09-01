@@ -3,9 +3,9 @@ import upload from "#server/configs/multer.config";
 import { checkRommRoleMiddleware } from "./chat.middleware.js";
 import { ROOM_ROLE } from "./chat.constant.js";
 import {
+  chatRoomConversationsController,
   chatRoomCreateController,
   chatRoomIdAddMemberController,
-  chatRoomIdConversationsController,
   chatRoomIdDeleteController,
   chatRoomIdLeaveController,
   chatRoomIdRemoveMemberController,
@@ -22,12 +22,16 @@ import {
 const chatRouter = express.Router();
 
 // room
-chatRouter.post("/room/create", chatRoomCreateController);
+chatRouter.post(
+  "/room/create",
+  upload.single("avatarFile"),
+  chatRoomCreateController
+);
 
 chatRouter.put(
   "/room/:roomId/update",
   checkRommRoleMiddleware([ROOM_ROLE.OWNER]),
-  upload.single("avatar"),
+  upload.single("avatarFile"),
   chatRoomIdUpdateController
 );
 
@@ -63,7 +67,7 @@ chatRouter.put(
   chatRoomIdSetRoleController
 );
 
-chatRouter.get("/room/conversations", chatRoomIdConversationsController);
+chatRouter.get("/room/conversations", chatRoomConversationsController);
 
 // message
 chatRouter.get("/message/room/:roomId", chatMessageRoomIdController);
