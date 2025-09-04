@@ -16,7 +16,7 @@ export async function generateAuthTokensAndSetCookies(res, payload) {
     maxAge: parseInt(ENV_CONFIG.JWT_SECRET_EXPIRES),
   });
   addCookie(res, "refresh_token", refresh_token, {
-    maxAge: parseInt(ENV_CONFIG.JWT_SECRET_EXPIRES),
+    maxAge: parseInt(ENV_CONFIG.JWT_REFRESH_SECRET_EXPIRES),
   });
 
   // Lưu Refresh Token vào database

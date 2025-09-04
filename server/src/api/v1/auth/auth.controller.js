@@ -232,7 +232,7 @@ export async function forgotPasswordController(req, res, next) {
     await user.save();
 
     // --- Gửi email cho người dùng ---
-    const resetUrl = `${ENV_CONFIG.URL_CLIENT}/reset-password?token=${resetToken}`; // URL của frontend để đặt lại mật khẩu
+    const resetUrl = `${ENV_CONFIG.URL_CLIENT}/auth/reset-password?token=${resetToken}`; // URL của frontend để đặt lại mật khẩu
     await sendPasswordResetEmail(user.email, resetUrl);
 
     return handleResponse(res, {
