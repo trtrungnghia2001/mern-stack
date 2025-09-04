@@ -23,10 +23,11 @@ const ChatList = () => {
       if (location.pathname.includes("group")) {
         return await roomConversationsApi();
       }
+      return await roomConversationsApi();
     },
   });
   return (
-    <div className="max-w-xs w-full rounded border h-screen overflow-hidden flex flex-col">
+    <div className="max-w-xs w-full border h-full overflow-hidden flex flex-col">
       {/* header */}
       <div className="p-4">
         <div className="flex items-center justify-between mb-6">
@@ -59,7 +60,7 @@ const ChatList = () => {
       </div>
 
       {/* contact */}
-      <ul>
+      <ul className="flex-1 overflow-y-auto pb-4">
         {getConversationsResult.data?.data.map((item) => (
           <li key={item._id}>
             <ContactCard data={item} type="group" />

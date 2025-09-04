@@ -270,11 +270,6 @@ export async function chatRoomConversationsController(req, res, next) {
       .find({
         type: _type,
       })
-      //   .find(
-      //     {
-      //     "members.user": user._id,
-      //   }
-      // )
       .populate(["members.user", "lastMessage"])
       .sort({ updatedAt: -1 });
 

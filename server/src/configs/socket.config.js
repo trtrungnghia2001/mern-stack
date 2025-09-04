@@ -37,7 +37,9 @@ export async function connectIo() {
       socket.disconnect();
       return;
     }
+
     onlineUserMap.set(authId, socket.id);
+    io.emit("onlineUsers", Array.from(onlineUserMap.keys()));
 
     socket.on("disconnect", function () {
       console.log(`Soket disconnect:: `, socket.id);
@@ -46,8 +48,5 @@ export async function connectIo() {
       // cap nhat lai user dang online
       io.emit("onlineUsers", Array.from(onlineUserMap.keys()));
     });
-
-    // gui user dang online
-    io.emit("onlineUsers", Array.from(onlineUserMap.keys()));
   });
 }

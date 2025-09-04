@@ -24,6 +24,7 @@ export const useMessageStore = create<IChatMessageStore>()((set, get) => ({
   },
   deleteMessId: async (id) => {
     const resp = await messageDeleteIdApi(id);
+
     set({
       messages: get().messages.filter((item) => item._id !== resp.data._id),
     });

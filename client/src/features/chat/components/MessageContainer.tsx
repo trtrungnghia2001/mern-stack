@@ -32,7 +32,7 @@ const MessageContainer = () => {
   return (
     <div className="flex flex-col h-full w-full space-y-4">
       {/* header */}
-      <div className="border-b pb-4 flex items-center justify-between gap-8">
+      <div className="border-b p-4 flex items-center justify-between gap-8">
         {/*  */}
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -65,7 +65,7 @@ const MessageContainer = () => {
         </div>
       </div>
       {/* messages */}
-      <ul className="flex-1 overflow-y-auto space-y-6 px-4 -mx-4">
+      <ul className="flex-1 overflow-y-auto space-y-6 px-4">
         {getMessageResult.data?.data.concat(messages).map((item) => (
           <li key={item._id}>
             <MessageCard data={item} />

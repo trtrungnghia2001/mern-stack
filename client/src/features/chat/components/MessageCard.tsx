@@ -4,9 +4,22 @@ import { useAuthStore } from "@/features/auth/stores/auth.store";
 import clsx from "clsx";
 import { timeAgo } from "../utils/time";
 import { IMAGE_NOTFOUND } from "@/shared/constants/image.constanr";
+import { EllipsisVertical } from "lucide-react";
+import { useMessageStore } from "../stores/message.store";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const MessageCard = ({ data }: { data: IChatMessage }) => {
   const isYour = data.sender._id === useAuthStore.getState().user?._id;
+  const { deleteMessId } = useMessageStore();
+
+  const deleteMessIdResult = useMutation({
+    mutationFn: async () => await deleteMessId(data._id),
+    onError(error) {
+      toast.error(error.message);
+    },
+  });
+
   return (
     <div
       key={data._id}
@@ -23,7 +36,7 @@ const MessageCard = ({ data }: { data: IChatMessage }) => {
           className="img"
         />
       </div>
-      <div className="flex-1">
+      <div className="w-max">
         {data.files.length > 0 && (
           <ul className="grid grid-cols-3 gap-2 mb-2">
             {data.files.map((item) => (
@@ -52,6 +65,9 @@ const MessageCard = ({ data }: { data: IChatMessage }) => {
           {timeAgo(data.createdAt)}
         </p>
       </div>
+      <button onClick={() => deleteMessIdResult.mutate()}>
+        <EllipsisVertical size={12} />
+      </button>
     </div>
   );
 };

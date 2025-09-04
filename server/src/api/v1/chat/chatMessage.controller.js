@@ -3,7 +3,7 @@ import {
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
-import { chatMessageModel } from "./chat.model.js";
+import { chatMessageModel, chatRoomModel } from "./chat.model.js";
 
 export async function chatMessageRoomIdController(req, res, next) {
   try {
@@ -44,6 +44,11 @@ export async function chatMessageSendMessageController(req, res, next) {
       .findById(newMessage._id)
       .populate(["sender"]);
 
+    // update lastMessage in chatRoomModel
+    await chatRoomModel.findByIdAndUpdate(roomId, {
+      lastMessage: newMessage._id,
+    });
+
     return handleResponse(res, {
       status: StatusCodes.CREATED,
       message: "Message send successfully!",
@@ -59,8 +64,12 @@ export async function chatMessageDeleteMessageIdController(req, res, next) {
     const { messageId } = req.params;
     const deletedMessage = await chatMessageModel.findByIdAndDelete(messageId);
 
-    if (deletedMessage.file.url) {
-      await deleteFromCloudinary(deletedMessage.file.url);
+    if (Array.isArray(deletedMessage.files)) {
+      await Promise.all(
+        deletedMessage.files
+          .filter((file) => file.url)
+          .map((file) => deleteFromCloudinary(file.url))
+      );
     }
 
     return handleResponse(res, {

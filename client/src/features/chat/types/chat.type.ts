@@ -23,7 +23,7 @@ export interface IChatRoom {
   description?: string;
   type: string; // từ ROOM_TYPE
   members: { user: IUser; role: string }[];
-  lastMessage?: string; // hoặc full message object nếu populate
+  lastMessage?: IChatMessage;
   createdAt: string;
   updatedAt: string;
 }

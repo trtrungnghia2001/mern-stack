@@ -25,11 +25,13 @@ const nav = [
 
 const SideNavigate = () => {
   return (
-    <div className="p-4 flex flex-col items-center">
+    <div className="p-4 flex flex-col items-center h-full">
+      {/* logo */}
       <Link to={`/`} className="mb-8 text-blue-500 font-medium inline-block">
         <Bot size={28} />
       </Link>
 
+      {/* nav */}
       <ul className="space-y-4 h-full">
         {nav.map((item) => (
           <li key={item.label}>
@@ -49,6 +51,7 @@ const SideNavigate = () => {
         ))}
       </ul>
 
+      {/* theme and logout */}
       <ul className="space-y-4">
         <li>
           <button>
