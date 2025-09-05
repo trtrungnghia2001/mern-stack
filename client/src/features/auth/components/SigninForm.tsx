@@ -12,7 +12,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import type { ISigninDTO } from "../types/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
@@ -33,8 +33,7 @@ const initValues: ISigninDTO = {
 };
 
 const SigninForm = () => {
-  const navigate = useNavigate();
-  const { redirectTo, setRedirectTo } = useRedirectContext();
+  const { handleRedirectWhenSignInSuccess } = useRedirectContext();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,16 +53,7 @@ const SigninForm = () => {
     },
     onSuccess(data) {
       toast.success(data?.message);
-      if (redirectTo) {
-        navigate(redirectTo.pathname + redirectTo.search, { replace: true });
-        setRedirectTo(null);
-      } else {
-        if (data?.data.user.role === "admin") {
-          navigate(`/admin`, { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
-      }
+      handleRedirectWhenSignInSuccess(data.data.user);
     },
     onError(error) {
       toast.error(error.message);

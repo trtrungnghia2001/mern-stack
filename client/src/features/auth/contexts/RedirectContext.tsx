@@ -1,19 +1,16 @@
 // RedirectContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useLocation, type Location } from "react-router-dom";
-
-type RedirectType = Location | null;
+import { useLocation, useNavigate, type Location } from "react-router-dom";
+import type { IUser } from "../types/auth";
 
 // Xác định rõ kiểu context
 interface IRedirectContext {
-  redirectTo: RedirectType;
-  setRedirectTo: (loc: RedirectType) => void;
+  handleRedirectWhenSignInSuccess: (data: IUser) => void;
 }
 
 // Mặc định initial context
 const RedirectContext = createContext<IRedirectContext>({
-  redirectTo: null,
-  setRedirectTo: () => {},
+  handleRedirectWhenSignInSuccess: () => {},
 });
 
 const authPaths = [
@@ -29,10 +26,11 @@ export const RedirectProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [redirectTo, setRedirectTo] = useState<RedirectType>(() => {
+  const [redirectTo, setRedirectTo] = useState<Location | null>(() => {
     const storedRedirect = sessionStorage.getItem("redirectTo");
     return storedRedirect ? JSON.parse(storedRedirect) : null;
   });
+  const navigate = useNavigate();
   const location = useLocation();
 
   // Kiểm tra nếu đường dẫn hiện tại không phải là một trong các đường dẫn auth
@@ -57,8 +55,21 @@ export const RedirectProvider = ({
     }
   }, [redirectTo]);
 
+  const handleRedirectWhenSignInSuccess = (data: IUser) => {
+    if (redirectTo) {
+      navigate(redirectTo.pathname + redirectTo.search, { replace: true });
+      setRedirectTo(null);
+    } else {
+      if (data.role === "admin") {
+        navigate(`/admin`, { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  };
+
   return (
-    <RedirectContext.Provider value={{ redirectTo, setRedirectTo }}>
+    <RedirectContext.Provider value={{ handleRedirectWhenSignInSuccess }}>
       {children}
     </RedirectContext.Provider>
   );

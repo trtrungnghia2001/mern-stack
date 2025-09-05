@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { Toaster } from "./shared/components/ui/sonner";
 import { useAuthStore } from "./features/auth/stores/auth.store";
 import { useEffect } from "react";
@@ -7,25 +6,13 @@ import { useRedirectContext } from "./features/auth/contexts/RedirectContext";
 
 const App = () => {
   const { user, signinWithSocialMediaSuccess } = useAuthStore();
-  const { redirectTo, setRedirectTo } = useRedirectContext();
-  const navigate = useNavigate();
+  const { handleRedirectWhenSignInSuccess } = useRedirectContext();
 
   useEffect(() => {
     if (!user) {
       (async () => {
         await signinWithSocialMediaSuccess().then((data) => {
-          if (redirectTo) {
-            navigate(redirectTo.pathname + redirectTo.search, {
-              replace: true,
-            });
-            setRedirectTo(null);
-          } else {
-            if (data?.data.user.role === "admin") {
-              navigate(`/admin`, { replace: true });
-            } else {
-              navigate("/", { replace: true });
-            }
-          }
+          handleRedirectWhenSignInSuccess(data.data.user);
         });
       })();
     }

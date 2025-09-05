@@ -41,8 +41,6 @@ const userSchema = new mongoose.Schema(
     // passport
     providerGoogle: {
       type: String,
-      unique: true,
-      spares: true,
     },
 
     // token
