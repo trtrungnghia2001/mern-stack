@@ -28,6 +28,10 @@ const links = [
     path: "chat",
     title: "Chat",
   },
+  {
+    path: "kanban",
+    title: "Kanban",
+  },
 ];
 
 const AccountOverviewBox = () => {

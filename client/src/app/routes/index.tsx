@@ -6,7 +6,7 @@ import NotFoundPage from "../pages/notfound-page";
 //
 import AuthRouter from "@/features/auth";
 import UploadRouter from "@/features/upload";
-import ChatRouter from "@/features/chat";
+import KanbanRouter from "@/features/kanban";
 
 const MainRouter = () => {
   return (
@@ -15,13 +15,14 @@ const MainRouter = () => {
       <Route index element={<HomePage />} />
       <Route path="search" element={<SearchPage />} />
       <Route path="*" element={<NotFoundPage />} />
-
       {/* auth */}
       <Route path="auth/*" element={<AuthRouter />} />
       {/* upload */}
       <Route path="upload/*" element={<UploadRouter />} />
       {/* chat */}
-      <Route path="chat/*" element={<ChatRouter />} />
+      {/* comment */}
+      {/* kanban */}
+      <Route path="kanban/*" element={<KanbanRouter />} />
       {/* me */}
     </Routes>
   );
