@@ -19,6 +19,10 @@ interface ITaskStore {
   getAll: () => Promise<ResponseSuccessListType<ITask>>;
   setTasks: (data: ITask[]) => void;
   updatePosition: (data: ITask[]) => Promise<ResponseSuccessListType<ITask>>;
+
+  //
+  // todoAddItem: (data: ITask) => void;
+  // todoRemoveItemById: (id: string) => void;
 }
 
 const baseUrl = `/api/v1/kanban/task`;

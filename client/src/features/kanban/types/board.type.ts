@@ -1,13 +1,13 @@
 export interface ICreateDTO {
   name: string;
-  board: string;
+  bgColor: number;
 }
-export interface IUpdateDTO {
-  name: string;
-}
+
 export interface IBoard {
   _id: string;
   name: string;
+  bgColor: number;
+  position: number;
 
   favorite: boolean;
 

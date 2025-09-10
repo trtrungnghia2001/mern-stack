@@ -9,6 +9,7 @@ import WorkspaceMemberPage from "./pages/WorkspaceMemberPage";
 import WorkspaceSettingPage from "./pages/WorkspaceSettingPage";
 import WorkspacePayPage from "./pages/WorkspacePayPage";
 import BoardIdPage from "./pages/BoardIdPage";
+import TaskModel from "./components/TaskModel";
 
 const KanbanRouter = () => {
   const routers = useRoutes([
@@ -20,8 +21,14 @@ const KanbanRouter = () => {
           element: <BoardsPage />,
         },
         {
-          path: "board/:id",
+          path: "board/:boardId",
           element: <BoardIdPage />,
+          children: [
+            {
+              path: "task/:taskId",
+              element: <TaskModel />,
+            },
+          ],
         },
         {
           path: "templates",

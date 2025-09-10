@@ -2,11 +2,17 @@ import { Clock3, Star, Trello } from "lucide-react";
 import BoardCard from "../components/BoardCard";
 import ButtonBoardNew from "../components/ButtonBoardNew";
 import { useBoardStore } from "../stores/board.store";
+import { useQuery } from "@tanstack/react-query";
 
 const size = 20;
 
 const BoardsPage = () => {
-  const { boards } = useBoardStore();
+  const { boards, getAll } = useBoardStore();
+  const getAllResult = useQuery({
+    queryKey: ["boards"],
+    queryFn: async () => await getAll(),
+  });
+
   return (
     <div>
       {/* Star Board */}
@@ -15,7 +21,7 @@ const BoardsPage = () => {
           <Star size={size} />
           <span>Star Board</span>
         </div>
-        <ul className="grid gap-4 grid-cols-4">
+        <ul className="grid gap-4 grid-cols-5">
           {boards
             .filter((item) => item.favorite)
             .map((item) => (
@@ -31,7 +37,7 @@ const BoardsPage = () => {
           <Clock3 size={size} />
           <span>Recently Viewed</span>
         </div>
-        <ul className="grid gap-4 grid-cols-4">
+        <ul className="grid gap-4 grid-cols-5">
           {boards.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />
@@ -45,7 +51,7 @@ const BoardsPage = () => {
           <Trello size={size} />
           <span>Trello Workspace</span>
         </div>
-        <ul className="grid gap-4 grid-cols-4">
+        <ul className="grid gap-4 grid-cols-5">
           {boards.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />

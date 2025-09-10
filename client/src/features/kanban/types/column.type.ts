@@ -9,9 +9,10 @@ export interface IColumn {
   _id: string;
   name: string;
 
-  board: string;
   position: number;
   bgColor: number;
+
+  board: string;
 
   createdAt: string;
   updatedAt: string;

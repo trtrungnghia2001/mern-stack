@@ -1,7 +1,9 @@
 import { ListTodo } from "lucide-react";
 import type { ITodo } from "../types/task.type";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { v4 } from "uuid";
+import { useTaskStore } from "../stores/task.store";
+import { useParams } from "react-router-dom";
 
 interface TaskModelTodoListProps {
   todos: ITodo[];
@@ -18,6 +20,9 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
 
   const [openInput, setOpenInput] = useState(false);
 
+  const { taskId } = useParams();
+  const { updateById } = useTaskStore();
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
@@ -26,9 +31,11 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
       </div>
       <ul className="space-y-3">
         {todos.map((item) => (
-          <li key={item._id} className="flex gap-3">
-            <input type="checkbox" checked={item.complete} />
-            <div>{item.name}</div>
+          <li key={item._id}>
+            <label htmlFor={item._id} className="flex gap-3">
+              <input id={item._id} type="checkbox" checked={item.complete} />
+              <span>{item.name}</span>
+            </label>
           </li>
         ))}
         <li>
@@ -38,6 +45,10 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
                 type="text"
                 placeholder="Add an item"
                 className="focus:border-blue-500 border-2 outline-none rounded px-3 py-2 w-full"
+                value={todo.name}
+                onChange={(e) =>
+                  setTodo((prev) => ({ ...prev, name: e.target.value }))
+                }
               />
               <div className="mt-2 space-x-1">
                 <button
@@ -74,4 +85,4 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
   );
 };
 
-export default TaskModelTodoList;
+export default memo(TaskModelTodoList);

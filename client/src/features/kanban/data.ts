@@ -68,15 +68,15 @@ export const columns: IColumn[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
-  {
-    _id: "650c82d48a84511a7a67f19c",
-    name: "Ideas",
-    board: "650c82a48a84511a7a67f198",
-    position: 1,
-    bgColor: 2,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
+  // {
+  //   _id: "650c82d48a84511a7a67f19c",
+  //   name: "Ideas",
+  //   board: "650c82a48a84511a7a67f198",
+  //   position: 1,
+  //   bgColor: 2,
+  //   createdAt: new Date().toISOString(),
+  //   updatedAt: new Date().toISOString(),
+  // },
 ];
 //
 const defaultContent = `

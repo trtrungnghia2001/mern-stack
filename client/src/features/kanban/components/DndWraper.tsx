@@ -11,16 +11,22 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import React, { memo, useState, type FC } from "react";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { memo, useState, type FC } from "react";
 import type { IActiveId } from "../types/index.type";
 import ColumnCard from "./ColumnCard";
 import TaskCard from "./TaskCard";
 import type { IColumn } from "../types/column.type";
 import type { ITask } from "../types/task.type";
+import SortableItem from "./SortableItem";
+import ButtonColumnNew from "./ButtonColumnNew";
 
 interface DndWraperProps {
-  children: React.ReactNode;
   //
   columns: IColumn[];
   setColumns: (columns: IColumn[]) => void;
@@ -29,8 +35,6 @@ interface DndWraperProps {
 }
 
 const DndWraper: FC<DndWraperProps> = ({
-  children,
-
   columns,
   setColumns,
   tasks,
@@ -131,6 +135,8 @@ const DndWraper: FC<DndWraperProps> = ({
     setActiveId(null);
   };
 
+  //
+
   return (
     <DndContext
       collisionDetection={closestCenter}
@@ -139,7 +145,26 @@ const DndWraper: FC<DndWraperProps> = ({
       onDragMove={onDragMove}
       onDragEnd={onDragEnd}
     >
-      {children}
+      <ul className="flex gap-3 p-3">
+        <SortableContext
+          items={columns.map((item) => item._id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {columns.map((column) => {
+            const tasksColumn = tasks.filter(
+              (task) => task.column === column._id
+            );
+            return (
+              <SortableItem key={column._id} id={column._id} type="column">
+                <ColumnCard column={column} tasks={tasksColumn} />
+              </SortableItem>
+            );
+          })}
+        </SortableContext>
+        <li>
+          <ButtonColumnNew />
+        </li>
+      </ul>
       {activeId && (
         <DragOverlay>
           {activeId.type === "column" && (

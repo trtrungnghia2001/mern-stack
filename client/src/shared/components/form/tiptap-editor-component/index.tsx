@@ -12,6 +12,8 @@ import {
   Minus,
   Undo2,
   Redo2,
+  Code,
+  Code2,
 } from "lucide-react";
 
 interface TiptapEditorComponentProps {
@@ -21,7 +23,7 @@ interface TiptapEditorComponentProps {
 const TiptapEditorComponent = ({ content }: TiptapEditorComponentProps) => {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: content,
+    content,
   });
 
   if (!editor) return null;
@@ -72,6 +74,18 @@ const TiptapEditorComponent = ({ content }: TiptapEditorComponentProps) => {
       isActive: () => editor.isActive("blockquote"),
     },
     {
+      icon: <Code size={sizeIcon} />,
+      title: "Inline Code",
+      action: () => editor.chain().focus().toggleCode().run(),
+      isActive: () => editor.isActive("code"),
+    },
+    {
+      icon: <Code2 size={sizeIcon} />,
+      title: "Code Block",
+      action: () => editor.chain().focus().toggleCodeBlock().run(),
+      isActive: () => editor.isActive("codeBlock"),
+    },
+    {
       icon: <Minus size={sizeIcon} />,
       title: "Horizontal Rule",
       action: () => editor.chain().focus().setHorizontalRule().run(),
@@ -109,10 +123,7 @@ const TiptapEditorComponent = ({ content }: TiptapEditorComponentProps) => {
       {/* Editor */}
       <EditorContent
         editor={editor}
-        className="prose max-w-none outline-none border-none focus:outline-none focus:ring-0 
-        [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 
-        [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 
-        [&_blockquote]:pl-4 [&_blockquote]:italic"
+        className="tiptap prose max-w-none outline-none focus:outline-none focus:ring-0"
       />
     </div>
   );

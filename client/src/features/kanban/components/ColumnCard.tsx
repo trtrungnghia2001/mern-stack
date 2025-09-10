@@ -37,7 +37,11 @@ const ColumnCard = ({ column, tasks }: ColumnCardProps) => {
       }}
     >
       <div className="flex items-center gap-2 px-2">
-        <span className="flex-1 p-3">{column.name}</span>
+        <input
+          type="text"
+          value={column.name}
+          className="bg-transparent px-2 outline-none flex-1"
+        />
         <ColumnCardMenu />
       </div>
       <ul className="px-2 space-y-2  overflow-y-auto">
@@ -62,12 +66,12 @@ const ColumnCard = ({ column, tasks }: ColumnCardProps) => {
             />
 
             <div className="flex items-stretch gap-2">
-              <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-lg">
+              <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg">
                 Add card
               </button>
               <button
                 onClick={handleClose}
-                className="hover:bg-gray-400/50 py-2 px-3 rounded-lg"
+                className="hover:bg-gray-400/50 px-3 py-1.5 rounded-lg"
               >
                 <X size={16} />
               </button>
@@ -78,7 +82,7 @@ const ColumnCard = ({ column, tasks }: ColumnCardProps) => {
             onClick={() => setOpen(true)}
             className={clsx([
               `flex items-center gap-2 w-full py-2 px-3 rounded-lg`,
-              "hover:bg-white/70 py-2 px-3 rounded-lg",
+              "hover:bg-white/50 py-2 px-3 rounded-lg",
             ])}
           >
             <Plus size={16} /> <span>Add card</span>

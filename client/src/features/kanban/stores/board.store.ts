@@ -4,15 +4,14 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
-import { boards } from "../data";
-import type { IBoard, ICreateDTO, IUpdateDTO } from "../types/board.type";
+import type { IBoard, ICreateDTO } from "../types/board.type";
 
 interface IBoardStore {
   boards: IBoard[];
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<IBoard>>;
   updateById: (
     id: string,
-    data: IUpdateDTO
+    data: Partial<IBoard>
   ) => Promise<ResponseSuccessType<IBoard>>;
   deleteById: (id: string) => Promise<ResponseSuccessType<IBoard>>;
   getById: (id: string) => Promise<ResponseSuccessType<IBoard>>;
@@ -21,16 +20,16 @@ interface IBoardStore {
   updatePosition: (data: IBoard[]) => Promise<ResponseSuccessListType<IBoard>>;
 }
 
-const baseUrl = `/api/v1/kanban/task`;
+const baseUrl = `/api/v1/kanban/board`;
 
 export const useBoardStore = create<IBoardStore>((set, get) => ({
-  boards: boards,
+  boards: [],
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (await instance.post<ResponseSuccessType<IBoard>>(url, data))
       .data;
     set({
-      boards: [resp.data, ...get().boards],
+      boards: [...get().boards, resp.data],
     });
     return resp;
   },

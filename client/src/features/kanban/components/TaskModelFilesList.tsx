@@ -1,5 +1,5 @@
 import { Download, Paperclip, Trash } from "lucide-react";
-import React from "react";
+import React, { memo } from "react";
 import type { IFile } from "../types/task.type";
 
 interface TaskModelFilesListProps {
@@ -38,4 +38,4 @@ const TaskModelFilesList = ({ files }: TaskModelFilesListProps) => {
   );
 };
 
-export default TaskModelFilesList;
+export default memo(TaskModelFilesList);

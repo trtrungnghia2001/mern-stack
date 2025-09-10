@@ -9,7 +9,7 @@ import { ThemeProvider } from "./features/theme/contexts/theme.context.tsx";
 import { RedirectProvider } from "./features/auth/contexts/RedirectContext.tsx";
 
 // Create a client
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,

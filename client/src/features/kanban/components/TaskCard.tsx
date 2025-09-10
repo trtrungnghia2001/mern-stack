@@ -2,14 +2,16 @@ import { memo } from "react";
 import { SquarePen } from "lucide-react";
 import clsx from "clsx";
 import type { ITask } from "../types/task.type";
+import { Link, useParams } from "react-router-dom";
 
 interface TaskCardProps {
   task: ITask;
 }
 
 const TaskCard = ({ task }: TaskCardProps) => {
+  const { boardId } = useParams();
   return (
-    <div className="group py-2 px-3 shadow rounded-lg bg-white border hover:border-blue-500 relative">
+    <div className="group px-3 shadow rounded-lg bg-white border hover:border-blue-500 relative">
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -19,11 +21,20 @@ const TaskCard = ({ task }: TaskCardProps) => {
           ])}
           checked={task.complete}
         />
-        <div>{task?.name}</div>
+        <Link
+          to={`/kanban/board/${boardId}/task/${task._id}`}
+          className="block w-full py-2"
+        >
+          {task?.name}
+        </Link>
       </div>
-      <button className="hidden group-hover:block absolute top-1 right-1 p-1 rounded-full hover:bg-gray-200">
+
+      <Link
+        to={`/kanban/board/${boardId}/task/${task._id}`}
+        className="hidden group-hover:block absolute top-1 right-1 p-1 rounded-full hover:bg-gray-200"
+      >
         <SquarePen size={14} />
-      </button>
+      </Link>
     </div>
   );
 };
