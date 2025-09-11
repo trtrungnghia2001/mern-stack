@@ -1,4 +1,7 @@
-import { uploadToCloudinary } from "#server/shared/services/cloudinary.service";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "#server/shared/services/cloudinary.service";
 import { handleResponse } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import { getMediaByType } from "./upload.service.js";
@@ -60,6 +63,24 @@ export async function uploadArrayController(req, res, next) {
     return handleResponse(res, {
       status: StatusCodes.OK,
       message: "Files uploaded successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+}
+export async function deleteFileController(req, res, next) {
+  try {
+    const { url } = req.body;
+
+    if (!url) return res.status(400).json({ message: "No url" });
+
+    const result = await deleteFromCloudinary(url);
+
+    return handleResponse(res, {
+      status: StatusCodes.OK,
+      message: "Files deleted successfully",
       data: result,
     });
   } catch (error) {

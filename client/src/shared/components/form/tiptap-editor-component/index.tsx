@@ -15,16 +15,33 @@ import {
   Code,
   Code2,
 } from "lucide-react";
+import { useEffect } from "react";
 
 interface TiptapEditorComponentProps {
   content: string;
+  setContent: (value: string) => void;
 }
 
-const TiptapEditorComponent = ({ content }: TiptapEditorComponentProps) => {
+const TiptapEditorComponent = ({
+  content,
+  setContent,
+}: Partial<TiptapEditorComponentProps>) => {
   const editor = useEditor({
     extensions: [StarterKit],
     content,
+    onUpdate: ({ editor }) => {
+      if (setContent) {
+        setContent(editor.getHTML()); // gọi callback mỗi lần nội dung thay đổi
+      }
+    },
   });
+
+  // Đồng bộ khi prop `content` thay đổi từ ngoài vào
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || "");
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 

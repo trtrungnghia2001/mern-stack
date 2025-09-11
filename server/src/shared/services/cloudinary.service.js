@@ -27,7 +27,7 @@ export const deleteFromCloudinary = async (url) => {
     CLOUDINARY_CONFIG.uploader.destroy(publicId, (error, result) => {
       if (error) return reject(error);
       if (result.result !== "ok") return reject(new Error("Delete failed"));
-      resolve();
+      resolve(result);
     });
   });
 };

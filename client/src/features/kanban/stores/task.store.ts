@@ -5,18 +5,18 @@ import type {
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
 import { tasks } from "../data";
-import type { ICreateDTO, ITask, IUpdateDTO } from "../types/task.type";
+import type { ICreateDTO, ITask } from "../types/task.type";
 
 interface ITaskStore {
   tasks: ITask[];
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<ITask>>;
   updateById: (
     id: string,
-    data: IUpdateDTO
+    data: Partial<ITask> | FormData
   ) => Promise<ResponseSuccessType<ITask>>;
   deleteById: (id: string) => Promise<ResponseSuccessType<ITask>>;
   getById: (id: string) => Promise<ResponseSuccessType<ITask>>;
-  getAll: () => Promise<ResponseSuccessListType<ITask>>;
+  getAllByBoardId: (boardId: string) => Promise<ResponseSuccessListType<ITask>>;
   setTasks: (data: ITask[]) => void;
   updatePosition: (data: ITask[]) => Promise<ResponseSuccessListType<ITask>>;
 
@@ -34,7 +34,7 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
     const resp = (await instance.post<ResponseSuccessType<ITask>>(url, data))
       .data;
     set({
-      tasks: [resp.data, ...get().tasks],
+      tasks: [...get().tasks, resp.data],
     });
     return resp;
   },
@@ -61,8 +61,8 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
     const url = baseUrl + `/get-id/` + id;
     return (await instance.get<ResponseSuccessType<ITask>>(url)).data;
   },
-  getAll: async () => {
-    const url = baseUrl + `/get-all/`;
+  getAllByBoardId: async (boardId) => {
+    const url = baseUrl + `/get-all/board/` + boardId;
     const resp = (await instance.get<ResponseSuccessListType<ITask>>(url)).data;
     set({
       tasks: resp.data,

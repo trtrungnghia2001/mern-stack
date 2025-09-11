@@ -14,6 +14,10 @@ const ButtonColumnNew = () => {
   const { create } = useColumnStore();
   const createResult = useMutation({
     mutationFn: async (data: ICreateDTO) => await create(data),
+    onSuccess: () => {
+      setOpen(false);
+      setColumn(init);
+    },
   });
 
   const [open, setOpen] = useState(false);

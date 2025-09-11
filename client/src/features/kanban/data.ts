@@ -2,82 +2,82 @@ import type { IBoard } from "./types/board.type";
 import type { IColumn } from "./types/column.type";
 import type { IFile, ITask, ITodo } from "./types/task.type";
 
-export const boards: IBoard[] = [
-  {
-    _id: "650c829c8a84511a7a67f197",
-    name: "Project Management",
-    favorite: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c82a48a84511a7a67f198",
-    name: "Personal Tasks",
-    favorite: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c90008a84511a7a67f201",
-    name: "Learning",
-    favorite: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c90108a84511a7a67f202",
-    name: "Work Ideas",
-    favorite: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c90208a84511a7a67f203",
-    name: "Shopping List",
-    favorite: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// export const boards: IBoard[] = [
+//   {
+//     _id: "650c829c8a84511a7a67f197",
+//     name: "Project Management",
+//     favorite: true,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c82a48a84511a7a67f198",
+//     name: "Personal Tasks",
+//     favorite: false,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c90008a84511a7a67f201",
+//     name: "Learning",
+//     favorite: false,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c90108a84511a7a67f202",
+//     name: "Work Ideas",
+//     favorite: true,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c90208a84511a7a67f203",
+//     name: "Shopping List",
+//     favorite: false,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+// ];
 
-export const columns: IColumn[] = [
-  {
-    _id: "650c82b08a84511a7a67f199",
-    name: "Todo",
-    board: "650c829c8a84511a7a67f197",
-    position: 1,
-    bgColor: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c82bc8a84511a7a67f19a",
-    name: "In Progress",
-    board: "650c829c8a84511a7a67f197",
-    position: 2,
-    bgColor: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "650c82c88a84511a7a67f19b",
-    name: "Done",
-    board: "650c829c8a84511a7a67f197",
-    position: 3,
-    bgColor: 6,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // {
-  //   _id: "650c82d48a84511a7a67f19c",
-  //   name: "Ideas",
-  //   board: "650c82a48a84511a7a67f198",
-  //   position: 1,
-  //   bgColor: 2,
-  //   createdAt: new Date().toISOString(),
-  //   updatedAt: new Date().toISOString(),
-  // },
-];
+// export const columns: IColumn[] = [
+//   {
+//     _id: "650c82b08a84511a7a67f199",
+//     name: "Todo",
+//     board: "650c829c8a84511a7a67f197",
+//     position: 1,
+//     bgColor: 0,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c82bc8a84511a7a67f19a",
+//     name: "In Progress",
+//     board: "650c829c8a84511a7a67f197",
+//     position: 2,
+//     bgColor: 1,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     _id: "650c82c88a84511a7a67f19b",
+//     name: "Done",
+//     board: "650c829c8a84511a7a67f197",
+//     position: 3,
+//     bgColor: 6,
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   // {
+//   //   _id: "650c82d48a84511a7a67f19c",
+//   //   name: "Ideas",
+//   //   board: "650c82a48a84511a7a67f198",
+//   //   position: 1,
+//   //   bgColor: 2,
+//   //   createdAt: new Date().toISOString(),
+//   //   updatedAt: new Date().toISOString(),
+//   // },
+// ];
 //
 const defaultContent = `
 <h2>Giới thiệu Project Management App</h2>

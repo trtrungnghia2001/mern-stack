@@ -4,7 +4,6 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
-import { columns } from "../data";
 import type { IColumn, ICreateDTO, IUpdateDTO } from "../types/column.type";
 
 interface IColumnStore {
@@ -16,7 +15,9 @@ interface IColumnStore {
   ) => Promise<ResponseSuccessType<IColumn>>;
   deleteById: (id: string) => Promise<ResponseSuccessType<IColumn>>;
   getById: (id: string) => Promise<ResponseSuccessType<IColumn>>;
-  getAll: () => Promise<ResponseSuccessListType<IColumn>>;
+  getAllByBoardId: (
+    boardId: string
+  ) => Promise<ResponseSuccessListType<IColumn>>;
   setColumns: (data: IColumn[]) => void;
   updatePosition: (
     data: IColumn[]
@@ -26,13 +27,13 @@ interface IColumnStore {
 const baseUrl = `/api/v1/kanban/column`;
 
 export const useColumnStore = create<IColumnStore>((set, get) => ({
-  columns: columns,
+  columns: [],
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (await instance.post<ResponseSuccessType<IColumn>>(url, data))
       .data;
     set({
-      columns: [resp.data, ...get().columns],
+      columns: [...get().columns, resp.data],
     });
     return resp;
   },
@@ -60,8 +61,8 @@ export const useColumnStore = create<IColumnStore>((set, get) => ({
     const url = baseUrl + `/get-id/` + id;
     return (await instance.get<ResponseSuccessType<IColumn>>(url)).data;
   },
-  getAll: async () => {
-    const url = baseUrl + `/get-all/`;
+  getAllByBoardId: async (boardId) => {
+    const url = baseUrl + `/get-all/board/` + boardId;
     const resp = (await instance.get<ResponseSuccessListType<IColumn>>(url))
       .data;
     set({

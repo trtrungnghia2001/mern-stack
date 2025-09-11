@@ -1,6 +1,7 @@
 import upload from "#server/configs/multer.config";
 import express from "express";
 import {
+  deleteFileController,
   getMediaImageController,
   getMediaVideoController,
   uploadArrayController,
@@ -20,5 +21,7 @@ uploadRouter.post(
 );
 
 uploadRouter.post("/array", upload.array("arrayFile"), uploadArrayController);
+
+uploadRouter.post("/delete", deleteFileController);
 
 export default uploadRouter;

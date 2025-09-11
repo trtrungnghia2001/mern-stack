@@ -10,12 +10,26 @@ import { taskStatusOptions } from "../constants/option";
 import { useEffect, useState } from "react";
 import { queryClient } from "@/main";
 import type { IBoard } from "../types/board.type";
+import TextareaAutosize from "react-textarea-autosize";
 
 const BoardIdPage = () => {
   const { boardId } = useParams();
   const { getById, updateById } = useBoardStore();
-  const { tasks, setTasks, getAll: getTasks } = useTaskStore();
-  const { columns, setColumns, getAll: getColumns } = useColumnStore();
+  const { tasks, setTasks, getAllByBoardId: getTasks } = useTaskStore();
+  const { columns, setColumns, getAllByBoardId: getColumns } = useColumnStore();
+
+  // get task x column
+  const getColumnsAndTasksResult = useQuery({
+    queryKey: ["columns-tasks", boardId],
+    queryFn: async () => {
+      const [tasks, columns] = await Promise.all([
+        getTasks(boardId as string),
+        getColumns(boardId as string),
+      ]);
+
+      return { tasks, columns };
+    },
+  });
 
   // board
   const [boardName, setBoardName] = useState("");
@@ -36,7 +50,11 @@ const BoardIdPage = () => {
 
   useEffect(() => {
     // Không chạy khi component mount hoặc khi giá trị đã khớp
-    if (boardName === getBoardByIdResult?.data?.data.name || !boardId) {
+    if (
+      boardName === getBoardByIdResult?.data?.data.name ||
+      !boardId ||
+      !boardName
+    ) {
       return;
     }
     const timerId = setTimeout(() => {
@@ -56,6 +74,9 @@ const BoardIdPage = () => {
     }
   }, [getBoardByIdResult.data?.data]);
 
+  if (getBoardByIdResult.isLoading || getColumnsAndTasksResult.isLoading)
+    return <div>Loading...</div>;
+
   if (!getBoardByIdResult.data?.data || !boardId) return;
 
   return (
@@ -72,8 +93,7 @@ const BoardIdPage = () => {
         {/* header */}
         <div className="bg-white/25 text-white p-3 flex items-center justify-between">
           {/* left */}
-          <input
-            type="text"
+          <TextareaAutosize
             className="bg-transparent px-2 flex-1 outline-none text-base font-medium"
             value={boardName}
             onChange={(e) => {

@@ -1,16 +1,16 @@
 export interface ICreateDTO {
   name: string;
   column: string;
-}
-export interface IUpdateDTO {
-  name: string;
+  board: string;
 }
 export interface ITask {
   _id: string;
   name: string;
+  position: number;
+  bgUrl: string;
 
   column: string;
-  position: number;
+  board: string;
   complete: boolean;
 
   description: string;
@@ -20,14 +20,20 @@ export interface ITask {
   createdAt: string;
   updatedAt: string;
 }
-
+//
 export interface ITodo {
   _id: string;
   name: string;
   complete: boolean;
 }
-export interface IFile {
-  _id: string;
+export interface ITodoCreate {
   name: string;
+  complete: boolean;
+}
+
+export interface IFile {
+  asset_id: string;
   url: string;
+  created_at: string;
+  resource_type: string;
 }

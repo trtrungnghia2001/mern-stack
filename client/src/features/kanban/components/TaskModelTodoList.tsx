@@ -1,27 +1,54 @@
-import { ListTodo } from "lucide-react";
-import type { ITodo } from "../types/task.type";
-import { memo, useState } from "react";
-import { v4 } from "uuid";
-import { useTaskStore } from "../stores/task.store";
-import { useParams } from "react-router-dom";
+import { ListTodo, Trash } from "lucide-react";
+import type { ITodo, ITodoCreate } from "../types/task.type";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import clsx from "clsx";
 
 interface TaskModelTodoListProps {
   todos: ITodo[];
+
+  updateTodos: (todos: ITodo[]) => void;
 }
 
 const initTodo = {
-  _id: v4(),
   name: "",
   complete: false,
 };
 
-const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
-  const [todo, setTodo] = useState<ITodo>(initTodo);
+const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
+  const [todo, setTodo] = useState<ITodoCreate>(initTodo);
 
   const [openInput, setOpenInput] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (openInput && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [openInput]);
 
-  const { taskId } = useParams();
-  const { updateById } = useTaskStore();
+  const handleAdd = () => {
+    const newTodos = [...todos, todo] as ITodo[];
+    updateTodos(newTodos);
+    setTodo(initTodo);
+    setOpenInput(false);
+  };
+
+  const handleComplete = (id: string) => {
+    const newTodos = todos.map((item) =>
+      item._id === id ? { ...item, complete: !item.complete } : item
+    );
+    updateTodos(newTodos);
+  };
+
+  const handleRemove = (id: string) => {
+    const newTodos = todos.filter((item) => item._id !== id);
+    updateTodos(newTodos);
+  };
+
+  const percent = useMemo(() => {
+    const total = todos.length;
+    const completed = todos.filter((t) => t.complete).length;
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  }, [todos]);
 
   return (
     <div>
@@ -29,17 +56,52 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
         <ListTodo size={16} />
         <div className="font-bold text-base">Todo List</div>
       </div>
-      <ul className="space-y-3">
+      {/* Progress bar */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500">{percent}%</span>
+        <div className="flex-1 bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-500 h-2 rounded-full transition-all"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* list */}
+      <ul>
         {todos.map((item) => (
-          <li key={item._id}>
-            <label htmlFor={item._id} className="flex gap-3">
-              <input id={item._id} type="checkbox" checked={item.complete} />
-              <span>{item.name}</span>
+          <li
+            key={item._id}
+            className="flex items-center justify-between gap-6 border-b py-2"
+          >
+            <label htmlFor={item._id} className="flex gap-3 flex-1">
+              <input
+                id={item._id}
+                type="checkbox"
+                checked={item.complete}
+                onChange={() => handleComplete(item._id)}
+              />
+              <span
+                className={clsx([
+                  ``,
+                  item.complete &&
+                    `line-through decoration-blue-500 text-blue-500`,
+                ])}
+              >
+                {item.name}
+              </span>
             </label>
+
+            <button onClick={() => handleRemove(item._id)}>
+              <Trash
+                size={16}
+                className="hover:stroke-red-500 hover:fill-red-500 "
+              />
+            </button>
           </li>
         ))}
-        <li>
-          {openInput ? (
+        <li className="mt-2">
+          {openInput && (
             <>
               <input
                 type="text"
@@ -49,13 +111,11 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
                 onChange={(e) =>
                   setTodo((prev) => ({ ...prev, name: e.target.value }))
                 }
+                ref={inputRef}
               />
               <div className="mt-2 space-x-1">
                 <button
-                  onClick={() => {
-                    setOpenInput(false);
-                    setTodo(initTodo);
-                  }}
+                  onClick={handleAdd}
                   className="px-3 py-1.5 bg-blue-500 text-white rounded"
                 >
                   More
@@ -71,7 +131,8 @@ const TaskModelTodoList = ({ todos }: TaskModelTodoListProps) => {
                 </button>
               </div>
             </>
-          ) : (
+          )}
+          {!openInput && (
             <button
               onClick={() => setOpenInput(true)}
               className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded"

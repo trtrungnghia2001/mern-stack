@@ -1,22 +1,72 @@
-import { memo } from "react";
-import { Paperclip, X } from "lucide-react";
-import { tasks } from "../data";
+import { memo, useEffect, useRef, useState } from "react";
+import { ImageUp, Trash, X } from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
-import TiptapEditorComponent from "@/shared/components/form/tiptap-editor-component";
 import { useNavigate, useParams } from "react-router-dom";
-import TaskModelCommentList from "./TaskModelCommentList";
+import { useMutation } from "@tanstack/react-query";
+import { useTaskStore } from "../stores/task.store";
+import type { ITask } from "../types/task.type";
+import TaskModelDescription from "./TaskModelDescription";
+import TextareaAutosize from "react-textarea-autosize";
 
 const TaskModel = () => {
-  const { taskId } = useParams();
-  const taskData = tasks.find((item) => item._id === taskId);
-
+  //
   const navigate = useNavigate();
   const { boardId } = useParams();
-
   const closeModal = () => {
     navigate(`/kanban/board/${boardId}`);
   };
+  //
+  const { taskId } = useParams();
+  const { tasks, updateById, deleteById } = useTaskStore();
+
+  const task = tasks.find((item) => item._id === taskId);
+
+  const updateByIdResult = useMutation({
+    mutationFn: async (data: Partial<ITask> | FormData) =>
+      updateById(taskId as string, data),
+  });
+  const deleteByIdResult = useMutation({
+    mutationFn: async (id: string) => await deleteById(id),
+  });
+
+  // task name
+  const [taskName, setTaskName] = useState(task?.name);
+  useEffect(() => {
+    // Không chạy khi component mount hoặc khi giá trị đã khớp
+    if (taskName === task?.name || !taskName) {
+      return;
+    }
+    const timerId = setTimeout(() => {
+      // Gọi mutate với dữ liệu mới nhất
+      updateByIdResult.mutate({ name: taskName.trim() });
+    }, 500);
+
+    // Hàm dọn dẹp: Hủy timer cũ nếu boardName thay đổi
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [taskName, task?.name]);
+
+  // bgUrl
+  const inputBgRef = useRef<HTMLInputElement>(null);
+  const handleUploadClick = () => {
+    if (!inputBgRef.current) return;
+    inputBgRef.current.click();
+  };
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("singleFile", file);
+
+    updateByIdResult.mutate(formData);
+  };
+
+  //
+
+  if (!taskId || !task) return;
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex items-center justify-center">
@@ -28,19 +78,37 @@ const TaskModel = () => {
 
       {/* modal */}
       <div className="overflow-hidden relative flex flex-col max-w-[1080px] w-full max-h-[calc(100vh-32px)] rounded-lg bg-white shadow">
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 space-x-2">
+          <button
+            onClick={() => deleteByIdResult.mutate(taskId)}
+            className="rounded-full overflow-hidden p-1 bg-white/50 hover:bg-gray-300"
+          >
+            <Trash size={16} />
+          </button>
+          <button
+            onClick={handleUploadClick}
+            className="rounded-full overflow-hidden p-1 bg-white/50 hover:bg-gray-300"
+          >
+            <ImageUp size={16} />
+          </button>
+          <input
+            type="file"
+            className="hidden"
+            ref={inputBgRef}
+            onChange={handleFileChange}
+          />
           <button
             onClick={closeModal}
-            className="rounded-full overflow-hidden p-1 bg-white/50 hover:bg-white"
+            className="rounded-full overflow-hidden p-1 bg-white/50 hover:bg-gray-300"
           >
             <X size={16} />
           </button>
         </div>
 
         <div
-          className="min-h-40 w-full border-b"
+          className="min-h-40 max-h-40 w-full border-b"
           style={{
-            background: `url('https://giaytrekking.com/wp-content/uploads/2024/01/Nhung-dieu-co-ban-ve-nui-Phu-Si.jpg') no-repeat center center / cover`,
+            background: `url('${task.bgUrl}') no-repeat center center / cover`,
           }}
         ></div>
         <div className="flex-1 flex overflow-hidden">
@@ -48,30 +116,50 @@ const TaskModel = () => {
           <div className="w-[60%] p-7 border-r space-y-8 overflow-y-auto">
             {/* name */}
             <div className="flex items-center gap-3">
-              <input type="checkbox" checked={taskData.complete} />
-              <div className="font-bold text-xl">{taskData.name}</div>
+              <input
+                type="checkbox"
+                checked={task?.complete}
+                onChange={(e) =>
+                  updateByIdResult.mutate({
+                    complete: e.target.checked,
+                  })
+                }
+              />
+              <TextareaAutosize
+                className="bg-transparent px-2 flex-1 outline-none text-base font-medium"
+                value={taskName}
+                onChange={(e) => {
+                  setTaskName(e.target.value);
+                }}
+              />
             </div>
 
             {/* description */}
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <Paperclip size={16} />
-                <div className="font-bold text-base">Describe</div>
-              </div>
-              <TiptapEditorComponent content={taskData.description} />
-            </div>
+            <TaskModelDescription
+              value={task.description}
+              updateValue={(value) => {
+                updateByIdResult.mutate({ description: value });
+              }}
+            />
 
             {/* file */}
-            <TaskModelFilesList files={taskData.files} />
-
-            {/* todolist */}
-            <TaskModelTodoList todos={taskData.todos} />
+            <TaskModelFilesList
+              files={task?.files || []}
+              uploadFiles={(files) => {
+                updateByIdResult.mutate({ files: files });
+              }}
+            />
           </div>
 
           {/* right */}
-          <div className="w-[40%] p-4 overflow-y-auto bg-[#f8f8f8]">
-            {/* comment */}
-            <TaskModelCommentList />
+          <div className="w-[40%] p-7 overflow-y-auto ">
+            {/* todolist */}
+            <TaskModelTodoList
+              todos={task?.todos || []}
+              updateTodos={(todos) => {
+                updateByIdResult.mutate({ todos: todos });
+              }}
+            />
           </div>
         </div>
       </div>
