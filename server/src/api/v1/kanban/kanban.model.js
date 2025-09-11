@@ -56,6 +56,8 @@ const taskSchema = new mongoose.Schema(
     board: { type: Schema.Types.ObjectId, ref: "kanbanBoard" },
     complete: { type: Boolean, default: false },
     description: String,
+    startDate: String,
+    endDate: String,
     files: {
       type: Schema.Types.Mixed,
       default: [],

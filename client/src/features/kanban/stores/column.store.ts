@@ -78,7 +78,9 @@ export const useColumnStore = create<IColumnStore>((set, get) => ({
   updatePosition: async (data) => {
     const url = baseUrl + `/update-position`;
     const resp = (
-      await instance.post<ResponseSuccessListType<IColumn>>(url, data)
+      await instance.post<ResponseSuccessListType<IColumn>>(url, {
+        columns: data,
+      })
     ).data;
     return resp;
   },

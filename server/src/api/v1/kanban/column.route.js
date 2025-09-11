@@ -88,17 +88,19 @@ columnRoute.get(`/get-all/board/:boardId`, async (req, res, next) => {
 });
 columnRoute.post(`/update-position`, async (req, res, next) => {
   try {
-    const { boards } = req.body;
+    const { columns } = req.body;
+    console.log({ columns });
 
     const updateData = await columnModel.bulkWrite(
-      boards.map((b) => ({
+      columns.map((c, idx) => ({
         updateOne: {
-          filter: { _id: b._id },
-          update: { $set: { position: b.position } },
+          filter: { _id: c._id },
+          update: { $set: { position: idx } },
         },
       }))
     );
 
+    console.log({ columns, updateData });
     return handleResponseList(res, {
       data: updateData,
     });

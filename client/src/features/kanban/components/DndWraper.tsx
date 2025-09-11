@@ -25,6 +25,8 @@ import type { IColumn } from "../types/column.type";
 import type { ITask } from "../types/task.type";
 import SortableItem from "./SortableItem";
 import ButtonColumnNew from "./ButtonColumnNew";
+import { useTaskStore } from "../stores/task.store";
+import { useColumnStore } from "../stores/column.store";
 
 interface DndWraperProps {
   //
@@ -40,6 +42,10 @@ const DndWraper: FC<DndWraperProps> = ({
   tasks,
   setTasks,
 }) => {
+  //
+  const { updatePosition: updatePositionTasks } = useTaskStore();
+  const { updatePosition: updatePositionColumns } = useColumnStore();
+
   //
   const [activeId, setActiveId] = useState<IActiveId | null>(null);
 
@@ -128,11 +134,14 @@ const DndWraper: FC<DndWraperProps> = ({
     }
   };
 
-  const onDragEnd = (e: DragEndEvent) => {
+  const onDragEnd = async (e: DragEndEvent) => {
     const { active } = e;
     if (!active) return;
 
     setActiveId(null);
+
+    await updatePositionTasks(tasks);
+    await updatePositionColumns(columns);
   };
 
   //

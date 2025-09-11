@@ -8,6 +8,7 @@ import { useTaskStore } from "../stores/task.store";
 import type { ITask } from "../types/task.type";
 import TaskModelDescription from "./TaskModelDescription";
 import TextareaAutosize from "react-textarea-autosize";
+import TaskModelDate from "./TaskModelDate";
 
 const TaskModel = () => {
   //
@@ -78,6 +79,7 @@ const TaskModel = () => {
 
       {/* modal */}
       <div className="overflow-hidden relative flex flex-col max-w-[1080px] w-full max-h-[calc(100vh-32px)] rounded-lg bg-white shadow">
+        {/* actions */}
         <div className="absolute top-3 right-3 space-x-2">
           <button
             onClick={() => deleteByIdResult.mutate(taskId)}
@@ -152,7 +154,18 @@ const TaskModel = () => {
           </div>
 
           {/* right */}
-          <div className="w-[40%] p-7 overflow-y-auto ">
+          <div className="w-[40%] p-7 space-y-8 overflow-y-auto ">
+            {/* date */}
+            <TaskModelDate
+              startDate={task.startDate}
+              endDate={task.endDate}
+              updateDate={(date) =>
+                updateByIdResult.mutate({
+                  startDate: date.startDate,
+                  endDate: date.endDate,
+                })
+              }
+            />
             {/* todolist */}
             <TaskModelTodoList
               todos={task?.todos || []}

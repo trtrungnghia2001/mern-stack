@@ -1,6 +1,7 @@
 export const taskStatusOptions = [
-  { value: "all", label: "Tất cả" },
-  { value: "in_progress", label: "Đang thực hiện" },
-  { value: "completed", label: "Hoàn thành" },
-  { value: "on_hold", label: "Bị trì hoãn" },
+  { value: "0", label: "All" },
+  { value: "-1", label: "In Progress" },
+  { value: "1", label: "Complete" },
+  { value: "2", label: "On Hold" },
+  { value: "3", label: "Overdue" },
 ];

@@ -97,9 +97,23 @@ taskRoute.get(`/get-id/:id`, async (req, res, next) => {
 taskRoute.get(`/get-all/board/:boardId`, async (req, res, next) => {
   try {
     const { boardId } = req.params;
+    const _filter = req.query.filter;
+
+    let filter = {};
+    if (_filter === "-1") {
+      filter = { complete: false };
+    } else if (_filter === "1") {
+      filter = { complete: true };
+    } else if (_filter === "2") {
+      filter = { endDate: { $lt: new Date() } };
+    } else if (_filter === "3") {
+      filter = { endDate: { $gte: new Date() } };
+    }
+
     const data = await taskModel
       .find({
         board: boardId,
+        ...filter,
       })
       .sort({
         position: 1,
@@ -114,13 +128,13 @@ taskRoute.get(`/get-all/board/:boardId`, async (req, res, next) => {
 });
 taskRoute.post(`/update-position`, async (req, res, next) => {
   try {
-    const { boards } = req.body;
+    const { tasks } = req.body;
 
     const updateData = await taskModel.bulkWrite(
-      boards.map((b) => ({
+      tasks.map((t, idx) => ({
         updateOne: {
-          filter: { _id: b._id },
-          update: { $set: { position: b.position } },
+          filter: { _id: t._id },
+          update: { $set: { position: idx, column: t.column } },
         },
       }))
     );

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { queryClient } from "@/main";
 import type { IBoard } from "../types/board.type";
 import TextareaAutosize from "react-textarea-autosize";
+import useSearchParamsValue from "@/shared/hooks/useSearchParamsValue";
 
 const BoardIdPage = () => {
   const { boardId } = useParams();
@@ -19,11 +20,14 @@ const BoardIdPage = () => {
   const { columns, setColumns, getAllByBoardId: getColumns } = useColumnStore();
 
   // get task x column
+  const { searchParams, handleSearchParams } = useSearchParamsValue();
+  const filter = searchParams.get("filter") || taskStatusOptions[0].value;
+
   const getColumnsAndTasksResult = useQuery({
-    queryKey: ["columns-tasks", boardId],
+    queryKey: ["columns-tasks", boardId, searchParams.toString()],
     queryFn: async () => {
       const [tasks, columns] = await Promise.all([
-        getTasks(boardId as string),
+        getTasks(boardId as string, searchParams.toString()),
         getColumns(boardId as string),
       ]);
 
@@ -94,7 +98,7 @@ const BoardIdPage = () => {
         <div className="bg-white/25 text-white p-3 flex items-center justify-between">
           {/* left */}
           <TextareaAutosize
-            className="bg-transparent px-2 flex-1 outline-none text-base font-medium"
+            className="bg-transparent px-2 flex-1 outline-none text-base font-medium resize-none"
             value={boardName}
             onChange={(e) => {
               setBoardName(e.target.value);
@@ -106,6 +110,8 @@ const BoardIdPage = () => {
               name="filter-task"
               id="filter-task"
               className="bg-transparent text-sm outline-none border-none"
+              value={filter}
+              onChange={(e) => handleSearchParams("filter", e.target.value)}
             >
               {taskStatusOptions.map((item) => (
                 <option

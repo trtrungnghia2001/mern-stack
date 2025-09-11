@@ -12,6 +12,8 @@ export interface ITask {
   column: string;
   board: string;
   complete: boolean;
+  startDate: string;
+  endDate: string;
 
   description: string;
   files: IFile[];

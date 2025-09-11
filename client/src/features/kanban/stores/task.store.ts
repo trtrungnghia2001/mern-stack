@@ -16,13 +16,12 @@ interface ITaskStore {
   ) => Promise<ResponseSuccessType<ITask>>;
   deleteById: (id: string) => Promise<ResponseSuccessType<ITask>>;
   getById: (id: string) => Promise<ResponseSuccessType<ITask>>;
-  getAllByBoardId: (boardId: string) => Promise<ResponseSuccessListType<ITask>>;
+  getAllByBoardId: (
+    boardId: string,
+    query?: string
+  ) => Promise<ResponseSuccessListType<ITask>>;
   setTasks: (data: ITask[]) => void;
   updatePosition: (data: ITask[]) => Promise<ResponseSuccessListType<ITask>>;
-
-  //
-  // todoAddItem: (data: ITask) => void;
-  // todoRemoveItemById: (id: string) => void;
 }
 
 const baseUrl = `/api/v1/kanban/task`;
@@ -61,8 +60,8 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
     const url = baseUrl + `/get-id/` + id;
     return (await instance.get<ResponseSuccessType<ITask>>(url)).data;
   },
-  getAllByBoardId: async (boardId) => {
-    const url = baseUrl + `/get-all/board/` + boardId;
+  getAllByBoardId: async (boardId, query) => {
+    const url = baseUrl + `/get-all/board/` + boardId + "?" + query;
     const resp = (await instance.get<ResponseSuccessListType<ITask>>(url)).data;
     set({
       tasks: resp.data,
@@ -77,7 +76,7 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
   updatePosition: async (data) => {
     const url = baseUrl + `/update-position`;
     const resp = (
-      await instance.post<ResponseSuccessListType<ITask>>(url, data)
+      await instance.post<ResponseSuccessListType<ITask>>(url, { tasks: data })
     ).data;
     return resp;
   },
