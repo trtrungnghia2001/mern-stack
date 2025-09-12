@@ -2,9 +2,6 @@ export interface ICreateDTO {
   name: string;
   board: string;
 }
-export interface IUpdateDTO {
-  name: string;
-}
 export interface IColumn {
   _id: string;
   name: string;
@@ -13,6 +10,7 @@ export interface IColumn {
   bgColor: number;
 
   board: string;
+  save: boolean;
 
   createdAt: string;
   updatedAt: string;

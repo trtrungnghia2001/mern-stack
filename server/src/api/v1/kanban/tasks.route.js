@@ -18,7 +18,9 @@ taskRoute.post(`/create`, async (req, res, next) => {
     const user = req.user;
     const body = req.body;
 
-    const position = await taskModel.countDocuments({ user: user._id });
+    const position = await taskModel.countDocuments({ column: body.column });
+    console.log({ position });
+
     body.user = user._id;
     body.position = position;
 

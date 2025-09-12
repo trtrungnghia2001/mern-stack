@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 const KanbanSidebarLeft = () => {
   return (
-    <aside className="px-4 pt-10 max-w-[288px] w-full h-full">
+    <aside className="px-4 pt-10 w-[288px] min-h-[calc(100vh-48px)] h-full">
       <ul className="space-y-1 pb-1">
         {nav_links.map((item) => (
           <li key={item.title}>

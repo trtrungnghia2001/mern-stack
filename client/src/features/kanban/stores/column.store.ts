@@ -4,14 +4,14 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
-import type { IColumn, ICreateDTO, IUpdateDTO } from "../types/column.type";
+import type { IColumn, ICreateDTO } from "../types/column.type";
 
 interface IColumnStore {
   columns: IColumn[];
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<IColumn>>;
   updateById: (
     id: string,
-    data: IUpdateDTO
+    data: Partial<IColumn>
   ) => Promise<ResponseSuccessType<IColumn>>;
   deleteById: (id: string) => Promise<ResponseSuccessType<IColumn>>;
   getById: (id: string) => Promise<ResponseSuccessType<IColumn>>;

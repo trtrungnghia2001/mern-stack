@@ -10,12 +10,12 @@ const KanbanLayout = () => {
   return (
     <div>
       <KanbanHeader />
-      <main className="flex items-start h-[calc(100vh-48px)]">
+      <main className="flex items-start">
         <KanbanSidebarLeft />
         <section
           className={clsx([
-            `flex-1 overflow-y-auto h-full`,
-            checkBoard ? `` : `p-8 pt-10`,
+            `flex-1 overflow-auto h-[calc(100vh-48px)] overflow-y-auto`,
+            !checkBoard && `p-8 pt-10`,
           ])}
         >
           <Outlet />

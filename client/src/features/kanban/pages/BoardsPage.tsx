@@ -3,15 +3,22 @@ import BoardCard from "../components/BoardCard";
 import ButtonBoardNew from "../components/ButtonBoardNew";
 import { useBoardStore } from "../stores/board.store";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "../components/Loading";
 
 const size = 20;
 
 const BoardsPage = () => {
-  const { boards, getAll } = useBoardStore();
+  const { boards, boardViews, getAll, getView } = useBoardStore();
   const getAllResult = useQuery({
     queryKey: ["boards"],
     queryFn: async () => await getAll(),
   });
+  const getViewResult = useQuery({
+    queryKey: ["boards-view"],
+    queryFn: async () => await getView(),
+  });
+
+  if (getAllResult.isLoading || getAllResult.isLoading) return <Loading />;
 
   return (
     <div>
@@ -21,7 +28,7 @@ const BoardsPage = () => {
           <Star size={size} />
           <span>Star Board</span>
         </div>
-        <ul className="grid gap-4 grid-cols-5">
+        <ul className="grid gap-4 grid-cols-4">
           {boards
             .filter((item) => item.favorite)
             .map((item) => (
@@ -37,8 +44,8 @@ const BoardsPage = () => {
           <Clock3 size={size} />
           <span>Recently Viewed</span>
         </div>
-        <ul className="grid gap-4 grid-cols-5">
-          {boards.map((item) => (
+        <ul className="grid gap-4 grid-cols-4">
+          {boardViews.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />
             </li>
@@ -51,7 +58,7 @@ const BoardsPage = () => {
           <Trello size={size} />
           <span>Trello Workspace</span>
         </div>
-        <ul className="grid gap-4 grid-cols-5">
+        <ul className="grid gap-4 grid-cols-4">
           {boards.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />

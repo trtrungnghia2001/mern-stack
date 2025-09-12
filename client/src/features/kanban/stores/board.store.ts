@@ -8,6 +8,8 @@ import type { IBoard, ICreateDTO } from "../types/board.type";
 
 interface IBoardStore {
   boards: IBoard[];
+  boardViews: IBoard[];
+  addBoardView: (boardId: string) => Promise<ResponseSuccessType<IBoard>>;
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<IBoard>>;
   updateById: (
     id: string,
@@ -16,6 +18,7 @@ interface IBoardStore {
   deleteById: (id: string) => Promise<ResponseSuccessType<IBoard>>;
   getById: (id: string) => Promise<ResponseSuccessType<IBoard>>;
   getAll: () => Promise<ResponseSuccessListType<IBoard>>;
+  getView: () => Promise<ResponseSuccessListType<IBoard>>;
   setBoards: (data: IBoard[]) => void;
   updatePosition: (data: IBoard[]) => Promise<ResponseSuccessListType<IBoard>>;
 }
@@ -24,6 +27,17 @@ const baseUrl = `/api/v1/kanban/board`;
 
 export const useBoardStore = create<IBoardStore>((set, get) => ({
   boards: [],
+  boardViews: [],
+  addBoardView: async (boardId) => {
+    const url = baseUrl + `/add-view`;
+    const resp = (
+      await instance.post<ResponseSuccessType<IBoard>>(url, { board: boardId })
+    ).data;
+    set({
+      boards: [...get().boardViews, resp.data],
+    });
+    return resp;
+  },
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (await instance.post<ResponseSuccessType<IBoard>>(url, data))
@@ -62,6 +76,15 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
       .data;
     set({
       boards: resp.data,
+    });
+    return resp;
+  },
+  getView: async () => {
+    const url = baseUrl + `/get-view/`;
+    const resp = (await instance.get<ResponseSuccessListType<IBoard>>(url))
+      .data;
+    set({
+      boardViews: resp.data,
     });
     return resp;
   },

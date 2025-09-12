@@ -1,5 +1,5 @@
 import express from "express";
-import { boardModel } from "./kanban.model.js";
+import { boardModel, boardViewModel } from "./kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
@@ -106,5 +106,42 @@ boardRoute.post(`/update-position`, async (req, res, next) => {
     next(error);
   }
 });
+boardRoute.get(`/get-view`, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const data = await boardViewModel
+      .find({
+        user: user._id,
+      })
+      .sort({
+        createdAt: 1,
+      })
+      .populate(["board"]);
 
+    return handleResponseList(res, {
+      data: data.map((item) => item.board),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+boardRoute.post(`/add-view`, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const body = req.body;
+    body.user = user._id;
+
+    const newData = await boardViewModel.create(body);
+    const getBoard = await boardViewModel
+      .findById(newData._id)
+      .populate(["board"]);
+
+    return handleResponse(res, {
+      status: StatusCodes.CREATED,
+      data: getBoard.board,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 export default boardRoute;

@@ -1,4 +1,5 @@
 import { Toaster } from "./shared/components/ui/sonner";
+import { Toaster as RHToaster } from "react-hot-toast";
 import { useAuthStore } from "./features/auth/stores/auth.store";
 import { useEffect } from "react";
 import MainRouter from "./app/routes";
@@ -21,6 +22,7 @@ const App = () => {
   return (
     <div>
       <Toaster />
+      <RHToaster />
       <MainRouter />
     </div>
   );

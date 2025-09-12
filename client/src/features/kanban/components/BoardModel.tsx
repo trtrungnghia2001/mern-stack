@@ -5,9 +5,9 @@ import clsx from "clsx";
 import { useMutation } from "@tanstack/react-query";
 import { boardBgColor } from "../constants/color";
 import type { ICreateDTO } from "../types/board.type";
+import toast from "react-hot-toast";
 
 interface BoardModelProps {
-  open: boolean;
   setOpen: (open: boolean) => void;
 }
 
@@ -16,21 +16,22 @@ const init: ICreateDTO = {
   name: "",
 };
 
-const BoardModel = ({ open, setOpen }: BoardModelProps) => {
+const BoardModel = ({ setOpen }: BoardModelProps) => {
   const { create } = useBoardStore();
   const [board, setBoard] = useState<ICreateDTO>(init);
 
   const createResult = useMutation({
     mutationFn: async () => create(board),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setBoard(init);
       setOpen(false);
+      toast.success(data.message);
     },
+    onError: (error) => toast.error(error.message),
   });
 
-  if (!open) return;
   return (
-    <div className="absolute left-0 bottom-0 bg-white shadow rounded-lg w-[300px] border p-3">
+    <div className="relative p-3">
       <button
         onClick={() => setOpen(false)}
         className="absolute top-3 right-3 p-1 rounded hover:bg-gray-200"

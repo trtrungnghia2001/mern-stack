@@ -1,10 +1,11 @@
 import express from "express";
-import { columnModel } from "./kanban.model.js";
+import { columnModel, taskModel } from "./kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
+import { deleteFromCloudinary } from "#server/shared/services/cloudinary.service";
 
 const columnRoute = express.Router();
 
@@ -13,7 +14,7 @@ columnRoute.post(`/create`, async (req, res, next) => {
     const user = req.user;
     const body = req.body;
 
-    const position = await columnModel.countDocuments({ user: user._id });
+    const position = await columnModel.countDocuments({ board: body.board });
     body.user = user._id;
     body.position = position;
 
@@ -45,9 +46,36 @@ columnRoute.put(`/update-id/:id`, async (req, res, next) => {
 columnRoute.delete(`/delete-id/:id`, async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    // 1. Xoá column
     const deleteData = await columnModel.findByIdAndDelete(id, {
       new: true,
     });
+
+    // 2. Lấy tất cả task trong column
+    const tasks = await taskModel.find({ column: id });
+
+    // 3. Xoá bgUrl hoặc files của từng task trên Cloudinary
+    if (tasks.length) {
+      await Promise.all(
+        tasks.map(async (task) => {
+          // nếu mỗi task có 1 bgUrl
+          if (task.bgUrl) {
+            await deleteFromCloudinary(task.bgUrl);
+          }
+
+          // nếu task có nhiều files
+          if (Array.isArray(task.files)) {
+            await Promise.all(
+              task.files.map((file) => deleteFromCloudinary(file.url))
+            );
+          }
+        })
+      );
+    }
+
+    // 4. Xoá luôn tất cả task trong column
+    await taskModel.deleteMany({ column: id });
 
     return handleResponse(res, {
       data: deleteData,
@@ -89,7 +117,6 @@ columnRoute.get(`/get-all/board/:boardId`, async (req, res, next) => {
 columnRoute.post(`/update-position`, async (req, res, next) => {
   try {
     const { columns } = req.body;
-    console.log({ columns });
 
     const updateData = await columnModel.bulkWrite(
       columns.map((c, idx) => ({
@@ -100,7 +127,6 @@ columnRoute.post(`/update-position`, async (req, res, next) => {
       }))
     );
 
-    console.log({ columns, updateData });
     return handleResponseList(res, {
       data: updateData,
     });

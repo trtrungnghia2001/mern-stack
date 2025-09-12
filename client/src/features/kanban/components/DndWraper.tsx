@@ -136,7 +136,7 @@ const DndWraper: FC<DndWraperProps> = ({
 
   const onDragEnd = async (e: DragEndEvent) => {
     const { active } = e;
-    if (!active) return;
+    if (!activeId || !active) return;
 
     setActiveId(null);
 
@@ -154,7 +154,7 @@ const DndWraper: FC<DndWraperProps> = ({
       onDragMove={onDragMove}
       onDragEnd={onDragEnd}
     >
-      <ul className="flex gap-3 p-3">
+      <ul className="flex gap-3 p-3 ">
         <SortableContext
           items={columns.map((item) => item._id)}
           strategy={verticalListSortingStrategy}

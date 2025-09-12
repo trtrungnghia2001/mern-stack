@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef } from "react";
 import { ImageUp, Trash, X } from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
@@ -7,8 +7,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useTaskStore } from "../stores/task.store";
 import type { ITask } from "../types/task.type";
 import TaskModelDescription from "./TaskModelDescription";
-import TextareaAutosize from "react-textarea-autosize";
 import TaskModelDate from "./TaskModelDate";
+import InputDebounce from "./InputDebounce";
 
 const TaskModel = () => {
   //
@@ -31,25 +31,6 @@ const TaskModel = () => {
     mutationFn: async (id: string) => await deleteById(id),
   });
 
-  // task name
-  const [taskName, setTaskName] = useState(task?.name);
-  useEffect(() => {
-    // Không chạy khi component mount hoặc khi giá trị đã khớp
-    if (taskName === task?.name || !taskName) {
-      return;
-    }
-    const timerId = setTimeout(() => {
-      // Gọi mutate với dữ liệu mới nhất
-      updateByIdResult.mutate({ name: taskName.trim() });
-    }, 500);
-
-    // Hàm dọn dẹp: Hủy timer cũ nếu boardName thay đổi
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [taskName, task?.name]);
-
-  // bgUrl
   const inputBgRef = useRef<HTMLInputElement>(null);
   const handleUploadClick = () => {
     if (!inputBgRef.current) return;
@@ -106,13 +87,14 @@ const TaskModel = () => {
             <X size={16} />
           </button>
         </div>
-
+        {/* bg */}
         <div
           className="min-h-40 max-h-40 w-full border-b"
           style={{
             background: `url('${task.bgUrl}') no-repeat center center / cover`,
           }}
         ></div>
+        {/* main */}
         <div className="flex-1 flex overflow-hidden">
           {/* left */}
           <div className="w-[60%] p-7 border-r space-y-8 overflow-y-auto">
@@ -127,12 +109,12 @@ const TaskModel = () => {
                   })
                 }
               />
-              <TextareaAutosize
-                className="bg-transparent px-2 flex-1 outline-none text-base font-medium"
-                value={taskName}
-                onChange={(e) => {
-                  setTaskName(e.target.value);
-                }}
+              <InputDebounce
+                initValue={task.name}
+                setInitValue={(value) =>
+                  updateByIdResult.mutate({ name: value })
+                }
+                className="text-base font-medium"
               />
             </div>
 

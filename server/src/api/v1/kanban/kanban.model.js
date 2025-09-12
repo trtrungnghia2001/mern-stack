@@ -18,6 +18,19 @@ const boardSchema = new mongoose.Schema(
 export const boardModel =
   mongoose.models.kanbanBoard || mongoose.model("kanbanBoard", boardSchema);
 
+// boardView
+const boardViewSchema = new mongoose.Schema(
+  {
+    board: { type: Schema.Types.ObjectId, ref: "kanbanBoard", required: true },
+    user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+  },
+  { timestamps: true }
+);
+
+export const boardViewModel =
+  mongoose.models.kanbanBoardView ||
+  mongoose.model("kanbanBoardView", boardViewSchema);
+
 // column
 const columnSchema = new mongoose.Schema(
   {
@@ -25,6 +38,10 @@ const columnSchema = new mongoose.Schema(
     position: { type: Number, default: 0 },
     bgColor: { type: Number, default: 0 },
     board: { type: Schema.Types.ObjectId, ref: "kanbanBoard" },
+    save: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
