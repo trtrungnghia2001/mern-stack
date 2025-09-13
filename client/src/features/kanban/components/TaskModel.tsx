@@ -1,5 +1,5 @@
-import { memo, useRef } from "react";
-import { ImageUp, Trash, X } from "lucide-react";
+import { memo, useRef, useState } from "react";
+import { ImageUp, Timer, Trash, UserPlus, X } from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,6 +9,8 @@ import type { ITask } from "../types/task.type";
 import TaskModelDescription from "./TaskModelDescription";
 import TaskModelDate from "./TaskModelDate";
 import InputDebounce from "./InputDebounce";
+import clsx from "clsx";
+import TaskModelComment from "./TaskModelComment";
 
 const TaskModel = () => {
   //
@@ -46,7 +48,8 @@ const TaskModel = () => {
     updateByIdResult.mutate(formData);
   };
 
-  //
+  // action
+  const [openDate, setOpenDate] = useState(false);
 
   if (!taskId || !task) return;
 
@@ -118,6 +121,35 @@ const TaskModel = () => {
               />
             </div>
 
+            {/* options */}
+            <div className="flex items-center flex-wrap gap-2">
+              <button
+                onClick={() => setOpenDate(!openDate)}
+                className={clsx([
+                  `border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100`,
+                  openDate && `bg-gray-300`,
+                ])}
+              >
+                <Timer size={16} /> Date
+              </button>
+              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+                <UserPlus size={16} />
+                Member
+              </button>
+            </div>
+            {/* date */}
+            {openDate && (
+              <TaskModelDate
+                startDate={task.startDate}
+                endDate={task.endDate}
+                updateDate={(date) =>
+                  updateByIdResult.mutate({
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                  })
+                }
+              />
+            )}
             {/* description */}
             <TaskModelDescription
               value={task.description}
@@ -133,21 +165,7 @@ const TaskModel = () => {
                 updateByIdResult.mutate({ files: files });
               }}
             />
-          </div>
 
-          {/* right */}
-          <div className="w-[40%] p-7 space-y-8 overflow-y-auto ">
-            {/* date */}
-            <TaskModelDate
-              startDate={task.startDate}
-              endDate={task.endDate}
-              updateDate={(date) =>
-                updateByIdResult.mutate({
-                  startDate: date.startDate,
-                  endDate: date.endDate,
-                })
-              }
-            />
             {/* todolist */}
             <TaskModelTodoList
               todos={task?.todos || []}
@@ -155,6 +173,11 @@ const TaskModel = () => {
                 updateByIdResult.mutate({ todos: todos });
               }}
             />
+          </div>
+
+          {/* right */}
+          <div className="w-[40%] p-7 space-y-8 overflow-y-auto bg-[#fcfcfc]">
+            <TaskModelComment />
           </div>
         </div>
       </div>

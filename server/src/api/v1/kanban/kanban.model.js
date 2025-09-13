@@ -89,3 +89,17 @@ const taskSchema = new mongoose.Schema(
 
 export const taskModel =
   mongoose.models.kanbanTask || mongoose.model("kanbanTask", taskSchema);
+
+// comment
+const commentSchema = new mongoose.Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "user" },
+    task: { type: Schema.Types.ObjectId, ref: "kanbanTask" },
+    comment: String,
+  },
+  { timestamps: true }
+);
+
+export const commentModel =
+  mongoose.models.kanbanComment ||
+  mongoose.model("kanbanComment", commentSchema);

@@ -53,8 +53,8 @@ const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
-        <ListTodo size={16} />
-        <div className="font-bold text-base">Todo List</div>
+        <ListTodo size={14} />
+        <div className="font-bold">Todo List</div>
       </div>
       {/* Progress bar */}
       <div className="flex items-center gap-2">

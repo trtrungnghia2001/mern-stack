@@ -78,8 +78,8 @@ const TaskModelFilesList = ({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Paperclip size={16} />
-          <div className="font-bold text-base">File</div>
+          <Paperclip size={14} />
+          <div className="font-bold">File</div>
         </div>
         <button
           onClick={handleUploadClick}

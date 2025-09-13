@@ -2,7 +2,7 @@ import SignoutButton from "@/features/auth/components/SignoutButton";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import ThemeButton from "@/features/theme/components/ThemeButton";
 import { Button } from "@/shared/components/ui/button";
-import { IMAGE_NOTFOUND } from "@/shared/constants/image.constanr";
+import { IMAGE_NOTFOUND } from "@/shared/constants/image.constant";
 import { memo } from "react";
 import { Link } from "react-router-dom";
 

@@ -18,8 +18,8 @@ const TaskModelDescription = ({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <NotebookPen size={16} />
-          <div className="font-bold text-base">Describe</div>
+          <NotebookPen size={14} />
+          <div className="font-bold">Describe</div>
         </div>
         <button
           onClick={() => updateValue(description)}

@@ -1,13 +1,13 @@
 import clsx from "clsx";
 import { Calendar } from "lucide-react";
-import { memo, useState } from "react";
+import { memo, useState, type HTMLAttributes } from "react";
 
 interface IUpdateDateValue {
   startDate: string;
   endDate: string;
 }
 
-interface TaskModelDateProps {
+interface TaskModelDateProps extends HTMLAttributes<HTMLDivElement> {
   startDate: string;
   endDate: string;
   updateDate: (date: Partial<IUpdateDateValue>) => void;
@@ -17,19 +17,20 @@ const TaskModelDate = ({
   startDate,
   endDate,
   updateDate,
+  className,
 }: TaskModelDateProps) => {
   const [start, setStart] = useState(startDate);
   const [end, setEnd] = useState(endDate);
 
   return (
-    <div>
+    <div className={className}>
       <div className="flex items-center gap-3 mb-3">
-        <Calendar size={16} />
-        <div className="font-bold text-base">Date</div>
+        <Calendar size={14} />
+        <div className="font-bold">Date</div>
       </div>
       <div className="space-y-3">
         <div className="flex flex-col gap-1">
-          <label htmlFor="date-start" className="font-medium">
+          <label htmlFor="date-start" className="font-medium text-13">
             Start date:
           </label>
           <input
@@ -42,7 +43,7 @@ const TaskModelDate = ({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="date-end" className="font-medium">
+          <label htmlFor="date-end" className="font-medium text-13">
             End date:
           </label>
           <input
