@@ -1,4 +1,34 @@
 import mongoose, { Schema } from "mongoose";
+import { WORKSPACE_ROLE } from "./kanban.constant.js";
+
+// workspace
+const workspaceSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    description: String,
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+      unique: true,
+    },
+    members: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "user" },
+        role: {
+          type: String,
+          enum: Object.values(WORKSPACE_ROLE),
+          default: WORKSPACE_ROLE.MEMBER,
+        },
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
+export const workspaceModel =
+  mongoose.models.kanbanWorkspace ||
+  mongoose.model("kanbanWorkspace", workspaceSchema);
 
 // board
 const boardSchema = new mongoose.Schema(
@@ -11,6 +41,7 @@ const boardSchema = new mongoose.Schema(
       default: false,
     },
     user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    workspace: { type: Schema.Types.ObjectId, ref: "kanbanWorkspace" },
   },
   { timestamps: true }
 );
@@ -73,8 +104,8 @@ const taskSchema = new mongoose.Schema(
     board: { type: Schema.Types.ObjectId, ref: "kanbanBoard" },
     complete: { type: Boolean, default: false },
     description: String,
-    startDate: String,
-    endDate: String,
+    startDate: Date,
+    endDate: Date,
     files: {
       type: Schema.Types.Mixed,
       default: [],

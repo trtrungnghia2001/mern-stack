@@ -114,7 +114,7 @@ boardRoute.get(`/get-view`, async (req, res, next) => {
         user: user._id,
       })
       .sort({
-        createdAt: 1,
+        updatedAt: -1,
       })
       .populate(["board"]);
 
@@ -128,17 +128,33 @@ boardRoute.get(`/get-view`, async (req, res, next) => {
 boardRoute.post(`/add-view`, async (req, res, next) => {
   try {
     const user = req.user;
-    const body = req.body;
-    body.user = user._id;
+    const { board } = req.body;
 
-    const newData = await boardViewModel.create(body);
-    const getBoard = await boardViewModel
-      .findById(newData._id)
-      .populate(["board"]);
+    const filter = {
+      user: user._id,
+      board: board,
+    };
+
+    // Check nếu user đã từng xem board này
+    let checkData = await boardViewModel.findOne(filter);
+
+    let newData;
+
+    if (checkData) {
+      // Update updatedAt
+      checkData.updatedAt = new Date();
+      await checkData.save();
+      newData = checkData;
+    } else {
+      // Tạo mới
+      newData = await boardViewModel.create(filter);
+    }
+
+    newData = await boardViewModel.findOne(filter).populate(["board"]);
 
     return handleResponse(res, {
       status: StatusCodes.CREATED,
-      data: getBoard.board,
+      data: newData.board,
     });
   } catch (error) {
     next(error);

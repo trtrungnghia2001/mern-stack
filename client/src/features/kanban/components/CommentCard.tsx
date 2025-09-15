@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
 
 interface CommentCardProps {
   data: IComment;
@@ -39,6 +40,9 @@ const CommentCard = ({ data }: CommentCardProps) => {
     }
   }, [isEdit]);
 
+  const { user } = useAuthStore();
+  const checkMe = user?._id === data.user._id;
+
   return (
     <div className="flex items-start gap-3 ">
       <div className="aspect-square overflow-hidden rounded-full w-6">
@@ -61,26 +65,28 @@ const CommentCard = ({ data }: CommentCardProps) => {
               className="px-3 py-2 bg-white rounded-lg border shadow whitespace-break-spaces"
               dangerouslySetInnerHTML={{ __html: data.comment }}
             ></div>
-            <div className="text-xs space-x-3">
-              <button
-                onClick={() => {
-                  setIsEdit(!isEdit);
-                  setText(data.comment);
-                }}
-                className="underline"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteByIdResult.mutate()}
-                className="underline"
-              >
-                Delete
-              </button>
-            </div>
+            {checkMe && (
+              <div className="text-xs space-x-3">
+                <button
+                  onClick={() => {
+                    setIsEdit(!isEdit);
+                    setText(data.comment);
+                  }}
+                  className="underline"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteByIdResult.mutate()}
+                  className="underline"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </>
         )}
-        {isEdit && (
+        {isEdit && checkMe && (
           <>
             <TextareaAutosize
               rows={2}

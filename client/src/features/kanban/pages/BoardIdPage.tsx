@@ -18,14 +18,12 @@ import toast from "react-hot-toast";
 
 const BoardIdPage = () => {
   const { boardId } = useParams();
-  const { getById, updateById, deleteById } = useBoardStore();
-  const { tasks, setTasks, getAllByBoardId: getTasks } = useTaskStore();
-  const { columns, setColumns, getAllByBoardId: getColumns } = useColumnStore();
-
   // get task x column
   const { searchParams, handleSearchParams } = useSearchParamsValue();
   const filter = searchParams.get("filter") || taskStatusOptions[0].value;
 
+  const { tasks, setTasks, getAllByBoardId: getTasks } = useTaskStore();
+  const { columns, setColumns, getAllByBoardId: getColumns } = useColumnStore();
   const getColumnsAndTasksResult = useQuery({
     queryKey: ["columns-tasks", boardId, searchParams.toString()],
     queryFn: async () => {
@@ -39,10 +37,16 @@ const BoardIdPage = () => {
   });
 
   // board
+  const { getById, updateById, deleteById, addBoardView } = useBoardStore();
+
   const [board, setBoard] = useState<Partial<IBoard>>();
   const getBoardByIdResult = useQuery({
     queryKey: ["boards", boardId],
-    queryFn: async () => await getById(boardId as string),
+    queryFn: async () => {
+      const resp = await getById(boardId as string);
+      await addBoardView(boardId as string);
+      return resp;
+    },
     enabled: !!boardId,
   });
   useEffect(() => {

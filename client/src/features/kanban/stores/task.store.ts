@@ -43,7 +43,15 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
       .data;
     set({
       tasks: get().tasks.map((item) =>
-        item._id === resp.data._id ? { ...item, ...resp.data } : item
+        item._id === resp.data._id
+          ? {
+              ...item,
+              ...resp.data,
+              todoCount: resp.data.todos.length,
+              todoCompleted: resp.data.todos.filter((t) => t.complete).length,
+              fileCount: resp.data.files.length,
+            }
+          : item
       ),
     });
     return resp;

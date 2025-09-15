@@ -10,6 +10,7 @@ import {
   deleteFromCloudinary,
 } from "#server/shared/services/cloudinary.service";
 import upload from "#server/configs/multer.config";
+import mongoose from "mongoose";
 
 const taskRoute = express.Router();
 
@@ -101,29 +102,44 @@ taskRoute.get(`/get-all/board/:boardId`, async (req, res, next) => {
     const { boardId } = req.params;
     const _filter = req.query.filter;
 
-    let filter = {};
+    let match = { board: new mongoose.Types.ObjectId(boardId) };
+
     if (_filter === "-1") {
-      filter = { complete: false };
+      match.complete = false;
     } else if (_filter === "1") {
-      filter = { complete: true };
+      match.complete = true;
     } else if (_filter === "2") {
-      filter = { endDate: { $lt: new Date() } };
+      match.endDate = { $lt: new Date() };
     } else if (_filter === "3") {
-      filter = { endDate: { $gte: new Date() } };
+      match.endDate = { $gte: new Date() };
     }
 
-    const data = await taskModel
-      .find({
-        board: boardId,
-        ...filter,
-      })
-      .sort({
-        position: 1,
-      });
+    const data = await taskModel.aggregate([
+      { $match: match },
+      {
+        $project: {
+          name: 1,
+          complete: 1,
+          column: 1,
+          position: 1,
+          bgUrl: 1,
+          todoCount: { $size: "$todos" },
+          fileCount: { $size: "$files" },
+          todoCompleted: {
+            $size: {
+              $filter: {
+                input: "$todos",
+                as: "todo",
+                cond: { $eq: ["$$todo.complete", true] },
+              },
+            },
+          },
+        },
+      },
+      { $sort: { position: 1 } },
+    ]);
 
-    return handleResponseList(res, {
-      data: data,
-    });
+    return handleResponseList(res, { data });
   } catch (error) {
     next(error);
   }

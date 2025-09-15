@@ -1,8 +1,8 @@
 import {
-  Activity,
   Bell,
   CreditCard,
   Info,
+  LayoutDashboard,
   Megaphone,
   Settings,
   SwatchBook,
@@ -30,6 +30,11 @@ export const header_links = [
 
 export const nav_links = [
   {
+    title: "Dashboard",
+    icon: <LayoutDashboard size={size} />,
+    path: "/dashboard",
+  },
+  {
     title: "Board",
     icon: <Trello size={size} />,
     path: "/boards",
@@ -38,11 +43,6 @@ export const nav_links = [
     title: "Template",
     icon: <SwatchBook size={size} />,
     path: "/templates",
-  },
-  {
-    title: "Home",
-    icon: <Activity size={size} />,
-    path: "/home",
   },
 ];
 

@@ -12,6 +12,11 @@ interface TaskCardProps {
 const TaskCard = ({ task }: TaskCardProps) => {
   const { boardId } = useParams();
   const { updateById } = useTaskStore();
+  const progress =
+    task.todoCount && task.todoCount > 0
+      ? Math.round(((task.todoCompleted || 0) / task.todoCount) * 100)
+      : 0;
+
   return (
     <div className="relative group shadow overflow-hidden rounded-lg bg-white border hover:border-blue-500">
       {task.bgUrl && (
@@ -42,18 +47,26 @@ const TaskCard = ({ task }: TaskCardProps) => {
           <div className="block w-full">{task?.name}</div>
         </div>
       </div>
-      {(task.files.length > 0 || task.todos.length > 0) && (
+      {(task.todoCount > 0 || task.fileCount > 0) && (
         <div className="px-3 my-2 flex items-center gap-4 text-13 text-gray-500">
-          {task.files.length > 0 && (
+          {task.fileCount > 0 && (
             <div className="flex items-center gap-1.5">
               <Paperclip size={14} />
-              <span>{task.files.length}</span>
+              <span>{task.fileCount}</span>
             </div>
           )}
-          {task.todos.length > 0 && (
+          {task.todoCount > 0 && (
             <div className="flex items-center gap-1.5">
-              <ListTodo size={14} />
-              <span>{task.todos.length}</span>
+              <ListTodo size={14} />{" "}
+              <span>
+                {task.todoCompleted}/{task.todoCount}
+              </span>
+              <div className="flex-1 h-1 bg-gray-200 rounded overflow-hidden w-10">
+                <div
+                  className="h-1 bg-blue-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           )}
         </div>

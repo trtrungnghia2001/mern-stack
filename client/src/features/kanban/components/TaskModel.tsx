@@ -1,9 +1,9 @@
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { ImageUp, Timer, Trash, UserPlus, X } from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTaskStore } from "../stores/task.store";
 import type { ITask } from "../types/task.type";
 import TaskModelDescription from "./TaskModelDescription";
@@ -11,6 +11,8 @@ import TaskModelDate from "./TaskModelDate";
 import InputDebounce from "./InputDebounce";
 import clsx from "clsx";
 import TaskModelComment from "./TaskModelComment";
+import Loading from "./Loading";
+import toast from "react-hot-toast";
 
 const TaskModel = () => {
   //
@@ -21,16 +23,33 @@ const TaskModel = () => {
   };
   //
   const { taskId } = useParams();
-  const { tasks, updateById, deleteById } = useTaskStore();
+  const { updateById, deleteById, getById } = useTaskStore();
 
-  const task = tasks.find((item) => item._id === taskId);
+  const getByIdResult = useQuery({
+    queryKey: ["task", taskId],
+    queryFn: async () => getById(taskId as string),
+  });
+  const [task, setTask] = useState<ITask | null>(null);
+  useEffect(() => {
+    if (getByIdResult.isSuccess && getByIdResult.data) {
+      setTask(getByIdResult.data.data);
+    }
+  }, [getByIdResult.data, getByIdResult.isSuccess]);
 
   const updateByIdResult = useMutation({
     mutationFn: async (data: Partial<ITask> | FormData) =>
       updateById(taskId as string, data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      setTask(data.data);
+    },
+    onError: (error) => toast.error(error.message),
   });
+
   const deleteByIdResult = useMutation({
     mutationFn: async (id: string) => await deleteById(id),
+    onSuccess: (data) => toast.success(data.message),
+    onError: (error) => toast.error(error.message),
   });
 
   const inputBgRef = useRef<HTMLInputElement>(null);
@@ -50,6 +69,8 @@ const TaskModel = () => {
 
   // action
   const [openDate, setOpenDate] = useState(false);
+
+  if (getByIdResult.isLoading) return <Loading />;
 
   if (!taskId || !task) return;
 

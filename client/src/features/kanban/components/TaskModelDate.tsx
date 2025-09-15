@@ -38,7 +38,7 @@ const TaskModelDate = ({
             id="date-start"
             type="datetime-local"
             className="px-3 py-1.5 border rounded w-full"
-            value={start}
+            value={start ? new Date(start).toISOString().slice(0, 16) : ""}
             onChange={(e) => setStart(e.target.value)}
           />
         </div>
@@ -51,7 +51,7 @@ const TaskModelDate = ({
             id="date-end"
             type="datetime-local"
             className="px-3 py-1.5 border rounded w-full"
-            value={end}
+            value={end ? new Date(end).toISOString().slice(0, 16) : ""}
             onChange={(e) => setEnd(e.target.value)}
           />
         </div>

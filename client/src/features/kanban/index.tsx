@@ -3,19 +3,24 @@ import { useRoutes } from "react-router-dom";
 import KanbanLayout from "./KanbanLayout";
 import BoardsPage from "./pages/BoardsPage";
 import TeamplatesPage from "./pages/TeamplatesPage";
-import HomePage from "./pages/HomePage";
 import WorkspaceBoardPage from "./pages/WorkspaceBoardPage";
 import WorkspaceMemberPage from "./pages/WorkspaceMemberPage";
 import WorkspaceSettingPage from "./pages/WorkspaceSettingPage";
 import WorkspacePayPage from "./pages/WorkspacePayPage";
 import BoardIdPage from "./pages/BoardIdPage";
 import TaskModel from "./components/TaskModel";
+import Dashboard from "./pages/Dashboard";
 
 const KanbanRouter = () => {
   const routers = useRoutes([
     {
       element: <KanbanLayout />,
       children: [
+        {
+          index: true,
+          path: "dashboard",
+          element: <Dashboard />,
+        },
         {
           path: "boards",
           element: <BoardsPage />,
@@ -33,11 +38,6 @@ const KanbanRouter = () => {
         {
           path: "templates",
           element: <TeamplatesPage />,
-        },
-        {
-          index: true,
-          path: "home",
-          element: <HomePage />,
         },
         {
           path: "workspace",

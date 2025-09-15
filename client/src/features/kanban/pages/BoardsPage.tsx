@@ -1,4 +1,4 @@
-import { Clock3, Star, Trello } from "lucide-react";
+import { Clock3, Trello } from "lucide-react";
 import BoardCard from "../components/BoardCard";
 import ButtonBoardNew from "../components/ButtonBoardNew";
 import { useBoardStore } from "../stores/board.store";
@@ -18,26 +18,10 @@ const BoardsPage = () => {
     queryFn: async () => await getView(),
   });
 
-  if (getAllResult.isLoading || getAllResult.isLoading) return <Loading />;
+  if (getAllResult.isLoading || getViewResult.isLoading) return <Loading />;
 
   return (
     <div>
-      {/* Star Board */}
-      <div className="pb-10">
-        <div className="flex items-center gap-2 mb-4 font-bold text-base">
-          <Star size={size} />
-          <span>Star Board</span>
-        </div>
-        <ul className="grid gap-4 grid-cols-4">
-          {boards
-            .filter((item) => item.favorite)
-            .map((item) => (
-              <li key={item._id}>
-                <BoardCard board={item} />
-              </li>
-            ))}
-        </ul>
-      </div>
       {/* Recently Viewed */}
       <div className="pb-10">
         <div className="flex items-center gap-2 mb-4 font-bold text-base">
