@@ -1,7 +1,6 @@
 import { Star, User } from "lucide-react";
 
 import BoardCard from "../components/BoardCard";
-import ButtonBoardNew from "../components/ButtonBoardNew";
 import { useBoardStore } from "../stores/board.store";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../components/Loading";
@@ -47,9 +46,6 @@ const WorkspaceBoardPage = () => {
               <BoardCard board={item} />
             </li>
           ))}
-          <li>
-            <ButtonBoardNew />
-          </li>
         </ul>
       </div>
     </div>

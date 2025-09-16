@@ -1,3 +1,5 @@
+import type { IUser } from "@/features/auth/types/auth";
+
 export interface ICreateDTO {
   name: string;
   column: string;
@@ -31,6 +33,10 @@ export interface ITodo {
   _id: string;
   name: string;
   complete: boolean;
+  assignee: IUser;
+
+  createdAt: string;
+  updatedAt: string;
 }
 export interface ITodoCreate {
   name: string;

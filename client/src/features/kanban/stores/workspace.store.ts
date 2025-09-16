@@ -4,17 +4,10 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import { create } from "zustand";
+import type { IWorkspace, IWorkspaceCreateDTO } from "../types/workspace.type";
+import type { IMember } from "../types/member.type";
 
-const baseUrl = `/kanban/workspace`;
-
-interface IWorkspace {
-  _id: string;
-}
-
-interface IWorkspaceCreateDTO {
-  name: string;
-  description: string;
-}
+const baseUrl = `/api/v1/kanban/workspace`;
 
 interface IWorkspaceStore {
   workspaces: IWorkspace[];
@@ -29,10 +22,12 @@ interface IWorkspaceStore {
   getById: (id: string) => Promise<ResponseSuccessType<IWorkspace>>;
   getAll: (query?: string) => Promise<ResponseSuccessListType<IWorkspace>>;
 
+  // member
+  members: IMember[];
   addMember: (
     id: string,
-    memberId: string
-  ) => Promise<ResponseSuccessType<IWorkspace>>;
+    email: string
+  ) => Promise<ResponseSuccessType<IMember>>;
   removeMember: (
     id: string,
     memberId: string
@@ -40,7 +35,7 @@ interface IWorkspaceStore {
   updateRoleMember: (
     id: string,
     data: { memberId: string; role: string }
-  ) => Promise<ResponseSuccessType<IWorkspace>>;
+  ) => Promise<ResponseSuccessType<IMember>>;
 }
 
 export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
@@ -87,6 +82,10 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
     const resp = (await instance.get<ResponseSuccessType<IWorkspace>>(url))
       .data;
 
+    set({
+      members: resp.data.members,
+    });
+
     return resp;
   },
   getAll: async (query) => {
@@ -100,16 +99,17 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
 
     return resp;
   },
-  addMember: async (id, memberId) => {
+
+  // member
+  members: [],
+  addMember: async (id, email) => {
     const url = baseUrl + `/${id}/member/add`;
     const resp = (
-      await instance.post<ResponseSuccessType<IWorkspace>>(url, { memberId })
+      await instance.post<ResponseSuccessType<IMember>>(url, { email })
     ).data;
 
     set({
-      workspaces: get().workspaces.map((item) =>
-        item._id === id ? { ...item, ...resp.data } : item
-      ),
+      members: get().members.concat(resp.data),
     });
 
     return resp;
@@ -120,22 +120,21 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
       .data;
 
     set({
-      workspaces: get().workspaces.map((item) =>
-        item._id === id ? { ...item, ...resp.data } : item
-      ),
+      members: get().members.filter((item) => item.user._id !== memberId),
     });
 
     return resp;
   },
   updateRoleMember: async (id, data) => {
     const url = baseUrl + `/${id}/member/update-role`;
-    const resp = (
-      await instance.patch<ResponseSuccessType<IWorkspace>>(url, data)
-    ).data;
+    const resp = (await instance.put<ResponseSuccessType<IMember>>(url, data))
+      .data;
 
     set({
-      workspaces: get().workspaces.map((item) =>
-        item._id === id ? { ...item, ...resp.data } : item
+      members: get().members.map((item) =>
+        item.user._id === data.memberId
+          ? { ...item, role: resp.data.role }
+          : item
       ),
     });
 

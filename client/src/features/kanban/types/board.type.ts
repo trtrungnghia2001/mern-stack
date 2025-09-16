@@ -1,6 +1,9 @@
+import type { IWorkspace } from "./workspace.type";
+
 export interface ICreateDTO {
   name: string;
   bgColor: number;
+  workspace: string;
 }
 
 export interface IBoard {
@@ -8,6 +11,7 @@ export interface IBoard {
   name: string;
   bgColor: number;
   position: number;
+  workspace: IWorkspace;
 
   favorite: boolean;
 

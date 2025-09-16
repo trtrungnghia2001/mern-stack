@@ -1,7 +1,13 @@
-import { ListTodo, Trash } from "lucide-react";
+import { ListTodo, Trash, UserPlus } from "lucide-react";
 import type { ITodo, ITodoCreate } from "../types/task.type";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
+import ButtonDropdownMenu from "./ButtonDropdownMenu";
+import { useBoardStore } from "../stores/board.store";
+import { IMAGE_NOTFOUND } from "@/shared/constants/image.constant";
+import { useTaskStore } from "../stores/task.store";
+import { useMutation } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 
 interface TaskModelTodoListProps {
   todos: ITodo[];
@@ -15,7 +21,9 @@ const initTodo = {
 };
 
 const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
+  const { taskId } = useParams();
   const [todo, setTodo] = useState<ITodoCreate>(initTodo);
+  const { members } = useBoardStore();
 
   const [openInput, setOpenInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +58,25 @@ const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
     return total > 0 ? Math.round((completed / total) * 100) : 0;
   }, [todos]);
 
+  const { addAssignee, removeAssignee } = useTaskStore();
+  const toggleAssigneeResult = useMutation({
+    mutationFn: async ({
+      isActive,
+      assigneeId,
+      todoId,
+    }: {
+      isActive: boolean;
+      todoId: string;
+      assigneeId: string;
+    }) => {
+      if (isActive) {
+        return await removeAssignee(taskId as string, assigneeId);
+      }
+
+      return await addAssignee(taskId as string, todoId, assigneeId);
+    },
+  });
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
@@ -74,7 +101,7 @@ const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
             key={item._id}
             className="flex items-center justify-between gap-6 border-b py-2"
           >
-            <label htmlFor={item._id} className="flex gap-3 flex-1">
+            <label htmlFor={item._id} className="flex gap-3 w-max">
               <input
                 id={item._id}
                 type="checkbox"
@@ -91,15 +118,81 @@ const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
                 {item.name}
               </span>
             </label>
+            <div className="flex items-center gap-2">
+              <ButtonDropdownMenu
+                button={
+                  item.assignee ? (
+                    <div className="w-5 aspect-square rounded-full overflow-hidden cursor-pointer">
+                      <img
+                        src={
+                          item.assignee.avatar || IMAGE_NOTFOUND.avatar_notfound
+                        }
+                        alt="avatarr"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <button className="bg-gray-200 rounded-full overflow-hidden p-1 hover:bg-gray-300">
+                      <UserPlus size={14} />
+                    </button>
+                  )
+                }
+              >
+                <div>
+                  <div className="text-center text-base font-medium p-3">
+                    Member of the table
+                  </div>
+                  <ul>
+                    {members.map((m) => {
+                      const isActive = item?.assignee?._id === m.user._id;
+                      return (
+                        <li
+                          key={m._id}
+                          onClick={() =>
+                            toggleAssigneeResult.mutate({
+                              isActive: isActive,
+                              todoId: item._id,
+                              assigneeId: m.user._id,
+                            })
+                          }
+                          className={clsx([
+                            `flex items-center gap-3 p-2 hover:bg-gray-200 cursor-pointer`,
+                            isActive && `bg-gray-200`,
+                          ])}
+                        >
+                          <div className="w-7 rounded-full overflow-hidden">
+                            <img
+                              src={
+                                m.user.avatar || IMAGE_NOTFOUND.avatar_notfound
+                              }
+                              alt="avatar"
+                              loading="lazy"
+                              className="img"
+                            />
+                          </div>
+                          <div>
+                            <div className="flex-1">{m.user.name}</div>
+                            <div className="capitalize text-[11px] text-gray-500">
+                              {m.role}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </ButtonDropdownMenu>
 
-            <button onClick={() => handleRemove(item._id)}>
-              <Trash
-                size={16}
-                className="hover:stroke-red-500 hover:fill-red-500 "
-              />
-            </button>
+              <button
+                onClick={() => handleRemove(item._id)}
+                className="bg-gray-200 rounded-full overflow-hidden p-1 hover:bg-gray-300"
+              >
+                <Trash size={14} />
+              </button>
+            </div>
           </li>
         ))}
+        {/* input */}
         <li className="mt-2">
           {openInput && (
             <>

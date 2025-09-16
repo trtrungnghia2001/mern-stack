@@ -9,6 +9,7 @@ import type { ICreateDTO, ITask } from "../types/task.type";
 
 interface ITaskStore {
   tasks: ITask[];
+  task: ITask | null;
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<ITask>>;
   updateById: (
     id: string,
@@ -22,12 +23,22 @@ interface ITaskStore {
   ) => Promise<ResponseSuccessListType<ITask>>;
   setTasks: (data: ITask[]) => void;
   updatePosition: (data: ITask[]) => Promise<ResponseSuccessListType<ITask>>;
+  addAssignee: (
+    taskId: string,
+    todoId: string,
+    assigneeId: string
+  ) => Promise<ResponseSuccessType<ITask>>;
+  removeAssignee: (
+    taskId: string,
+    assigneeId: string
+  ) => Promise<ResponseSuccessType<ITask>>;
 }
 
 const baseUrl = `/api/v1/kanban/task`;
 
 export const useTaskStore = create<ITaskStore>((set, get) => ({
   tasks: tasks,
+  task: null,
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (await instance.post<ResponseSuccessType<ITask>>(url, data))
@@ -53,6 +64,7 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
             }
           : item
       ),
+      task: resp.data,
     });
     return resp;
   },
@@ -66,7 +78,11 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
   },
   getById: async (id) => {
     const url = baseUrl + `/get-id/` + id;
-    return (await instance.get<ResponseSuccessType<ITask>>(url)).data;
+    const resp = (await instance.get<ResponseSuccessType<ITask>>(url)).data;
+    set({
+      task: resp.data,
+    });
+    return resp;
   },
   getAllByBoardId: async (boardId, query) => {
     const url = baseUrl + `/get-all/board/` + boardId + "?" + query;
@@ -86,6 +102,25 @@ export const useTaskStore = create<ITaskStore>((set, get) => ({
     const resp = (
       await instance.post<ResponseSuccessListType<ITask>>(url, { tasks: data })
     ).data;
+    return resp;
+  },
+  addAssignee: async (taskId, todoId, assigneeId) => {
+    const url = baseUrl + `/${taskId}/todos/${todoId}/assignee`;
+    const resp = (
+      await instance.put<ResponseSuccessType<ITask>>(url, { assigneeId })
+    ).data;
+    set({
+      task: resp.data,
+    });
+    return resp;
+  },
+
+  removeAssignee: async (taskId, assigneeId) => {
+    const url = baseUrl + `/${taskId}/todos/assignees/${assigneeId}`;
+    const resp = (await instance.delete<ResponseSuccessType<ITask>>(url)).data;
+    set({
+      task: resp.data,
+    });
     return resp;
   },
 }));

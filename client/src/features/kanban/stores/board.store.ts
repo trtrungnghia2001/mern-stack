@@ -5,10 +5,12 @@ import type {
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
 import type { IBoard, ICreateDTO } from "../types/board.type";
+import type { IMember } from "../types/member.type";
 
 interface IBoardStore {
   boards: IBoard[];
   boardViews: IBoard[];
+  members: IMember[];
   create: (data: ICreateDTO) => Promise<ResponseSuccessType<IBoard>>;
   updateById: (
     id: string,
@@ -22,6 +24,10 @@ interface IBoardStore {
   // view
   getView: () => Promise<ResponseSuccessListType<IBoard>>;
   addBoardView: (boardId: string) => Promise<ResponseSuccessType<IBoard>>;
+  // workspace
+  getBoardsByWorkspaceId: (
+    workspaceId: string
+  ) => Promise<ResponseSuccessListType<IBoard>>;
 }
 
 const baseUrl = `/api/v1/kanban/board`;
@@ -29,6 +35,7 @@ const baseUrl = `/api/v1/kanban/board`;
 export const useBoardStore = create<IBoardStore>((set, get) => ({
   boards: [],
   boardViews: [],
+  members: [],
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (await instance.post<ResponseSuccessType<IBoard>>(url, data))
@@ -44,10 +51,10 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
       .data;
     set({
       boards: get().boards.map((item) =>
-        item._id === resp.data._id ? { ...item, ...resp.data } : item
+        item._id === id ? { ...item, ...resp.data } : item
       ),
       boardViews: get().boardViews.map((item) =>
-        item._id === resp.data._id ? { ...item, ...resp.data } : item
+        item._id === id ? { ...item, ...resp.data } : item
       ),
     });
     return resp;
@@ -62,7 +69,21 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
   },
   getById: async (id) => {
     const url = baseUrl + `/get-id/` + id;
-    return (await instance.get<ResponseSuccessType<IBoard>>(url)).data;
+    const resp = await (
+      await instance.get<ResponseSuccessType<IBoard>>(url)
+    ).data;
+
+    const owner = {
+      _id: resp.data.workspace.owner._id,
+      user: resp.data.workspace.owner,
+      role: "member",
+    };
+
+    set({
+      members: [owner, ...resp.data.workspace.members],
+    });
+
+    return resp;
   },
   getAll: async () => {
     const url = baseUrl + `/get-all/`;
@@ -104,6 +125,19 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
     set({
       boardViews: [resp.data, ...get().boardViews],
     });
+    return resp;
+  },
+
+  // workspace
+  getBoardsByWorkspaceId: async (workspaceId) => {
+    const url = baseUrl + `/workspace/` + workspaceId;
+    const resp = (await instance.get<ResponseSuccessListType<IBoard>>(url))
+      .data;
+
+    set({
+      boards: resp.data,
+    });
+
     return resp;
   },
 }));

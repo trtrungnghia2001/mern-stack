@@ -1,11 +1,12 @@
 import express from "express";
-import { workspaceModel } from "./kanban.model";
+import { boardModel, workspaceModel } from "./kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import { workspaceOwnerMiddleware } from "./kanban.middleware.js";
+import userModel from "../user/user.model.js";
 
 const workspaceRoute = express.Router();
 
@@ -72,7 +73,9 @@ workspaceRoute.get(`/get-id/:workspaceId`, async (req, res, next) => {
   try {
     const { workspaceId } = req.params;
 
-    const getData = await workspaceModel.findById(workspaceId);
+    const getData = await workspaceModel
+      .findById(workspaceId)
+      .populate(["members.user"]);
 
     return handleResponse(res, {
       data: getData,
@@ -85,11 +88,13 @@ workspaceRoute.get(`/get-all`, async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    const getData = await workspaceModel.find([
-      {
+    const getData = await workspaceModel
+      .find({
         $or: [{ owner: userId }, { "members.user": userId }],
-      },
-    ]);
+      })
+      .sort({
+        createdAt: -1,
+      });
 
     return handleResponseList(res, {
       data: getData,
@@ -98,27 +103,28 @@ workspaceRoute.get(`/get-all`, async (req, res, next) => {
     next(error);
   }
 });
+// member
 workspaceRoute.post(
   `/:workspaceId/member/add`,
   workspaceOwnerMiddleware,
   async (req, res, next) => {
     try {
-      const { workspaceId } = req.params;
-      const { memberId } = req.body;
+      const { email } = req.body;
 
       // Lấy workspace
-      const workspace = await workspaceModel.findById(workspaceId);
-      if (!workspace)
+      const { workspace } = req;
+
+      // check member
+      const member = await userModel.findOne({ email });
+      if (!member) {
         return handleResponse(res, {
           status: StatusCodes.NOT_FOUND,
-          message: "Workspace not found",
-          data: getData,
+          message: "Email not found",
         });
+      }
 
       // Check xem member đã tồn tại chưa
-      const exists = workspace.members.some(
-        (m) => m.user.toString() === memberId
-      );
+      const exists = workspace.members.some((m) => m.user === member._id);
       if (exists) {
         return handleResponse(res, {
           status: StatusCodes.BAD_REQUEST,
@@ -128,12 +134,12 @@ workspaceRoute.post(
       }
 
       // Thêm member
-      workspace.members.push({ user: memberId });
+      workspace.members.push({ user: member._id });
       await workspace.save();
 
       return handleResponse(res, {
         message: "Member added successfully",
-        data: workspace,
+        data: { user: member, role: "member" },
       });
     } catch (error) {
       next(error);
@@ -145,16 +151,10 @@ workspaceRoute.delete(
   workspaceOwnerMiddleware,
   async (req, res, next) => {
     try {
-      const { workspaceId, memberId } = req.params;
+      const { memberId } = req.params;
 
       // Lấy workspace
-      const workspace = await workspaceModel.findById(workspaceId);
-      if (!workspace)
-        return handleResponse(res, {
-          status: StatusCodes.NOT_FOUND,
-          message: "Workspace not found",
-          data: getData,
-        });
+      const { workspace } = req;
 
       // Check xem member đã tồn tại chưa
       const exists = workspace.members.some(
@@ -183,25 +183,17 @@ workspaceRoute.delete(
     }
   }
 );
-workspaceRoute.patch(
+workspaceRoute.put(
   `/:workspaceId/member/update-role`,
   workspaceOwnerMiddleware,
   async (req, res, next) => {
     try {
-      const { workspaceId } = req.params;
       const { memberId, role } = req.body;
 
       // Lấy workspace
-      const workspace = await workspaceModel.findById(workspaceId);
-      if (!workspace)
-        return handleResponse(res, {
-          status: StatusCodes.NOT_FOUND,
-          message: "Workspace not found",
-          data: getData,
-        });
-
+      const { workspace } = req;
       // Check xem member đã tồn tại chưa
-      const member = workspace.members.some(
+      const member = workspace.members.find(
         (m) => m.user.toString() === memberId
       );
       if (!member) {
@@ -218,7 +210,9 @@ workspaceRoute.patch(
 
       return handleResponse(res, {
         message: "Member role updated successfully",
-        data: workspace,
+        data: {
+          role: role,
+        },
       });
     } catch (error) {
       next(error);

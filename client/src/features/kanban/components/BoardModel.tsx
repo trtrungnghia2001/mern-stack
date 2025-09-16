@@ -9,19 +9,21 @@ import toast from "react-hot-toast";
 
 interface BoardModelProps {
   setOpen: (open: boolean) => void;
+  workspaceId: string;
 }
 
 const init: ICreateDTO = {
   bgColor: 0,
   name: "",
+  workspace: "",
 };
 
-const BoardModel = ({ setOpen }: BoardModelProps) => {
+const BoardModel = ({ setOpen, workspaceId }: BoardModelProps) => {
   const { create } = useBoardStore();
   const [board, setBoard] = useState<ICreateDTO>(init);
 
   const createResult = useMutation({
-    mutationFn: async () => create(board),
+    mutationFn: async () => create({ ...board, workspace: workspaceId }),
     onSuccess: (data) => {
       setBoard(init);
       setOpen(false);

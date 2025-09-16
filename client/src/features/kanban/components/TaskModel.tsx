@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { ImageUp, Timer, Trash, UserPlus, X } from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
@@ -23,25 +23,18 @@ const TaskModel = () => {
   };
   //
   const { taskId } = useParams();
-  const { updateById, deleteById, getById } = useTaskStore();
+  const { updateById, deleteById, getById, task } = useTaskStore();
 
   const getByIdResult = useQuery({
     queryKey: ["task", taskId],
     queryFn: async () => getById(taskId as string),
   });
-  const [task, setTask] = useState<ITask | null>(null);
-  useEffect(() => {
-    if (getByIdResult.isSuccess && getByIdResult.data) {
-      setTask(getByIdResult.data.data);
-    }
-  }, [getByIdResult.data, getByIdResult.isSuccess]);
 
   const updateByIdResult = useMutation({
     mutationFn: async (data: Partial<ITask> | FormData) =>
       updateById(taskId as string, data),
     onSuccess: (data) => {
       toast.success(data.message);
-      setTask(data.data);
     },
     onError: (error) => toast.error(error.message),
   });

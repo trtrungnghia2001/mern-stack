@@ -1,6 +1,5 @@
 import { Clock3, Trello } from "lucide-react";
 import BoardCard from "../components/BoardCard";
-import ButtonBoardNew from "../components/ButtonBoardNew";
 import { useBoardStore } from "../stores/board.store";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../components/Loading";
@@ -21,9 +20,9 @@ const BoardsPage = () => {
   if (getAllResult.isLoading || getViewResult.isLoading) return <Loading />;
 
   return (
-    <div>
+    <div className="space-y-10">
       {/* Recently Viewed */}
-      <div className="pb-10">
+      <div>
         <div className="flex items-center gap-2 mb-4 font-bold text-base">
           <Clock3 size={size} />
           <span>Recently Viewed</span>
@@ -37,7 +36,7 @@ const BoardsPage = () => {
         </ul>
       </div>
       {/* Trello Workspace */}
-      <div className="pb-10">
+      <div>
         <div className="flex items-center gap-2 mb-4 font-bold text-base">
           <Trello size={size} />
           <span>Trello Workspace</span>
@@ -48,9 +47,6 @@ const BoardsPage = () => {
               <BoardCard board={item} />
             </li>
           ))}
-          <li>
-            <ButtonBoardNew />
-          </li>
         </ul>
       </div>
     </div>

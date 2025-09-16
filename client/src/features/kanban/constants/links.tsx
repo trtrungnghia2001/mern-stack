@@ -35,14 +35,14 @@ export const nav_links = [
     path: "/dashboard",
   },
   {
-    title: "Board",
+    title: "Boards",
     icon: <Trello size={size} />,
     path: "/boards",
   },
   {
-    title: "Template",
+    title: "Workspaces",
     icon: <SwatchBook size={size} />,
-    path: "/templates",
+    path: "/workspaces",
   },
 ];
 

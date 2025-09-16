@@ -2,7 +2,6 @@ import NotFoundPage from "@/app/pages/notfound-page";
 import { useRoutes } from "react-router-dom";
 import KanbanLayout from "./KanbanLayout";
 import BoardsPage from "./pages/BoardsPage";
-import TeamplatesPage from "./pages/TeamplatesPage";
 import WorkspaceBoardPage from "./pages/WorkspaceBoardPage";
 import WorkspaceMemberPage from "./pages/WorkspaceMemberPage";
 import WorkspaceSettingPage from "./pages/WorkspaceSettingPage";
@@ -10,6 +9,8 @@ import WorkspacePayPage from "./pages/WorkspacePayPage";
 import BoardIdPage from "./pages/BoardIdPage";
 import TaskModel from "./components/TaskModel";
 import Dashboard from "./pages/Dashboard";
+import WorkspacesPage from "./pages/WorkspacesPage";
+import WorkspaceIdPage from "./pages/WorkspaceIdPage";
 
 const KanbanRouter = () => {
   const routers = useRoutes([
@@ -36,8 +37,12 @@ const KanbanRouter = () => {
           ],
         },
         {
-          path: "templates",
-          element: <TeamplatesPage />,
+          path: "workspaces",
+          element: <WorkspacesPage />,
+        },
+        {
+          path: "workspaces/:id",
+          element: <WorkspaceIdPage />,
         },
         {
           path: "workspace",

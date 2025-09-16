@@ -10,7 +10,6 @@ const workspaceSchema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
       required: true,
-      unique: true,
     },
     members: [
       {
@@ -90,6 +89,10 @@ const todoSchema = new mongoose.Schema(
     complete: {
       type: Boolean,
       default: false,
+    },
+    assignee: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
   },
   { timestamps: true }

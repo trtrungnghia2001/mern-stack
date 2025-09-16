@@ -88,7 +88,9 @@ taskRoute.delete(`/delete-id/:id`, async (req, res, next) => {
 taskRoute.get(`/get-id/:id`, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const data = await taskModel.findById(id);
+    const data = await taskModel
+      .findById(id)
+      .populate("todos.assignee", "name email avatar");
 
     return handleResponse(res, {
       data: data,
@@ -164,5 +166,57 @@ taskRoute.post(`/update-position`, async (req, res, next) => {
     next(error);
   }
 });
+taskRoute.put(`/:taskId/todos/:todoId/assignee`, async (req, res, next) => {
+  try {
+    const { taskId, todoId } = req.params;
+    const { assigneeId } = req.body;
 
+    const task = await taskModel
+      .findOneAndUpdate(
+        { _id: taskId, "todos._id": todoId },
+        { $set: { "todos.$.assignee": assigneeId } },
+        { new: true }
+      )
+      .populate("todos.assignee");
+
+    if (!task) {
+      return handleResponse(res, {
+        status: StatusCodes.NOT_FOUND,
+        message: "Task or Todo not found",
+      });
+    }
+
+    return handleResponse(res, {
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+taskRoute.delete(
+  "/:taskId/todos/assignees/:assigneeId",
+  async (req, res, next) => {
+    try {
+      const { taskId, assigneeId } = req.params;
+
+      const task = await taskModel
+        .findOneAndUpdate(
+          { _id: taskId, "todos.assignee": assigneeId },
+          { $set: { "todos.$.assignee": null } },
+          { new: true }
+        )
+        .populate("todos.assignee");
+
+      if (!task) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Task not found" });
+      }
+
+      return res.json({ success: true, data: task });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 export default taskRoute;

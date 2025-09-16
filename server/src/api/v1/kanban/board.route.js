@@ -49,6 +49,14 @@ boardRoute.delete(`/delete-id/:id`, async (req, res, next) => {
       new: true,
     });
 
+    await boardViewModel.findOneAndDelete(
+      {
+        board: id,
+        user: req.user._id,
+      },
+      { new: true }
+    );
+
     return handleResponse(res, {
       data: deleteData,
     });
@@ -59,7 +67,10 @@ boardRoute.delete(`/delete-id/:id`, async (req, res, next) => {
 boardRoute.get(`/get-id/:id`, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const data = await boardModel.findById(id);
+    const data = await boardModel.findById(id).populate({
+      path: "workspace",
+      populate: [{ path: "owner" }, { path: "members.user" }],
+    });
 
     return handleResponse(res, {
       data: data,
@@ -155,6 +166,21 @@ boardRoute.post(`/add-view`, async (req, res, next) => {
     return handleResponse(res, {
       status: StatusCodes.CREATED,
       data: newData.board,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+boardRoute.get(`/workspace/:workspaceId`, async (req, res, next) => {
+  try {
+    const { workspaceId } = req.params;
+
+    const getData = await boardModel.find({
+      workspace: workspaceId,
+    });
+
+    return handleResponse(res, {
+      data: getData,
     });
   } catch (error) {
     next(error);
