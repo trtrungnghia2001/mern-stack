@@ -5,3 +5,8 @@ export interface IMember {
   role: string;
   user: IUser;
 }
+
+export interface IMemberDetail extends Readonly<IUser> {
+  _id: string;
+  createdAt: string;
+}

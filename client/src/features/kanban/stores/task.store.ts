@@ -4,7 +4,6 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
-import { tasks } from "../data";
 import type { ICreateDTO, ITask } from "../types/task.type";
 
 interface ITaskStore {
@@ -37,7 +36,7 @@ interface ITaskStore {
 const baseUrl = `/api/v1/kanban/task`;
 
 export const useTaskStore = create<ITaskStore>((set, get) => ({
-  tasks: tasks,
+  tasks: [],
   task: null,
   create: async (data) => {
     const url = baseUrl + `/create`;

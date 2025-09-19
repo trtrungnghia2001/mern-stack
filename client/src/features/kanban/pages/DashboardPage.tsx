@@ -19,13 +19,13 @@ import type { ResponseSuccessType } from "@/shared/types/response";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import { Button } from "@/shared/components/ui/button";
 
-const BoardOverview = () => {
+const DashboardPage = () => {
   const COLORS = ["#60a5fa", "#34d399", "#f87171", "#9ca3af"];
 
   const { data, error, isLoading } = useQuery({
@@ -64,17 +64,14 @@ const BoardOverview = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          <FileDown size={16} />
+        <Button onClick={handleExport} size={"sm"}>
+          <FileDown />
           Export
-        </button>
+        </Button>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <p className="text-gray-500">Boards</p>
@@ -107,8 +104,8 @@ const BoardOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Task by Status</h3>
-            <PieChart width={300} height={250}>
+            <h3 className="text-base font-semibold mb-4">Task by Status</h3>
+            <PieChart width={300} height={250} className="mx-auto">
               <Pie
                 data={data.statusData}
                 cx="50%"
@@ -127,8 +124,13 @@ const BoardOverview = () => {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Task by Board</h3>
-            <BarChart width={350} height={250} data={data.boardData}>
+            <h3 className="text-base font-semibold mb-4">Task by Board</h3>
+            <BarChart
+              width={350}
+              height={250}
+              data={data.boardData}
+              className="mx-auto"
+            >
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
@@ -140,9 +142,9 @@ const BoardOverview = () => {
 
       {/* Recent Boards */}
       <Card>
-        <CardContent className="p-4">
-          <Table>
-            <TableCaption>Board overview.</TableCaption>
+        <CardContent className="p-4  w-full overflow-x-auto">
+          <h3 className="text-lg font-semibold mb-4">Board overview</h3>
+          <Table className="">
             <TableHeader>
               <TableRow>
                 <TableCell>Board</TableCell>
@@ -180,4 +182,4 @@ const BoardOverview = () => {
   );
 };
 
-export default BoardOverview;
+export default DashboardPage;

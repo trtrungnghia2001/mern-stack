@@ -6,9 +6,14 @@ interface DropdownMenuProps {
   children:
     | React.ReactNode
     | ((setOpen: (open: boolean) => void) => React.ReactNode);
+  closeParent?: () => void;
 }
 
-const ButtonDropdownMenu = ({ button, children }: DropdownMenuProps) => {
+const ButtonDropdownMenu = ({
+  button,
+  children,
+  closeParent,
+}: DropdownMenuProps) => {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number }>({
     top: 0,
@@ -87,7 +92,14 @@ const ButtonDropdownMenu = ({ button, children }: DropdownMenuProps) => {
 
   return (
     <>
-      <div ref={btnRef} onClick={() => setOpen(!open)}>
+      <div
+        ref={btnRef}
+        onClick={() => {
+          // Nếu có cha -> đóng cha trước khi mở con
+          if (closeParent) closeParent();
+          setOpen(!open);
+        }}
+      >
         {button}
       </div>
 
@@ -95,7 +107,7 @@ const ButtonDropdownMenu = ({ button, children }: DropdownMenuProps) => {
         createPortal(
           <div
             ref={menuRef}
-            className="fixed bg-white border rounded shadow max-h-[500px] w-[300px] overflow-hidden overflow-y-auto z-50"
+            className="fixed bg-white border rounded shadow max-h-[500px] min-w-[150px] max-w-[300px] overflow-hidden overflow-y-auto z-50"
             style={{ top: position.top, left: position.left }}
           >
             {typeof children === "function" ? children(setOpen) : children}

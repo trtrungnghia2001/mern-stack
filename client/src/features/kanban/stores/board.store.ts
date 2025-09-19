@@ -4,14 +4,13 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import instance from "@/configs/axios.config";
-import type { IBoard, ICreateDTO } from "../types/board.type";
+import type { IBoard, IBoardCreateDTO } from "../types/board.type";
 import type { IMember } from "../types/member.type";
 
 interface IBoardStore {
   boards: IBoard[];
-  boardViews: IBoard[];
   members: IMember[];
-  create: (data: ICreateDTO) => Promise<ResponseSuccessType<IBoard>>;
+  create: (data: IBoardCreateDTO) => Promise<ResponseSuccessType<IBoard>>;
   updateById: (
     id: string,
     data: Partial<IBoard>
@@ -21,20 +20,32 @@ interface IBoardStore {
   getAll: () => Promise<ResponseSuccessListType<IBoard>>;
   setBoards: (data: IBoard[]) => void;
   updatePosition: (data: IBoard[]) => Promise<ResponseSuccessListType<IBoard>>;
+
   // view
+  boardViews: IBoard[];
   getView: () => Promise<ResponseSuccessListType<IBoard>>;
   addBoardView: (boardId: string) => Promise<ResponseSuccessType<IBoard>>;
+  //me
+  getMe: () => Promise<ResponseSuccessListType<IBoard>>;
+
   // workspace
   getBoardsByWorkspaceId: (
     workspaceId: string
   ) => Promise<ResponseSuccessListType<IBoard>>;
+
+  // favorite
+  boardFavorites: IBoard[];
+  getFavorite: () => Promise<ResponseSuccessListType<IBoard>>;
+  addBoardFavorite: (boardId: string) => Promise<ResponseSuccessType<IBoard>>;
+  removeBoardFavorite: (
+    boardId: string
+  ) => Promise<ResponseSuccessType<IBoard>>;
 }
 
 const baseUrl = `/api/v1/kanban/board`;
 
 export const useBoardStore = create<IBoardStore>((set, get) => ({
   boards: [],
-  boardViews: [],
   members: [],
   create: async (data) => {
     const url = baseUrl + `/create`;
@@ -49,14 +60,11 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
     const url = baseUrl + `/update-id/` + id;
     const resp = (await instance.put<ResponseSuccessType<IBoard>>(url, data))
       .data;
-    set({
-      boards: get().boards.map((item) =>
-        item._id === id ? { ...item, ...resp.data } : item
-      ),
-      boardViews: get().boardViews.map((item) =>
-        item._id === id ? { ...item, ...resp.data } : item
-      ),
-    });
+
+    // set({
+    //   boards: updateBoardData(id, get().boards, resp.data),
+    //   boardViews: updateBoardData(id, get().boardViews, resp.data),
+    // });
     return resp;
   },
   deleteById: async (id) => {
@@ -76,7 +84,7 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
     const owner = {
       _id: resp.data.workspace.owner._id,
       user: resp.data.workspace.owner,
-      role: "member",
+      role: "owner",
     };
 
     set({
@@ -108,8 +116,9 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
   },
 
   // view
+  boardViews: [],
   getView: async () => {
-    const url = baseUrl + `/get-view/`;
+    const url = baseUrl + `/get-view`;
     const resp = (await instance.get<ResponseSuccessListType<IBoard>>(url))
       .data;
     set({
@@ -128,6 +137,17 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
     return resp;
   },
 
+  //me
+  getMe: async () => {
+    const url = baseUrl + `/get-me`;
+    const resp = (await instance.get<ResponseSuccessListType<IBoard>>(url))
+      .data;
+    set({
+      boards: resp.data,
+    });
+    return resp;
+  },
+
   // workspace
   getBoardsByWorkspaceId: async (workspaceId) => {
     const url = baseUrl + `/workspace/` + workspaceId;
@@ -138,6 +158,53 @@ export const useBoardStore = create<IBoardStore>((set, get) => ({
       boards: resp.data,
     });
 
+    return resp;
+  },
+
+  // favorite
+  boardFavorites: [],
+  getFavorite: async () => {
+    const url = baseUrl + `/get-favorite`;
+    const resp = (await instance.get<ResponseSuccessListType<IBoard>>(url))
+      .data;
+    set({
+      boardFavorites: resp.data,
+    });
+    return resp;
+  },
+  addBoardFavorite: async (boardId) => {
+    const url = baseUrl + `/add-favorite`;
+    const resp = (
+      await instance.post<ResponseSuccessType<IBoard>>(url, { board: boardId })
+    ).data;
+
+    set({
+      boardFavorites: [resp.data, ...get().boardFavorites],
+      boards: get().boards.map((item) =>
+        item._id === boardId ? { ...item, favorite: true } : item
+      ),
+      boardViews: get().boardViews.map((item) =>
+        item._id === boardId ? { ...item, favorite: true } : item
+      ),
+    });
+    return resp;
+  },
+  removeBoardFavorite: async (boardId) => {
+    const url = baseUrl + `/remove-favorite`;
+    const resp = (
+      await instance.post<ResponseSuccessType<IBoard>>(url, { board: boardId })
+    ).data;
+    set({
+      boardFavorites: get().boardFavorites.filter(
+        (item) => item._id !== boardId
+      ),
+      boards: get().boards.map((item) =>
+        item._id === boardId ? { ...item, favorite: false } : item
+      ),
+      boardViews: get().boardViews.map((item) =>
+        item._id === boardId ? { ...item, favorite: false } : item
+      ),
+    });
     return resp;
   },
 }));

@@ -4,13 +4,18 @@ import type {
   ResponseSuccessType,
 } from "@/shared/types/response";
 import { create } from "zustand";
-import type { IWorkspace, IWorkspaceCreateDTO } from "../types/workspace.type";
+import type {
+  IWorkspace,
+  IWorkspaceCreateDTO,
+  IWorkspaceUpdateDTO,
+} from "../types/workspace.type";
 import type { IMember } from "../types/member.type";
 
 const baseUrl = `/api/v1/kanban/workspace`;
 
 interface IWorkspaceStore {
   workspaces: IWorkspace[];
+  ownerId: string | null;
   create: (
     data: IWorkspaceCreateDTO
   ) => Promise<ResponseSuccessType<IWorkspace>>;
@@ -21,6 +26,20 @@ interface IWorkspaceStore {
   deleteById: (id: string) => Promise<ResponseSuccessType<IWorkspace>>;
   getById: (id: string) => Promise<ResponseSuccessType<IWorkspace>>;
   getAll: (query?: string) => Promise<ResponseSuccessListType<IWorkspace>>;
+
+  // form
+  isEdit: {
+    idEdit: string;
+    dataInitEdit: IWorkspaceUpdateDTO;
+  } | null;
+  setEdit: (
+    value: {
+      idEdit: string;
+      dataInitEdit: IWorkspaceUpdateDTO;
+    } | null
+  ) => void;
+  openForm: boolean;
+  setOpenForm: (open: boolean) => void;
 
   // member
   members: IMember[];
@@ -40,6 +59,7 @@ interface IWorkspaceStore {
 
 export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
   workspaces: [],
+  ownerId: null,
   create: async (data) => {
     const url = baseUrl + `/create`;
     const resp = (
@@ -55,7 +75,7 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
   updateById: async (id, data) => {
     const url = baseUrl + `/update-id/` + id;
     const resp = (
-      await instance.patch<ResponseSuccessType<IWorkspace>>(url, data)
+      await instance.put<ResponseSuccessType<IWorkspace>>(url, data)
     ).data;
 
     set({
@@ -84,6 +104,7 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
 
     set({
       members: resp.data.members,
+      ownerId: resp.data.owner._id,
     });
 
     return resp;
@@ -98,6 +119,20 @@ export const useWorkspaceStore = create<IWorkspaceStore>()((set, get) => ({
     });
 
     return resp;
+  },
+
+  // form
+  isEdit: null,
+  setEdit: (value) => {
+    set({
+      isEdit: value,
+    });
+  },
+  openForm: false,
+  setOpenForm: (open) => {
+    set({
+      openForm: open,
+    });
   },
 
   // member

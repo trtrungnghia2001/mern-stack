@@ -1,9 +1,9 @@
 import { memo, useState } from "react";
-import TextareaAutosize from "react-textarea-autosize";
 import { useCommentStore } from "../stores/comment.store";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { toast } from "sonner";
 
 const CommentInput = () => {
   const [text, setText] = useState("");
@@ -24,7 +24,7 @@ const CommentInput = () => {
 
   return (
     <div className="space-y-1">
-      <TextareaAutosize
+      <Textarea
         rows={2}
         value={text}
         onChange={(e) => setText(e.target.value)}

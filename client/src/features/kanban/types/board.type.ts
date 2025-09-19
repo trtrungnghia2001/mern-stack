@@ -1,7 +1,8 @@
 import type { IWorkspace } from "./workspace.type";
 
-export interface ICreateDTO {
+export interface IBoardCreateDTO {
   name: string;
+  description: string;
   bgColor: number;
   workspace: string;
 }

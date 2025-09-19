@@ -29,7 +29,7 @@ const links = [
     title: "Chat",
   },
   {
-    path: "kanban",
+    path: "kanban/dashboard",
     title: "Kanban",
   },
 ];

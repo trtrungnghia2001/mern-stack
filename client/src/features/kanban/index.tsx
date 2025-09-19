@@ -2,15 +2,15 @@ import NotFoundPage from "@/app/pages/notfound-page";
 import { useRoutes } from "react-router-dom";
 import KanbanLayout from "./KanbanLayout";
 import BoardsPage from "./pages/BoardsPage";
-import WorkspaceBoardPage from "./pages/WorkspaceBoardPage";
-import WorkspaceMemberPage from "./pages/WorkspaceMemberPage";
-import WorkspaceSettingPage from "./pages/WorkspaceSettingPage";
-import WorkspacePayPage from "./pages/WorkspacePayPage";
 import BoardIdPage from "./pages/BoardIdPage";
 import TaskModel from "./components/TaskModel";
-import Dashboard from "./pages/Dashboard";
 import WorkspacesPage from "./pages/WorkspacesPage";
 import WorkspaceIdPage from "./pages/WorkspaceIdPage";
+import YouBoardPage from "./pages/YouBoardPage";
+import MemberPage from "./pages/MemberPage";
+import DashboardPage from "./pages/DashboardPage";
+import UpdateMeForm from "../auth/components/UpdateMeForm";
+import ChangePasswordForm from "../auth/components/ChangePasswordForm";
 
 const KanbanRouter = () => {
   const routers = useRoutes([
@@ -20,7 +20,7 @@ const KanbanRouter = () => {
         {
           index: true,
           path: "dashboard",
-          element: <Dashboard />,
+          element: <DashboardPage />,
         },
         {
           path: "boards",
@@ -48,26 +48,25 @@ const KanbanRouter = () => {
           path: "workspace",
           children: [
             {
-              path: "home",
-              element: <WorkspaceBoardPage />,
+              path: "you-board",
+              element: <YouBoardPage />,
             },
             {
               path: "menber",
-              element: <WorkspaceMemberPage />,
+              element: <MemberPage />,
             },
             {
-              path: "setting",
-              element: <WorkspaceSettingPage />,
+              path: "update-profile",
+              element: <UpdateMeForm />,
             },
             {
-              path: "pay",
-              element: <WorkspacePayPage />,
+              path: "change-password",
+              element: <ChangePasswordForm />,
             },
           ],
         },
       ],
     },
-
     {
       path: "*",
       element: <NotFoundPage />,

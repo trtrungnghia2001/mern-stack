@@ -7,6 +7,7 @@ import NotFoundPage from "../pages/notfound-page";
 import AuthRouter from "@/features/auth";
 import UploadRouter from "@/features/upload";
 import KanbanRouter from "@/features/kanban";
+import AuthProtectedRoute from "./AuthProtectedRoute";
 
 const MainRouter = () => {
   return (
@@ -21,9 +22,10 @@ const MainRouter = () => {
       <Route path="upload/*" element={<UploadRouter />} />
       {/* chat */}
       {/* comment */}
-      {/* kanban */}
-      <Route path="kanban/*" element={<KanbanRouter />} />
-      {/* me */}
+      <Route element={<AuthProtectedRoute />}>
+        {/* kanban */}
+        <Route path="kanban/*" element={<KanbanRouter />} />
+      </Route>
     </Routes>
   );
 };

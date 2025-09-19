@@ -12,9 +12,13 @@ import useSearchParamsValue from "@/shared/hooks/useSearchParamsValue";
 import Loading from "../components/Loading";
 import InputDebounce from "../components/InputDebounce";
 import { Check, Image, Trash } from "lucide-react";
-import ButtonDropdownMenu from "../components/ButtonDropdownMenu";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 
 const BoardIdPage = () => {
   const { boardId } = useParams();
@@ -113,42 +117,43 @@ const BoardIdPage = () => {
               ))}
             </select>
             <ButtonBoardFavorite board={getBoardByIdResult.data.data} />
-            <ButtonDropdownMenu
-              button={
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="p-1 rounded-full overflow-hidden hover:bg-gray-300 hover:text-blue-500"
                 >
                   <Image size={16} />
                 </button>
-              }
-            >
-              <ul className="grid grid-cols-3 gap-2 p-1">
-                {boardBgColor.map((item, idx) => (
-                  <li
-                    key={idx}
-                    onClick={() => {
-                      setBoard((prev) => ({ ...prev, bgColor: idx }));
-                      updateBoardByIdResult.mutate({ bgColor: idx });
-                    }}
-                    className="relative rounded overflow-hidden"
-                  >
-                    {idx === board?.bgColor && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Check className="absolute text-white" size={16} />
-                      </div>
-                    )}
-                    <img
-                      src={item}
-                      alt="board-bg"
-                      loading="lazy"
-                      className="img"
-                    />
-                  </li>
-                ))}
-              </ul>
-            </ButtonDropdownMenu>
-
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="max-w-[300px]">
+                <ul className="grid grid-cols-3 gap-2 p-1">
+                  {boardBgColor.map((item, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => {
+                        setBoard((prev) => ({ ...prev, bgColor: idx }));
+                        updateBoardByIdResult.mutate({ bgColor: idx });
+                      }}
+                      className="relative rounded overflow-hidden"
+                    >
+                      {idx === board?.bgColor && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <Check className="absolute text-white" size={16} />
+                        </div>
+                      )}
+                      <img
+                        src={item}
+                        alt="board-bg"
+                        loading="lazy"
+                        className="img"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <button
               className="p-1 rounded-full overflow-hidden hover:bg-gray-300 hover:text-red-500"
               onClick={() => deleteBoardByIdResult.mutate()}

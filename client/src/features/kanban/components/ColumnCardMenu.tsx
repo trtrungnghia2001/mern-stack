@@ -1,12 +1,17 @@
 import { Ellipsis } from "lucide-react";
 import { memo } from "react";
 import { cloumnBgColor } from "../constants/color";
-import ButtonDropdownMenu from "./ButtonDropdownMenu";
 import type { IColumn } from "../types/column.type";
 import clsx from "clsx";
 import { useColumnStore } from "../stores/column.store";
 import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface ColumnCardMenuProps {
   column: IColumn;
@@ -20,39 +25,30 @@ const ColumnCardMenu = ({
   onChangeSave,
 }: ColumnCardMenuProps) => {
   const { deleteById } = useColumnStore();
-  const deleteByIdResult = useMutation({
+  const { isPending, mutate } = useMutation({
     mutationFn: async (id: string) => await deleteById(id),
     onSuccess: (data) => toast.success(data.message),
     onError: (error) => toast.error(error.message),
   });
 
   return (
-    <ButtonDropdownMenu
-      button={
-        <button className="hover:bg-gray-400/50 p-2 rounded-lg">
-          <Ellipsis size={16} />
-        </button>
-      }
-    >
-      <div>
-        <div className="font-medium text-center p-5">Operation</div>
-        <ul>
-          <li
-            className="py-2 px-3 cursor-pointer hover:bg-gray-100"
-            onClick={() => onChangeSave(!column.save)}
-          >
-            {column.save ? `Unsave` : `Save`}
-          </li>
-          <li
-            className="py-2 px-3 cursor-pointer hover:bg-gray-100"
-            onClick={() => deleteByIdResult.mutate(column._id)}
-          >
-            Delete
-          </li>
-        </ul>
-        <div className="border-t mt-2 py-2 px-3 space-y-2">
+    <DropdownMenu>
+      <DropdownMenuTrigger className="hover:bg-gray-400/50 p-2 rounded-lg">
+        <Ellipsis size={16} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end">
+        <DropdownMenuItem onClick={() => onChangeSave(!column.save)}>
+          {column.save ? `Unsave` : `Save`}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isPending}
+          onClick={() => mutate(column._id)}
+        >
+          Delete
+        </DropdownMenuItem>
+        <div className="border-t pt-2 p-2 space-y-2">
           <div className="font-semibold text-xs">Change list color</div>
-          <ul className="grid grid-cols-5 gap-2">
+          <ul className="grid grid-cols-3 gap-2">
             {cloumnBgColor.map((item, idx) => (
               <li
                 key={idx}
@@ -73,8 +69,8 @@ const ColumnCardMenu = ({
             Remove color
           </button>
         </div>
-      </div>
-    </ButtonDropdownMenu>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

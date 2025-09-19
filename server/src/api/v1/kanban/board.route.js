@@ -1,10 +1,16 @@
 import express from "express";
-import { boardModel, boardViewModel } from "./kanban.model.js";
+import {
+  boardModel,
+  boardViewModel,
+  favoriteBoardModel,
+} from "./kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
+import mongoose from "mongoose";
+import { getBoardListAddFavorite } from "./kanban.service.js";
 
 const boardRoute = express.Router();
 
@@ -57,6 +63,14 @@ boardRoute.delete(`/delete-id/:id`, async (req, res, next) => {
       { new: true }
     );
 
+    await favoriteBoardModel.findOneAndDelete(
+      {
+        board: id,
+        user: req.user._id,
+      },
+      { new: true }
+    );
+
     return handleResponse(res, {
       data: deleteData,
     });
@@ -67,10 +81,31 @@ boardRoute.delete(`/delete-id/:id`, async (req, res, next) => {
 boardRoute.get(`/get-id/:id`, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const data = await boardModel.findById(id).populate({
-      path: "workspace",
-      populate: [{ path: "owner" }, { path: "members.user" }],
-    });
+    const userId = req.user._id;
+
+    const data = await boardModel
+      .findById(id)
+      .populate([
+        {
+          path: "workspace",
+          populate: [
+            {
+              path: "owner",
+            },
+            {
+              path: "members.user",
+            },
+          ],
+        },
+      ])
+      .lean();
+
+    data.favorite = (await favoriteBoardModel.findOne({
+      board: id,
+      user: userId,
+    }))
+      ? true
+      : false;
 
     return handleResponse(res, {
       data: data,
@@ -81,17 +116,15 @@ boardRoute.get(`/get-id/:id`, async (req, res, next) => {
 });
 boardRoute.get(`/get-all`, async (req, res, next) => {
   try {
-    const user = req.user;
-    const data = await boardModel
-      .find({
-        user: user._id,
-      })
-      .sort({
-        position: 1,
-      });
+    const userId = req.user._id;
 
+    const boards = await getBoardListAddFavorite(boardModel, userId, {
+      $match: {
+        user: new mongoose.Types.ObjectId(userId),
+      },
+    });
     return handleResponseList(res, {
-      data: data,
+      data: boards,
     });
   } catch (error) {
     next(error);
@@ -117,20 +150,41 @@ boardRoute.post(`/update-position`, async (req, res, next) => {
     next(error);
   }
 });
+//
 boardRoute.get(`/get-view`, async (req, res, next) => {
   try {
-    const user = req.user;
-    const data = await boardViewModel
-      .find({
-        user: user._id,
-      })
-      .sort({
-        updatedAt: -1,
-      })
-      .populate(["board"]);
+    const userId = req.user._id;
+
+    const views = await getBoardListAddFavorite(boardModel, userId, [
+      {
+        $lookup: {
+          from: "kanbanboardviews",
+          let: { boardId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$board", "$$boardId"] },
+                    { $eq: ["$user", new mongoose.Types.ObjectId(userId)] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "viewInfo",
+        },
+      },
+      {
+        $match: { viewInfo: { $ne: [] } },
+      },
+      {
+        $project: { viewInfo: 0 },
+      },
+    ]);
 
     return handleResponseList(res, {
-      data: data.map((item) => item.board),
+      data: views,
     });
   } catch (error) {
     next(error);
@@ -171,16 +225,115 @@ boardRoute.post(`/add-view`, async (req, res, next) => {
     next(error);
   }
 });
+//
+boardRoute.get(`/get-me`, async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const me = await getBoardListAddFavorite(boardModel, userId, {
+      $match: {
+        user: new mongoose.Types.ObjectId(userId),
+      },
+    });
+
+    return handleResponseList(res, {
+      data: me,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+//
+boardRoute.get(`/get-favorite`, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const data = await favoriteBoardModel
+      .find({
+        user: user._id,
+      })
+      .populate(["board"])
+      .lean();
+
+    return handleResponseList(res, {
+      data: data.map((item) => ({ ...item.board, favorite: true })),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+boardRoute.post(`/add-favorite`, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { board } = req.body;
+
+    const filter = {
+      user: user._id,
+      board: board,
+    };
+
+    // Check nếu user đã từng favorite board này
+    let checkData = await favoriteBoardModel.findOne(filter);
+
+    let newData;
+
+    if (checkData) {
+      // Update updatedAt
+      checkData.updatedAt = new Date();
+      await checkData.save();
+      newData = checkData;
+    } else {
+      // Tạo mới
+      newData = await favoriteBoardModel.create(filter);
+    }
+
+    newData = await favoriteBoardModel
+      .findOne(filter)
+      .populate(["board"])
+      .lean();
+
+    return handleResponse(res, {
+      status: StatusCodes.CREATED,
+      data: { ...newData.board, favorite: true },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+boardRoute.post(`/remove-favorite`, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { board } = req.body;
+
+    const filter = {
+      user: user._id,
+      board: board,
+    };
+
+    let checkData = await favoriteBoardModel.findOneAndDelete(filter);
+
+    return handleResponse(res, {
+      status: StatusCodes.CREATED,
+      data: checkData.board,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//
 boardRoute.get(`/workspace/:workspaceId`, async (req, res, next) => {
   try {
     const { workspaceId } = req.params;
+    const userId = req.user._id;
 
-    const getData = await boardModel.find({
-      workspace: workspaceId,
+    const boards = await getBoardListAddFavorite(boardModel, userId, {
+      $match: {
+        workspace: new mongoose.Types.ObjectId(workspaceId),
+      },
     });
 
     return handleResponse(res, {
-      data: getData,
+      data: boards,
     });
   } catch (error) {
     next(error);

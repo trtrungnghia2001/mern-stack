@@ -1,30 +1,24 @@
 import {
   Bell,
-  CreditCard,
   Info,
   LayoutDashboard,
-  Megaphone,
-  Settings,
+  LockKeyhole,
   SwatchBook,
   Trello,
+  UserPen,
   Users,
 } from "lucide-react";
 
-const size = 14;
-const size1 = 16;
+const size = 16;
 
 export const header_links = [
   {
-    title: "Share",
-    icon: <Megaphone size={size1} />,
-  },
-  {
     title: "Notification",
-    icon: <Bell size={size1} />,
+    icon: <Bell size={size} />,
   },
   {
     title: "Infomation",
-    icon: <Info size={size1} />,
+    icon: <Info size={size} />,
   },
 ];
 
@@ -48,9 +42,9 @@ export const nav_links = [
 
 export const wordspace_links = [
   {
-    title: "Board",
+    title: "You board",
     icon: <Trello size={size} />,
-    path: "/home",
+    path: "/you-board",
   },
   {
     title: "Member",
@@ -58,13 +52,13 @@ export const wordspace_links = [
     path: "/menber",
   },
   {
-    title: "Setting",
-    icon: <Settings size={size} />,
-    path: "/setting",
+    title: "Update Propfile",
+    icon: <UserPen size={size} />,
+    path: "/update-profile",
   },
   {
-    title: "Pay",
-    icon: <CreditCard size={size} />,
-    path: "/pay",
+    title: "Change password",
+    icon: <LockKeyhole size={size} />,
+    path: "/change-password",
   },
 ];

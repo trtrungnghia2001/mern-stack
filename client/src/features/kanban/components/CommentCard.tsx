@@ -47,7 +47,7 @@ const CommentCard = ({ data }: CommentCardProps) => {
     <div className="flex items-start gap-3 ">
       <div className="aspect-square overflow-hidden rounded-full w-6">
         <img
-          src={IMAGE_NOTFOUND.avatar_notfound}
+          src={data.user.avatar || IMAGE_NOTFOUND.avatar_notfound}
           alt="avatar"
           className="img"
         />

@@ -8,16 +8,12 @@ const size = 20;
 
 const BoardsPage = () => {
   const { boards, boardViews, getAll, getView } = useBoardStore();
-  const getAllResult = useQuery({
-    queryKey: ["boards"],
-    queryFn: async () => await getAll(),
-  });
-  const getViewResult = useQuery({
-    queryKey: ["boards-view"],
-    queryFn: async () => await getView(),
+  const { isLoading } = useQuery({
+    queryKey: ["boards", "views"],
+    queryFn: async () => Promise.all([await getView(), await getAll()]),
   });
 
-  if (getAllResult.isLoading || getViewResult.isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
 
   return (
     <div className="space-y-10">
@@ -27,7 +23,7 @@ const BoardsPage = () => {
           <Clock3 size={size} />
           <span>Recently Viewed</span>
         </div>
-        <ul className="grid gap-4 grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {boardViews.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />
@@ -41,7 +37,7 @@ const BoardsPage = () => {
           <Trello size={size} />
           <span>Trello Workspace</span>
         </div>
-        <ul className="grid gap-4 grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {boards.map((item) => (
             <li key={item._id}>
               <BoardCard board={item} />

@@ -2,22 +2,32 @@ import { Star } from "lucide-react";
 import { useBoardStore } from "../stores/board.store";
 import type { IBoard } from "../types/board.type";
 import clsx from "clsx";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 interface ButtonBoardFavoriteProps {
   board: IBoard;
 }
 
 const ButtonBoardFavorite = ({ board }: ButtonBoardFavoriteProps) => {
-  const { updateById } = useBoardStore();
-  const [favorite, setFavorite] = useState(board.favorite);
+  const { addBoardFavorite, removeBoardFavorite } = useBoardStore();
+  const [favorite, setFavorite] = useState(false);
+  useEffect(() => {
+    setFavorite(board.favorite);
+  }, [board.favorite]);
+
+  const { isPending, mutate } = useMutation({
+    mutationFn: async () => {
+      if (favorite) {
+        return await removeBoardFavorite(board._id);
+      }
+      return await addBoardFavorite(board._id);
+    },
+    onSuccess: () => setFavorite(!favorite),
+  });
+
   return (
-    <button
-      onClick={() => {
-        updateById(board._id, { favorite: !board.favorite });
-        setFavorite(!favorite);
-      }}
-    >
+    <button disabled={isPending} onClick={() => mutate()}>
       <Star
         size={16}
         className={clsx([

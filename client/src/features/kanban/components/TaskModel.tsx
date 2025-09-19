@@ -1,5 +1,13 @@
 import { memo, useRef, useState } from "react";
-import { ImageUp, Timer, Trash, UserPlus, X } from "lucide-react";
+import {
+  ImageUp,
+  SquareCheckBig,
+  Tag,
+  Timer,
+  Trash,
+  UserPlus,
+  X,
+} from "lucide-react";
 import TaskModelTodoList from "./TaskModelTodoList";
 import TaskModelFilesList from "./TaskModelFilesList";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,7 +20,7 @@ import InputDebounce from "./InputDebounce";
 import clsx from "clsx";
 import TaskModelComment from "./TaskModelComment";
 import Loading from "./Loading";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 const TaskModel = () => {
   //
@@ -149,6 +157,14 @@ const TaskModel = () => {
               <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
                 <UserPlus size={16} />
                 Member
+              </button>
+              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+                <Tag size={16} />
+                Label
+              </button>
+              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+                <SquareCheckBig size={16} />
+                What to do
               </button>
             </div>
             {/* date */}

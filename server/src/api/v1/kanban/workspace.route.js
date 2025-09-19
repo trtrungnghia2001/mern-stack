@@ -1,5 +1,12 @@
 import express from "express";
-import { boardModel, workspaceModel } from "./kanban.model.js";
+import {
+  boardModel,
+  boardViewModel,
+  columnModel,
+  commentModel,
+  taskModel,
+  workspaceModel,
+} from "./kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
@@ -26,7 +33,7 @@ workspaceRoute.post(`/create`, async (req, res, next) => {
     next(error);
   }
 });
-workspaceRoute.patch(
+workspaceRoute.put(
   `/update-id/:workspaceId`,
   workspaceOwnerMiddleware,
   async (req, res, next) => {
@@ -57,9 +64,21 @@ workspaceRoute.delete(
     try {
       const { workspaceId } = req.params;
 
-      const deleteData = await workspaceModel.findByIdAndDelete(workspaceId, {
-        new: true,
-      });
+      const boards = await boardModel.find({ workspace: workspaceId });
+      for (const board of boards) {
+        await columnModel.deleteMany({ board: board._id });
+        await boardViewModel.deleteMany({ board: board._id });
+
+        const tasks = await taskModel.find({ board: board._id });
+        for (const task of tasks) {
+          await commentModel.deleteMany({ task: task._id });
+        }
+
+        await taskModel.deleteMany({ board: board._id });
+      }
+      await boardModel.deleteMany({ workspace: workspaceId });
+
+      const deleteData = await workspaceModel.findByIdAndDelete(workspaceId);
 
       return handleResponse(res, {
         data: deleteData,
@@ -75,7 +94,7 @@ workspaceRoute.get(`/get-id/:workspaceId`, async (req, res, next) => {
 
     const getData = await workspaceModel
       .findById(workspaceId)
-      .populate(["members.user"]);
+      .populate(["members.user", "owner"]);
 
     return handleResponse(res, {
       data: getData,
@@ -92,6 +111,7 @@ workspaceRoute.get(`/get-all`, async (req, res, next) => {
       .find({
         $or: [{ owner: userId }, { "members.user": userId }],
       })
+      .populate(["owner"])
       .sort({
         createdAt: -1,
       });

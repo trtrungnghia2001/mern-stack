@@ -50,9 +50,11 @@ taskRoute.put(
         await deleteFromCloudinary(bgUrl);
       }
 
-      const updateData = await taskModel.findByIdAndUpdate(id, body, {
-        new: true,
-      });
+      const updateData = await taskModel
+        .findByIdAndUpdate(id, body, {
+          new: true,
+        })
+        .populate("todos.assignee", "name email avatar");
 
       return handleResponse(res, {
         data: updateData,

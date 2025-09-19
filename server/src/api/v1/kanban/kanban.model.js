@@ -35,15 +35,24 @@ const boardSchema = new mongoose.Schema(
     name: { type: String, required: true },
     position: { type: Number, default: 0 },
     bgColor: { type: Number, default: 0 },
-    favorite: {
-      type: Boolean,
-      default: false,
-    },
     user: { type: Schema.Types.ObjectId, ref: "user", required: true },
     workspace: { type: Schema.Types.ObjectId, ref: "kanbanWorkspace" },
   },
   { timestamps: true }
 );
+
+// favorite
+const favoriteBoardSchema = new mongoose.Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    board: { type: Schema.Types.ObjectId, ref: "kanbanBoard", required: true },
+  },
+  { timestamps: true }
+);
+
+export const favoriteBoardModel =
+  mongoose.models.kanbanFavoriteBoard ||
+  mongoose.model("kanbanFavoriteBoard", favoriteBoardSchema);
 
 export const boardModel =
   mongoose.models.kanbanBoard || mongoose.model("kanbanBoard", boardSchema);
