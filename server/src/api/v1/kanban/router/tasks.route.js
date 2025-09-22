@@ -1,5 +1,5 @@
 import express from "express";
-import { taskModel } from "./kanban.model.js";
+import { taskModel } from "../kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
@@ -20,7 +20,6 @@ taskRoute.post(`/create`, async (req, res, next) => {
     const body = req.body;
 
     const position = await taskModel.countDocuments({ column: body.column });
-    console.log({ position });
 
     body.user = user._id;
     body.position = position;

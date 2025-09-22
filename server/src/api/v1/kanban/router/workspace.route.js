@@ -6,14 +6,14 @@ import {
   commentModel,
   taskModel,
   workspaceModel,
-} from "./kanban.model.js";
+} from "../kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
-import { workspaceOwnerMiddleware } from "./kanban.middleware.js";
-import userModel from "../user/user.model.js";
+import { workspaceOwnerMiddleware } from "../kanban.middleware.js";
+import userModel from "../../user/user.model.js";
 
 const workspaceRoute = express.Router();
 
@@ -144,12 +144,13 @@ workspaceRoute.post(
       }
 
       // Check xem member đã tồn tại chưa
-      const exists = workspace.members.some((m) => m.user === member._id);
+      const exists = workspace.members.some(
+        (m) => m.user.toString() === member._id.toString()
+      );
       if (exists) {
         return handleResponse(res, {
           status: StatusCodes.BAD_REQUEST,
           message: "Member already in workspace",
-          data: getData,
         });
       }
 

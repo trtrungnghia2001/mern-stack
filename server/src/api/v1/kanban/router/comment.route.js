@@ -1,5 +1,5 @@
 import express from "express";
-import { commentModel } from "./kanban.model.js";
+import { commentModel } from "../kanban.model.js";
 import {
   handleResponse,
   handleResponseList,

@@ -1,5 +1,10 @@
 import express from "express";
-import { boardModel, columnModel, taskModel } from "./kanban.model.js";
+import {
+  boardModel,
+  columnModel,
+  taskModel,
+  workspaceModel,
+} from "../kanban.model.js";
 import { handleResponse } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import ExcelJS from "exceljs";
@@ -10,31 +15,52 @@ dashboardRouter.get("/overview", async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    // lấy tổng quan
-    const totalBoards = await boardModel.countDocuments({ user: userId });
+    // 1. Lấy danh sách board mà user tham gia
+    const workspaces = await workspaceModel
+      .find({
+        $or: [{ owner: userId }, { "members.user": userId }],
+      })
+      .select("_id");
+
+    const workspaceIds = workspaces.map((w) => w._id);
+
+    const boards = await boardModel
+      .find({
+        $or: [
+          { user: userId }, // owner board
+          { workspace: { $in: workspaceIds } }, // board trong workspace mình tham gia
+        ],
+      })
+      .select("_id");
+
+    const boardIds = boards.map((b) => b._id);
+
+    // 2. Summary
+    const totalBoards = boardIds.length;
+
     const totalTasks = await taskModel.countDocuments({
-      board: { $exists: true },
+      board: { $in: boardIds },
     });
 
-    // Task theo trạng thái
     const completedTasks = await taskModel.countDocuments({
-      board: { $exists: true },
+      board: { $in: boardIds },
       complete: true,
     });
 
     const overdueTasks = await taskModel.countDocuments({
-      board: { $exists: true },
-      endDate: { $lt: new Date() },
+      board: { $in: boardIds },
       complete: false,
+      endDate: { $lt: new Date() },
     });
 
     const inProgress = await taskModel.countDocuments({
-      board: { $exists: true },
+      board: { $in: boardIds },
       complete: false,
       endDate: { $gte: new Date() },
     });
 
     const noDeadline = await taskModel.countDocuments({
+      board: { $in: boardIds },
       complete: false,
       $or: [{ endDate: null }, { endDate: "" }],
     });
@@ -46,8 +72,11 @@ dashboardRouter.get("/overview", async (req, res, next) => {
       { name: "No Deadline", value: noDeadline },
     ];
 
-    // Task theo từng board
+    // 3. Task theo từng board
     const boardAgg = await taskModel.aggregate([
+      {
+        $match: { board: { $in: boardIds } },
+      },
       {
         $group: {
           _id: "$board",
@@ -56,7 +85,7 @@ dashboardRouter.get("/overview", async (req, res, next) => {
       },
       {
         $lookup: {
-          from: "kanbanboards", // collection name (chú ý mongoose auto lowercase + thêm "s")
+          from: "kanbanboards",
           localField: "_id",
           foreignField: "_id",
           as: "board",
@@ -71,20 +100,14 @@ dashboardRouter.get("/overview", async (req, res, next) => {
           updatedAt: "$board.updatedAt",
         },
       },
-      {
-        $sort: {
-          updatedAt: -1,
-        },
-      },
+      { $sort: { updatedAt: -1 } },
     ]);
 
+    // 4. Board Overview (full breakdown)
     const boardOverview = await boardModel.aggregate([
       {
-        $lookup: {
-          from: "kanbancolumns",
-          localField: "_id",
-          foreignField: "board",
-          as: "columns",
+        $match: {
+          _id: { $in: boardIds },
         },
       },
       {
@@ -99,7 +122,6 @@ dashboardRouter.get("/overview", async (req, res, next) => {
         $project: {
           name: 1,
           updatedAt: 1,
-          columnsCount: { $size: "$columns" },
           tasksCount: { $size: "$tasks" },
           inProgress: {
             $size: {
@@ -138,6 +160,25 @@ dashboardRouter.get("/overview", async (req, res, next) => {
               },
             },
           },
+          noDeadline: {
+            $size: {
+              $filter: {
+                input: "$tasks",
+                as: "t",
+                cond: {
+                  $and: [
+                    { $eq: ["$$t.complete", false] },
+                    {
+                      $or: [
+                        { $eq: ["$$t.endDate", null] },
+                        { $eq: ["$$t.endDate", ""] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          },
         },
       },
       { $sort: { updatedAt: -1 } },
@@ -157,8 +198,8 @@ dashboardRouter.get("/overview", async (req, res, next) => {
         boardOverview,
       },
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 });
 

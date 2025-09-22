@@ -6,7 +6,7 @@ import { authMiddleware } from "#server/shared/middlewares/auth.middleware";
 import authRouter from "./auth/auth.route.js";
 import uploadRouter from "./upload/upload.route.js";
 import adminRouter from "./admin/admin.route.js";
-import kanbanRoute from "./kanban/kanban.route.js";
+import kanbanRoute from "./kanban/router/kanban.route.js";
 
 const routerV1 = express.Router();
 

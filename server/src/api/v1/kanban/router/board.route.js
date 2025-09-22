@@ -3,14 +3,14 @@ import {
   boardModel,
   boardViewModel,
   favoriteBoardModel,
-} from "./kanban.model.js";
+} from "../kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
 } from "#server/shared/utils/response.util";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-import { getBoardListAddFavorite } from "./kanban.service.js";
+import { getBoardListAddFavorite } from "../kanban.service.js";
 
 const boardRoute = express.Router();
 
@@ -180,6 +180,11 @@ boardRoute.get(`/get-view`, async (req, res, next) => {
       },
       {
         $project: { viewInfo: 0 },
+      },
+      {
+        $sort: {
+          "viewInfo.updatedAt": -1,
+        },
       },
     ]);
 

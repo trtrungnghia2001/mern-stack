@@ -1,5 +1,5 @@
 import express from "express";
-import { columnModel, taskModel } from "./kanban.model.js";
+import { columnModel, taskModel } from "../kanban.model.js";
 import {
   handleResponse,
   handleResponseList,
