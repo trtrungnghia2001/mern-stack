@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { useRoutes } from "react-router-dom";
-import SignupSigninPage from "./pages/SignupSigninPage";
+import SignupSigninPage from "./pages/AuthenticationPage";
 import UpdateMeForm from "./components/UpdateMeForm";
 import ChangePasswordForm from "./components/ChangePasswordForm";
 import AuthProtectedRoute from "@/app/routes/AuthProtectedRoute";

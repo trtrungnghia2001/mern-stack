@@ -1,5 +1,5 @@
 import TiptapEditorComponent from "@/shared/components/form/tiptap-editor-component";
-import clsx from "clsx";
+import { Button } from "@/shared/components/ui/button";
 import { NotebookPen } from "lucide-react";
 import { memo, useState } from "react";
 
@@ -15,27 +15,24 @@ const TaskModelDescription = ({
   const [description, setDescription] = useState(value);
 
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <NotebookPen size={14} />
-          <div className="font-bold">Describe</div>
-        </div>
-        <button
-          onClick={() => updateValue(description)}
-          className={clsx([
-            `px-3 py-1.5 rounded bg-blue-500 text-white`,
-            `disabled:cursor-not-allowed disabled:opacity-50`,
-          ])}
-          disabled={description === value}
-        >
-          Save
-        </button>
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <NotebookPen size={14} />
+        <div className="font-bold">Describe</div>
       </div>
       <TiptapEditorComponent
         content={description}
         setContent={(value) => setDescription(value)}
       />
+      {description !== value && (
+        <Button
+          size={"sm"}
+          onClick={() => updateValue(description)}
+          disabled={description === value}
+        >
+          Save
+        </Button>
+      )}
     </div>
   );
 };

@@ -9,6 +9,7 @@ import ErrorPage from "./ErrorPage";
 import useSearchParamsValue from "@/shared/hooks/useSearchParamsValue";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
+import { RenderList } from "../components/RenderList";
 
 const MemberPage = () => {
   const { searchParams, handleSearchParams } = useSearchParamsValue();
@@ -33,14 +34,10 @@ const MemberPage = () => {
     setValue(q);
   }, [q]);
 
-  useEffect(() => {
+  const handleSearch = () => {
     if (value === q) return;
-    const timer = setTimeout(() => {
-      handleSearchParams("_q", value);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [value, q]);
+    handleSearchParams("_q", value);
+  };
 
   if (isLoading) return <Loading />;
   if (error) return <ErrorPage />;
@@ -57,16 +54,20 @@ const MemberPage = () => {
           placeholder="Search..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
         />
-        <Button type="submit">Search</Button>
+        <Button type="submit" onClick={handleSearch}>
+          Search
+        </Button>
       </form>
-      <ul className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {data?.data.map((item) => (
-          <li key={item._id}>
-            <MemberDetailCard data={item} />
-          </li>
-        ))}
-      </ul>
+      <RenderList
+        items={data?.data || []}
+        renderItem={(item) => <MemberDetailCard data={item} />}
+      />
     </div>
   );
 };

@@ -41,29 +41,24 @@ const KanbanRouter = () => {
           element: <WorkspacesPage />,
         },
         {
-          path: "workspaces/:id",
+          path: "workspace/:id",
           element: <WorkspaceIdPage />,
         },
         {
-          path: "workspace",
-          children: [
-            {
-              path: "you-board",
-              element: <YouBoardPage />,
-            },
-            {
-              path: "menber",
-              element: <MemberPage />,
-            },
-            {
-              path: "update-profile",
-              element: <UpdateMeForm />,
-            },
-            {
-              path: "change-password",
-              element: <ChangePasswordForm />,
-            },
-          ],
+          path: "your-board",
+          element: <YouBoardPage />,
+        },
+        {
+          path: "members",
+          element: <MemberPage />,
+        },
+        {
+          path: "update-profile",
+          element: <UpdateMeForm />,
+        },
+        {
+          path: "change-password",
+          element: <ChangePasswordForm />,
         },
       ],
     },

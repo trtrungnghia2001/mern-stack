@@ -1,11 +1,13 @@
 import {
   Bell,
+  FolderKanban,
   Info,
   LayoutDashboard,
-  LockKeyhole,
+  Lock,
+  LogOut,
   SwatchBook,
   Trello,
-  UserPen,
+  UserCog,
   Users,
 } from "lucide-react";
 
@@ -22,43 +24,60 @@ export const header_links = [
   },
 ];
 
-export const nav_links = [
+export const sidebarLeft_links = [
   {
-    title: "Dashboard",
-    icon: <LayoutDashboard size={size} />,
-    path: "/dashboard",
+    title: "GENERAL",
+    links: [
+      {
+        title: "Dashboard",
+        icon: <LayoutDashboard size={size} />,
+        path: "/kanban/dashboard",
+      },
+    ],
   },
   {
-    title: "Boards",
-    icon: <Trello size={size} />,
-    path: "/boards",
+    title: "PROJECTS",
+    links: [
+      {
+        title: "Boards",
+        icon: <Trello size={size} />,
+        path: "/kanban/boards",
+      },
+      {
+        title: "Workspaces",
+        icon: <SwatchBook size={size} />,
+        path: "/kanban/workspaces",
+      },
+      {
+        title: "Your Board",
+        icon: <FolderKanban size={size} />,
+        path: "/kanban/your-board",
+      },
+      {
+        title: "Members",
+        icon: <Users size={size} />,
+        path: "/kanban/members",
+      },
+    ],
   },
   {
-    title: "Workspaces",
-    icon: <SwatchBook size={size} />,
-    path: "/workspaces",
-  },
-];
-
-export const wordspace_links = [
-  {
-    title: "You board",
-    icon: <Trello size={size} />,
-    path: "/you-board",
-  },
-  {
-    title: "Member",
-    icon: <Users size={size} />,
-    path: "/menber",
-  },
-  {
-    title: "Update Propfile",
-    icon: <UserPen size={size} />,
-    path: "/update-profile",
-  },
-  {
-    title: "Change password",
-    icon: <LockKeyhole size={size} />,
-    path: "/change-password",
+    title: "ACCOUNT",
+    links: [
+      {
+        title: "Update Profile",
+        icon: <UserCog size={size} />,
+        path: "/kanban/update-profile",
+      },
+      {
+        title: "Change Password",
+        icon: <Lock size={size} />,
+        path: "/kanban/change-password",
+      },
+      {
+        title: "Sign Out",
+        icon: <LogOut size={size} />,
+        path: "signout",
+      },
+    ],
   },
 ];

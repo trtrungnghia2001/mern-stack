@@ -38,7 +38,7 @@ const InputDebounce = ({
   return (
     <TextareaAutosize
       className={clsx([
-        `resize-none w-full bg-transparent rounded-lg px-3 py-1.5`,
+        `resize-none w-full bg-transparent rounded-lg px-3 py-1.5 border-none outline-none`,
         className,
       ])}
       value={value}

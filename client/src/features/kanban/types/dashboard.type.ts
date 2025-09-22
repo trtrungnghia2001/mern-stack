@@ -18,7 +18,7 @@ export interface IBoardData {
 export interface IBoardOverview {
   _id: string;
   name: string;
-  columnsCount: number;
+  noDeadline: number;
   tasksCount: number;
   inProgress: number;
   completed: number;

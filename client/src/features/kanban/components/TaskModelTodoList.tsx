@@ -126,7 +126,7 @@ const TaskModelTodoList = ({ todos, updateTodos }: TaskModelTodoListProps) => {
             </label>
             <div className="flex items-center gap-2">
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                   {item.assignee ? (
                     <div className="w-5 aspect-square rounded-full overflow-hidden cursor-pointer">
                       <img

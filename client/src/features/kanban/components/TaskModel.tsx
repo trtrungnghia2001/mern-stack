@@ -17,10 +17,11 @@ import type { ITask } from "../types/task.type";
 import TaskModelDescription from "./TaskModelDescription";
 import TaskModelDate from "./TaskModelDate";
 import InputDebounce from "./InputDebounce";
-import clsx from "clsx";
 import TaskModelComment from "./TaskModelComment";
 import Loading from "./Loading";
 import { toast } from "sonner";
+import { Button } from "@/shared/components/ui/button";
+import ErrorPage from "../pages/ErrorPage";
 
 const TaskModel = () => {
   //
@@ -49,8 +50,13 @@ const TaskModel = () => {
 
   const deleteByIdResult = useMutation({
     mutationFn: async (id: string) => await deleteById(id),
-    onSuccess: (data) => toast.success(data.message),
-    onError: (error) => toast.error(error.message),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      closeModal();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const inputBgRef = useRef<HTMLInputElement>(null);
@@ -70,10 +76,13 @@ const TaskModel = () => {
 
   // action
   const [openDate, setOpenDate] = useState(false);
+  const [openMember, setOpenMember] = useState(false);
+  const [openLabel, setOpenLabel] = useState(false);
+  const [openTodo, setOpenTodo] = useState(false);
 
   if (getByIdResult.isLoading) return <Loading />;
 
-  if (!taskId || !task) return;
+  if (!taskId || !task) return <ErrorPage />;
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex items-center justify-center">
@@ -145,28 +154,43 @@ const TaskModel = () => {
 
             {/* options */}
             <div className="flex items-center flex-wrap gap-2">
-              <button
+              <Button
+                variant={"outline"}
+                size={"sm"}
                 onClick={() => setOpenDate(!openDate)}
-                className={clsx([
-                  `border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100`,
-                  openDate && `bg-gray-300`,
-                ])}
+                className={openDate ? `bg-gray-200` : ""}
               >
                 <Timer size={16} /> Date
-              </button>
-              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+              </Button>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={() => setOpenMember(!openMember)}
+                className={openMember ? `bg-gray-200` : ""}
+              >
                 <UserPlus size={16} />
                 Member
-              </button>
-              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+              </Button>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={() => setOpenLabel(!openLabel)}
+                className={openLabel ? `bg-gray-200` : ""}
+              >
                 <Tag size={16} />
                 Label
-              </button>
-              <button className="border rounded px-3 py-1.5 flex items-center gap-2 hover:bg-gray-100">
+              </Button>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={() => setOpenTodo(!openTodo)}
+                className={openTodo ? `bg-gray-200` : ""}
+              >
                 <SquareCheckBig size={16} />
                 What to do
-              </button>
+              </Button>
             </div>
+
             {/* date */}
             {openDate && (
               <TaskModelDate
@@ -180,6 +204,7 @@ const TaskModel = () => {
                 }
               />
             )}
+
             {/* description */}
             <TaskModelDescription
               value={task.description}

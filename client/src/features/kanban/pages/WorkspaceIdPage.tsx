@@ -10,9 +10,10 @@ import ErrorPage from "./ErrorPage";
 import { useBoardStore } from "../stores/board.store";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import toast from "react-hot-toast";
 import BoardModelForm from "../components/BoardModelForm";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { RenderList } from "../components/RenderList";
+import { toast } from "sonner";
 
 const WorkspaceIdPage = () => {
   const { id } = useParams();
@@ -41,7 +42,6 @@ const WorkspaceIdPage = () => {
 
   const [openForm, setOpenForm] = useState(false);
   const { user } = useAuthStore();
-  console.log();
 
   const isShowFormInputEmail =
     data?.[0].data.owner._id === user?._id ||
@@ -116,13 +116,10 @@ const WorkspaceIdPage = () => {
               </form>
             </div>
           )}
-          <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {members.map((item) => (
-              <li key={item._id}>
-                <MemberCard member={item} />
-              </li>
-            ))}
-          </ul>
+          <RenderList
+            items={members}
+            renderItem={(item) => <MemberCard member={item} />}
+          />
         </div>
       </div>
       <BoardModelForm

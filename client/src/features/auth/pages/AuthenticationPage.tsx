@@ -13,10 +13,17 @@ import ForgotPasswordForm from "../components/ForgotPasswordForm";
 import ResetPasswordForm from "../components/ResetPasswordForm";
 import { useAuthStore } from "../stores/auth.store";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import { authPageConfigs } from "../constants";
 
-const SignupSigninPage = () => {
+const AuthenticationPage = () => {
   const location = useLocation();
   const { signinWithSocialMedia } = useAuthStore();
+
+  const path = location.pathname
+    .split("/")
+    .pop() as keyof typeof authPageConfigs;
+  const { title, description } =
+    authPageConfigs[path] || authPageConfigs.signin;
 
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -24,8 +31,8 @@ const SignupSigninPage = () => {
         <div className={"flex flex-col gap-6"}>
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Welcome back</CardTitle>
-              <CardDescription>Login with your Google account</CardDescription>
+              <CardTitle className="text-xl">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6">
               <div className="flex flex-col gap-4">
@@ -51,14 +58,10 @@ const SignupSigninPage = () => {
                   Or continue with
                 </span>
               </div>
-              {location.pathname.includes("signup") && <SignupForm />}
-              {location.pathname.includes("signin") && <SigninForm />}
-              {location.pathname.includes("forgot-password") && (
-                <ForgotPasswordForm />
-              )}
-              {location.pathname.includes("reset-password") && (
-                <ResetPasswordForm />
-              )}
+              {path === "signup" && <SignupForm />}
+              {path === "signin" && <SigninForm />}
+              {path === "forgot-password" && <ForgotPasswordForm />}
+              {path === "reset-password" && <ResetPasswordForm />}
             </CardContent>
           </Card>
           <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
@@ -71,4 +74,4 @@ const SignupSigninPage = () => {
   );
 };
 
-export default SignupSigninPage;
+export default AuthenticationPage;

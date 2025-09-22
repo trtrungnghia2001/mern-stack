@@ -148,8 +148,8 @@ const DashboardPage = () => {
             <TableHeader>
               <TableRow>
                 <TableCell>Board</TableCell>
-                <TableCell>Total column</TableCell>
                 <TableCell>Total task</TableCell>
+                <TableCell>No Deadline</TableCell>
                 <TableCell>In Progress</TableCell>
                 <TableCell>Completed</TableCell>
                 <TableCell>Overdue</TableCell>
@@ -160,8 +160,8 @@ const DashboardPage = () => {
               {data.boardOverview.map((b) => (
                 <TableRow key={b._id}>
                   <TableCell>{b.name}</TableCell>
-                  <TableCell>{b.columnsCount}</TableCell>
                   <TableCell>{b.tasksCount}</TableCell>
+                  <TableCell>{b.noDeadline}</TableCell>
                   <TableCell className="text-yellow-600">
                     {b.inProgress}
                   </TableCell>

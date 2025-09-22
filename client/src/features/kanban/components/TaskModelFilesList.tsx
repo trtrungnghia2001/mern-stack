@@ -43,7 +43,7 @@ const TaskModelFilesList = ({
         }
       );
 
-      setProgress(0); // reset sau khi xong
+      setProgress(0);
       const newFile: IFile = {
         asset_id: resp.data.data.asset_id,
         resource_type: resp.data.data.resource_type,
@@ -83,9 +83,9 @@ const TaskModelFilesList = ({
         </div>
         <button
           onClick={handleUploadClick}
-          className={`px-3 py-1.5 rounded bg-blue-500 text-white`}
+          className={`hover:underline text-13 font-medium`}
         >
-          Upload
+          Upload file
         </button>
         <input
           ref={fileRef}
@@ -98,10 +98,10 @@ const TaskModelFilesList = ({
       <ul className="space-y-2">
         {progress > 0 && (
           <li className="flex gap-3 items-center">
-            <span className="text-xs text-gray-500">Upload</span>
-            <div className="w-full bg-gray-200 rounded h-2">
+            <span className="text-gray-500 text-xs">{progress}%</span>
+            <div className="w-full bg-gray-200 rounded h-1">
               <div
-                className="bg-green-500 h-2 rounded"
+                className="bg-green-500 h-full rounded"
                 style={{ width: `${progress}%` }}
               />
             </div>
