@@ -6,6 +6,11 @@ const SESSION_CONFIG = session({
   resave: false,
   saveUninitialized: false,
   proxy: true,
+  cookie: {
+    httpOnly: ENV_CONFIG.IS_PRODUCTION,
+    secure: ENV_CONFIG.IS_PRODUCTION,
+    sameSite: ENV_CONFIG.IS_PRODUCTION ? "none" : "lax",
+  },
 });
 
 export default SESSION_CONFIG;
