@@ -6,6 +6,7 @@ import { IMAGE_NOTFOUND } from "@/shared/constants/image.constant";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -42,7 +43,7 @@ const KanbanHeader = () => {
           <li>
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <button>
+                <button className="m-auto block">
                   <Menu size={"20"} />
                 </button>
               </SheetTrigger>
@@ -57,6 +58,17 @@ const KanbanHeader = () => {
                       <span className="font-bold text-base">Kanban</span>
                     </Link>
                   </SheetTitle>
+                  <SheetDescription asChild>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 aspect-square overflow-hidden rounded-full">
+                        <img src={user?.avatar} alt="avatar" loading="lazy" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{user?.name}</p>
+                        <p className="text-xs">{user?.email}</p>
+                      </div>
+                    </div>
+                  </SheetDescription>
                 </SheetHeader>
                 <KanbanSidebarLeft setOpen={setOpen} />
               </SheetContent>

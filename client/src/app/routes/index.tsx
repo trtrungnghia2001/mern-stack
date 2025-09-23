@@ -8,6 +8,7 @@ import AuthRouter from "@/features/auth";
 import UploadRouter from "@/features/upload";
 import KanbanRouter from "@/features/kanban";
 import AuthProtectedRoute from "./AuthProtectedRoute";
+import ChatRouter from "@/features/chat";
 
 const MainRouter = () => {
   return (
@@ -25,6 +26,7 @@ const MainRouter = () => {
       <Route element={<AuthProtectedRoute />}>
         {/* kanban */}
         <Route path="kanban/*" element={<KanbanRouter />} />
+        <Route path="chat/*" element={<ChatRouter />} />
       </Route>
     </Routes>
   );

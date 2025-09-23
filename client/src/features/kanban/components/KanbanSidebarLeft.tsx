@@ -40,8 +40,8 @@ const KanbanSidebarLeft: FC<KanbanSidebarLeftProps> = ({
                     }}
                     className={({ isActive }) =>
                       clsx([
-                        `flex items-center gap-4 px-2 py-1.5 rounded-lg font-medium hover:bg-gray-200`,
-                        isActive ? `bg-gray-200` : ``,
+                        `flex items-center gap-4 px-2 py-1.5 rounded-lg font-medium hover:bg-gray-200 transition-all text-sm`,
+                        isActive ? `bg-gray-200` : `text-gray-600`,
                       ])
                     }
                   >
