@@ -10,7 +10,7 @@ export interface IColumn {
   bgColor: number;
 
   board: string;
-  save: boolean;
+  isSave: boolean;
 
   createdAt: string;
   updatedAt: string;

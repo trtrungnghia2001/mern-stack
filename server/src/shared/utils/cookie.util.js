@@ -1,10 +1,4 @@
-import ENV_CONFIG from "#server/configs/env.config";
-
-const defaultCookieOptions = {
-  httpOnly: ENV_CONFIG.IS_PRODUCTION,
-  secure: true,
-  sameSite: "None", // Rất quan trọng cho cross-origin
-};
+import { defaultCookieOptions } from "#server/configs/cookie.config";
 
 export function clearCookie(res, name_cookie, options) {
   res.clearCookie(name_cookie, {

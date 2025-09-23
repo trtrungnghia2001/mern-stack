@@ -77,7 +77,7 @@ const columnSchema = new mongoose.Schema(
     position: { type: Number, default: 0 },
     bgColor: { type: Number, default: 0 },
     board: { type: Schema.Types.ObjectId, ref: "kanbanBoard" },
-    save: {
+    isSave: {
       type: Boolean,
       default: false,
     },

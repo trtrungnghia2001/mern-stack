@@ -37,8 +37,8 @@ const ColumnCardMenu = ({
         <Ellipsis size={16} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuItem onClick={() => onChangeSave(!column.save)}>
-          {column.save ? `Unsave` : `Save`}
+        <DropdownMenuItem onClick={() => onChangeSave(!column.isSave)}>
+          {column.isSave ? `Unsave` : `Save`}
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={isPending}

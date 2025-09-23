@@ -42,8 +42,8 @@ const ColumnCard = ({ column, tasks }: ColumnCardProps) => {
           initValue={column.name}
           setInitValue={(value) => updateByIdResult.mutate({ name: value })}
         />
-        {column.save && (
-          <button onClick={() => updateByIdResult.mutate({ save: false })}>
+        {column.isSave && (
+          <button onClick={() => updateByIdResult.mutate({ isSave: false })}>
             <Save size={16} className="text-gray-500" />
           </button>
         )}
@@ -52,7 +52,7 @@ const ColumnCard = ({ column, tasks }: ColumnCardProps) => {
           onChangeBgColor={(value) =>
             updateByIdResult.mutate({ bgColor: value })
           }
-          onChangeSave={(value) => updateByIdResult.mutate({ save: value })}
+          onChangeSave={(value) => updateByIdResult.mutate({ isSave: value })}
         />
       </div>
       {/* tasks */}
