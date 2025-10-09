@@ -15,6 +15,7 @@ import type { IChangePasswordDTO } from "../types/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
+import { memo, type ComponentProps, type FC } from "react";
 
 const formSchema = z
   .object({
@@ -35,7 +36,7 @@ const initValues: IChangePasswordDTO = {
   confirm_password: "",
 };
 
-const ChangePasswordForm = () => {
+const ChangePasswordForm: FC<ComponentProps<"div">> = ({ ...props }) => {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,45 +62,47 @@ const ChangePasswordForm = () => {
   });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirm_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div {...props}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirm_password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm password</FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button
-          disabled={submitResult.isPending}
-          type="submit"
-          className="w-full"
-        >
-          Submit
-        </Button>
-      </form>
-    </Form>
+          <Button
+            disabled={submitResult.isPending}
+            type="submit"
+            className="w-full"
+          >
+            Submit
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 };
 
-export default ChangePasswordForm;
+export default memo(ChangePasswordForm);

@@ -1,7 +1,9 @@
 import { useRoutes } from "react-router-dom";
 import ChatLayout from "./layout";
 import ChatPage from "./pages/ChatPage";
-import MessageIdPage from "./pages/MessageIdPage";
+import UpdateMeForm from "../auth/components/UpdateMeForm";
+import ChangePasswordForm from "../auth/components/ChangePasswordForm";
+import RoomIdPage from "./pages/RoomIdPage";
 
 const ChatRouter = () => {
   const route = useRoutes([
@@ -10,8 +12,16 @@ const ChatRouter = () => {
       element: <ChatPage />,
     },
     {
-      path: "messages/:messageId",
-      element: <MessageIdPage />,
+      path: "messages/:roomId",
+      element: <RoomIdPage />,
+    },
+    {
+      path: "edit-profile",
+      element: <UpdateMeForm className="p-4" />,
+    },
+    {
+      path: "change-password",
+      element: <ChangePasswordForm className="p-4" />,
     },
   ]);
 

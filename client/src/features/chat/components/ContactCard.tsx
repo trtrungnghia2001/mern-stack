@@ -1,34 +1,98 @@
-// interface ContactCardProps {
-//   user: IUser;
-// }
+import clsx from "clsx";
+import { memo, useEffect, useState, type FC } from "react";
+import { useNavigate } from "react-router-dom";
+import { useChatContext } from "../context";
+import type { IRoom } from "../types/room.type";
+import { IMAGE_NOTFOUND } from "@/shared/constants/image.constant";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
+import instance from "@/configs/axios.config";
+import type { ResponseSuccessType } from "@/shared/types/response";
+import { useRoomStore } from "../stores/room.store";
 
-import { memo } from "react";
+interface ContactCardProps {
+  data: IRoom;
+}
 
-const data = {
-  user: {
-    name: "John Doe",
-    avatar:
-      "https://lh3.googleusercontent.com/a/ACg8ocJebHI28w4K5vCJCsvMbAQwttSubVTshcMuM_VN_5bvXP2d0v6v=s96-c",
-    lasstMessage: "Hello, how are you?",
-    updatedAt: "2023-10-01T10:00:00Z",
-  },
-};
+const ContactCard: FC<ContactCardProps> = ({ data }) => {
+  const { user } = useAuthStore();
+  const { onlineUsers, setCurrentRoomId } = useChatContext();
+  const { setPersons, persons } = useRoomStore();
 
-const ContactCard = () => {
+  const isOnline = onlineUsers.find((i) => i === data?.userId);
+  const isRead = data.lastMessage?.readBy?.find((u) => u === user?._id);
+
+  const mess = data.lastMessage
+    ? (data.lastMessage?.sender?._id === data?._id
+        ? "Me: "
+        : data.lastMessage.sender.name.split(" ").pop() + ": ") +
+      (data.lastMessage?.text ?? "Send File")
+    : "Hãy bắt đầu cuộc trò chuyện";
+
+  // redirect
+  const [isActive, setIsActive] = useState(false);
+  const navigate = useNavigate();
+  const handleRoomClick = async () => {
+    let roomId = data._id;
+
+    if (data.isNew) {
+      const res = await instance.post<ResponseSuccessType<IRoom>>(
+        `api/v1/chat/rooms`,
+        {
+          type: "direct",
+          members: [{ user: data.userId }],
+        }
+      );
+      roomId = res.data.data._id;
+      setPersons(
+        persons.map((p) =>
+          p._id === data._id ? { ...p, _id: roomId, isNew: false } : p
+        )
+      );
+    }
+    setCurrentRoomId(roomId);
+
+    navigate(`/chat/messages/` + roomId + "?_type=" + data.type);
+  };
+
+  useEffect(() => {
+    setIsActive(location.pathname === `/chat/messages/${data._id}`);
+  }, [location.pathname]);
+
   return (
-    <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-200 cursor-pointer">
-      <div className="w-7 aspect-square rounded-full overflow-hidden">
-        <img
-          src={data.user.avatar}
-          alt="avatar"
-          loading="lazy"
-          className="img"
-        />
+    <div
+      onClick={handleRoomClick}
+      className={clsx([
+        `w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-200 cursor-pointer`,
+        isActive && `bg-gray-200`,
+      ])}
+    >
+      <div className="relative">
+        <div className="w-7 aspect-square rounded-full overflow-hidden">
+          <img
+            src={
+              data.avatar ??
+              (data.type === "group"
+                ? IMAGE_NOTFOUND.group_notfound
+                : IMAGE_NOTFOUND.avatar_notfound)
+            }
+            alt="avatar"
+            loading="lazy"
+            className="img"
+          />
+        </div>
+        {isOnline && (
+          <div className="absolute bottom-0 right-0 border-2 border-white bg-green-500 w-2.5 aspect-square rounded-full"></div>
+        )}
       </div>
       <div className="flex-1">
-        <div className="font-medium text-13 line-clamp-1">{data.user.name}</div>
-        <div className="text-xs text-gray-500 line-clamp-1">
-          {data.user.lasstMessage}
+        <div className="font-medium text-13 line-clamp-1">{data.name}</div>
+        <div
+          className={clsx([
+            `text-xs line-clamp-1`,
+            isRead ? `text-gray-500` : `font-medium`,
+          ])}
+        >
+          {mess}
         </div>
       </div>
     </div>

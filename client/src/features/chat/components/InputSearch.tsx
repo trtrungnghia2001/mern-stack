@@ -6,7 +6,7 @@ const InputSearch: FC<ComponentProps<"input">> = ({
   ...props
 }) => {
   return (
-    <div className="flex items-center border rounded-full overflow-hidden px-3 py-2 ring-0 focus:ring-1 focus-within:ring-blue-500 transition">
+    <div className="flex items-center border rounded-full overflow-hidden px-3 py-1.5 ring-0 focus:ring-1 focus-within:ring-blue-500 transition">
       <input
         type="text"
         placeholder={placeholder}

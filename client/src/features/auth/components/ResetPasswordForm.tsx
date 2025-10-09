@@ -16,6 +16,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../stores/auth.store";
 import { toast } from "sonner";
+import { memo, type ComponentProps, type FC } from "react";
 
 const formSchema = z.object({
   password: z.string().min(8, {
@@ -32,7 +33,7 @@ const initValues: IResetPasswordDTO = {
   confirm_password: "",
 };
 
-const ResetPasswordForm = () => {
+const ResetPasswordForm: FC<ComponentProps<"div">> = ({ ...props }) => {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
@@ -75,51 +76,53 @@ const ResetPasswordForm = () => {
   });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirm_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div {...props}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirm_password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm password</FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button
-          disabled={submitResult.isPending}
-          type="submit"
-          className="w-full"
-        >
-          Submit
-        </Button>
-        <div className="text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link to={`/auth/signin`} className="underline underline-offset-4">
-            Sign in
-          </Link>
-        </div>
-      </form>
-    </Form>
+          <Button
+            disabled={submitResult.isPending}
+            type="submit"
+            className="w-full"
+          >
+            Submit
+          </Button>
+          <div className="text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link to={`/auth/signin`} className="underline underline-offset-4">
+              Sign in
+            </Link>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 
-export default ResetPasswordForm;
+export default memo(ResetPasswordForm);

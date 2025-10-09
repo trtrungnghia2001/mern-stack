@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { memo } from "react";
 
 const Nav = () => {
   const { user, signout } = useAuthStore();
@@ -64,9 +65,22 @@ const Nav = () => {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem>Edit Profile</DropdownMenuItem>
-              <DropdownMenuItem>Change Password</DropdownMenuItem>
-              <DropdownMenuItem onClick={signout}>Log out</DropdownMenuItem>
+              <DropdownMenuItem>
+                <NavLink to={`/chat/edit-profile`} className={"block w-full"}>
+                  Edit Profile
+                </NavLink>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <NavLink
+                  to={`/chat/change-password`}
+                  className={"block w-full"}
+                >
+                  Change Password
+                </NavLink>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={signout}>
+                <button className={"block w-full text-left"}>Log out</button>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </li>
@@ -75,4 +89,4 @@ const Nav = () => {
   );
 };
 
-export default Nav;
+export default memo(Nav);
