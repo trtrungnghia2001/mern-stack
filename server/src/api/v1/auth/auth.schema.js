@@ -88,7 +88,7 @@ export const schemaUpdateMe = Joi.object({
     .allow("")
     .optional(), // Ví dụ cho số điện thoại 10 chữ số
   address: Joi.string().allow("").optional(),
-  birthday: Joi.date().allow("").optional(), // Xác thực định dạng ngày
+  birthday: Joi.string().allow("").optional(), // Xác thực định dạng ngày
   work: Joi.string().allow("").optional(),
   education: Joi.string().allow("").optional(),
   bio: Joi.string().max(255).allow("").optional(), // Giới hạn độ dài bio

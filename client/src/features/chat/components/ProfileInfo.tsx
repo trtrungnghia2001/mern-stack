@@ -9,10 +9,12 @@ import { Button } from "@/shared/components/ui/button";
 import Loading from "./Loading";
 import { toast } from "sonner";
 import MemberModelForm from "./MemberModelForm";
+import { useNavigate } from "react-router-dom";
 
 const ProfileInfo = ({ contactInfo }: { contactInfo: IRoom }) => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { removeMember, members } = useRoomStore();
+  const { removeMember, members, deleteById } = useRoomStore();
 
   const isAdmin =
     members.find((m) => m.user._id === user?._id)?.role === "admin";
@@ -20,7 +22,19 @@ const ProfileInfo = ({ contactInfo }: { contactInfo: IRoom }) => {
   const { isPending, mutate } = useMutation({
     mutationFn: async (memberId: string) =>
       await removeMember(contactInfo._id, memberId),
-    onSuccess: (data) => toast.success(data.message),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      navigate(`/chat`);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const deleteByIdResult = useMutation({
+    mutationFn: async () => await deleteById(contactInfo._id),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      navigate(`/chat`);
+    },
     onError: (error) => toast.error(error.message),
   });
 
@@ -76,13 +90,23 @@ const ProfileInfo = ({ contactInfo }: { contactInfo: IRoom }) => {
                       >
                         <UserPlus />
                       </Button>
-                      <Button size={"sm"} variant={"outline"}>
+                      <Button
+                        disabled={deleteByIdResult.isPending}
+                        onClick={() => deleteByIdResult.mutate()}
+                        size={"sm"}
+                        variant={"outline"}
+                      >
                         <Trash />
                       </Button>
                     </>
                   )}
                   {!isAdmin && (
-                    <Button size={"sm"} variant={"outline"}>
+                    <Button
+                      disabled={isPending}
+                      onClick={() => mutate(user?._id as string)}
+                      size={"sm"}
+                      variant={"outline"}
+                    >
                       <LogOut />
                     </Button>
                   )}

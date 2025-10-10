@@ -13,6 +13,7 @@ interface IRoomStore {
   setRooms: (rooms: IRoom[]) => void;
   setPersons: (rooms: IRoom[]) => void;
   create: (data: IRoomCreateDTO) => Promise<ResponseSuccessType<IRoom>>;
+  deleteById: (roomId: string) => Promise<ResponseSuccessType<IRoom>>;
   getRooms: (query?: string) => Promise<ResponseSuccessListType<IRoom>>;
   getPersons: (query?: string) => Promise<ResponseSuccessListType<IRoom>>;
   getId: (roomId: string, type?: string) => Promise<ResponseSuccessType<IRoom>>;
@@ -56,8 +57,16 @@ export const useRoomStore = create<IRoomStore>()((set, get) => ({
         type: "group",
       })
     ).data;
+    // set({
+    //   rooms: [resp.data, ...get().rooms],
+    // });
+    return resp;
+  },
+  deleteById: async (roomId) => {
+    const url = baseUrl + roomId;
+    const resp = (await instance.delete<ResponseSuccessType<IRoom>>(url)).data;
     set({
-      rooms: [resp.data, ...get().rooms],
+      rooms: get().rooms.filter((r) => r._id !== roomId),
     });
     return resp;
   },

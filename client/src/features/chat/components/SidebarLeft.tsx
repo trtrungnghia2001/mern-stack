@@ -6,24 +6,20 @@ import { Button } from "@/shared/components/ui/button";
 import { UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import GroupModelForm from "./GroupModelForm";
-import useSearchParamsValue from "@/shared/hooks/useSearchParamsValue";
+import { useDebounce } from "use-debounce";
 
 const SidebarLeft = () => {
   const { getRooms, getPersons, rooms, persons } = useRoomStore();
 
-  const { searchParams, handleSearchParams } = useSearchParamsValue({
-    _q: "",
-  });
-  const _q = searchParams.get("_q");
-
-  const [searchValue, setSearchValue] = useState(() => _q || "");
+  const [searchValue, setSearchValue] = useState("");
+  const [searchValueDebounce] = useDebounce(searchValue, 1000);
 
   const { isLoading } = useQuery({
-    queryKey: ["chat", "contact", _q],
+    queryKey: ["chat", "contact", searchValueDebounce],
     queryFn: async () =>
       await Promise.all([
-        await getRooms(`_q=${_q}&_type=group`),
-        await getPersons(`_q=${_q}&_type=direct`),
+        await getRooms(`_q=${searchValueDebounce}&_type=group`),
+        await getPersons(`_q=${searchValueDebounce}&_type=direct`),
       ]),
   });
 
@@ -51,11 +47,6 @@ const SidebarLeft = () => {
         placeholder="Search..."
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearchParams("_q", searchValue);
-          }
-        }}
       />
 
       {isLoading && <p className="text-xs text-gray-500">Loading...</p>}

@@ -21,7 +21,7 @@ interface IMessageStore {
 
 const baseUrl = `/api/v1/chat/rooms/`;
 
-export const useMessageStore = create<IMessageStore>()((set, get) => ({
+export const useMessageStore = create<IMessageStore>()((set) => ({
   messages: [],
   setMessages: (msg) => {
     set({

@@ -47,12 +47,14 @@ const formSchema = z.object({
       user: z.string(),
     })
   ),
+  type: z.string(),
 });
 
 const initValue = {
   name: "",
   description: "",
   members: [],
+  type: "group",
 };
 
 const GroupModelForm = ({
@@ -122,16 +124,6 @@ const GroupModelForm = ({
     }
   };
 
-  // const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  // const [previewFile, setPreviewFile] = useState<string>("");
-  // useEffect(() => {
-  //   if (avatarFile) {
-  //     const url = URL.createObjectURL(avatarFile);
-  //     setPreviewFile(url);
-  //     return () => URL.revokeObjectURL(url);
-  //   }
-  // }, [avatarFile]);
-
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-y-auto max-h-[90vh]">
@@ -142,36 +134,6 @@ const GroupModelForm = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <label
-                      id="file"
-                      className="w-24 block mx-auto cursor-pointer aspect-square overflow-hidden rounded-full border"
-                    >
-                      <img
-                        src={previewFile || IMAGE_NOTFOUND.group_notfound}
-                        alt="avatar"
-                        className="img"
-                      />
-                      <input
-                        name="file"
-                        type="file"
-                        onChange={(e) =>
-                          setAvatarFile(e.target.files?.[0] as File)
-                        }
-                        accept="image/*"
-                        hidden
-                      />
-                    </label>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <FormField
               control={form.control}
               name="name"

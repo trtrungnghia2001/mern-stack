@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { useRoomStore } from "../stores/room.store";
 import { useQuery } from "@tanstack/react-query";
 

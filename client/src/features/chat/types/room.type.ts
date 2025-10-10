@@ -4,6 +4,7 @@ import type { IMessage } from "./message.type";
 export interface IRoomCreateDTO {
   name: string;
   description: string;
+  type?: string;
 }
 
 export interface IRoom extends Readonly<IUser> {

@@ -7,6 +7,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import userModel from "../../user/user.model.js";
 import { messageModel } from "../models/message.model.js";
+import { io } from "#server/configs/socket.config";
 
 const roomRoute = express.Router();
 
@@ -82,14 +83,25 @@ roomRoute.get(`/`, async (req, res, next) => {
     }
 
     if (_type === "group") {
-      results = await roomModel
-        .find({ name: regex, type: "group" })
-        .populate("members.user")
-        .populate({
-          path: "lastMessage",
-          populate: { path: "sender" },
-        })
-        .lean();
+      if (!_q) {
+        results = await roomModel
+          .find({ name: regex, type: "group", "members.user": userId })
+          .populate("members.user")
+          .populate({
+            path: "lastMessage",
+            populate: { path: "sender" },
+          })
+          .lean();
+      } else {
+        results = await roomModel
+          .find({ name: regex, type: "group" })
+          .populate("members.user")
+          .populate({
+            path: "lastMessage",
+            populate: { path: "sender" },
+          })
+          .lean();
+      }
     }
 
     return handleResponseList(res, {
@@ -132,7 +144,7 @@ roomRoute.post(`/`, async (req, res, next) => {
     const otherId = body.members?.[0]?.user;
     body.members.push({ user: userId, role: "admin" });
 
-    if ((body.type = "direct")) {
+    if (body.type === "direct") {
       const room = await roomModel
         .findOne({
           type: "direct",
@@ -154,7 +166,21 @@ roomRoute.post(`/`, async (req, res, next) => {
         });
     }
 
-    const newRoom = await roomModel.create(body);
+    let newRoom = await roomModel.create(body);
+    newRoom = await roomModel
+      .findById(newRoom._id)
+      .populate("members.user")
+      .lean();
+
+    if (body.type === "direct") {
+      const other = await userModel.findById(otherId).lean();
+
+      newRoom = { ...newRoom, ...other, _id: newRoom._id, userId: other._id };
+    }
+
+    newRoom.members.forEach((member) => {
+      io.to(member.user._id.toString()).emit("room_created", newRoom);
+    });
 
     return handleResponse(res, {
       status: StatusCodes.CREATED,
@@ -185,6 +211,15 @@ roomRoute.delete(`/:roomId`, async (req, res, next) => {
 
     const room = await roomModel.findByIdAndDelete(roomId, {
       new: true,
+    });
+
+    const memberIds = room.members.map((m) => m.user.toString());
+    memberIds.forEach((uid) => {
+      io.to(uid).emit("member_removed", { roomId });
+    });
+
+    await messageModel.deleteMany({
+      room: roomId,
     });
 
     return handleResponse(res, {
@@ -253,6 +288,10 @@ roomRoute.post(`/:roomId/members`, async (req, res, next) => {
       )
       .populate("members.user");
 
+    userIds.forEach((uid) => {
+      io.to(uid).emit("member_added", { room });
+    });
+
     return handleResponse(res, {
       data: room,
     });
@@ -276,7 +315,10 @@ roomRoute.delete(`/:roomId/members/:userId`, async (req, res, next) => {
       )
       .lean();
 
-    console.log({ roomId, userId, room });
+    io.to(roomId).emit("member_removed", {
+      roomId,
+      userId,
+    });
 
     return handleResponse(res, {
       data: room,
@@ -285,6 +327,7 @@ roomRoute.delete(`/:roomId/members/:userId`, async (req, res, next) => {
     next(error);
   }
 });
+
 roomRoute.patch(`/:roomId/members/:userId/role`, async (req, res, next) => {
   try {
     const { roomId, userId } = req.params;

@@ -101,7 +101,10 @@ const MessageInput = () => {
                   <img src={item} alt="img" loading="lazy" className="img" />
                 </li>
               ))}
-              <button className="bg-gray-200 rounded-full aspect-square overflow-hidden block">
+              <button
+                onClick={() => setFiles(null)}
+                className="absolute top-1 right-1 bg-gray-200 rounded-full aspect-square overflow-hidden block"
+              >
                 <X size={16} />
               </button>
             </ul>

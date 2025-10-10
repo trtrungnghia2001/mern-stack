@@ -18,9 +18,23 @@ messageRoute.get(`/`, async (req, res, next) => {
   try {
     const { roomId } = req.params;
 
+    const userId = req.user._id;
+
+    const room = await roomModel.findById(roomId).lean();
+    const isMember = room.members.some(
+      (m) => m.user.toString() === userId.toString()
+    );
+    if (!isMember) {
+      return handleResponse(res, {
+        status: StatusCodes.FORBIDDEN,
+        message: "You are not a member of this room",
+      });
+    }
+
     const messages = await messageModel
       .find({ room: roomId })
       .populate("sender")
+      .sort({ createdAt: 1 })
       .lean();
 
     return handleResponseList(res, {
@@ -53,12 +67,18 @@ messageRoute.post(`/`, upload.array("files"), async (req, res, next) => {
     const userId = req.user._id;
     const { roomId } = req.params;
 
-    const room = await roomModel.findById(roomId);
+    const room = await roomModel
+      .findById(roomId)
+      .populate("members.user")
+      .populate({
+        path: "lastMessage",
+        populate: { path: "sender" },
+      });
 
     // kiem tra thanh vien neu la group
     if (room) {
       const isMember = room.members.some(
-        (m) => m.user.toString() === userId.toString()
+        (m) => m.user._id.toString() === userId.toString()
       );
       if (!isMember) {
         return handleResponse(res, {

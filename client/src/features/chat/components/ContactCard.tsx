@@ -22,7 +22,7 @@ const ContactCard: FC<ContactCardProps> = ({ data }) => {
   const isRead = data.lastMessage?.readBy?.find((u) => u === user?._id);
 
   const mess = data.lastMessage
-    ? (data.lastMessage?.sender?._id === data?._id
+    ? (data.lastMessage?.sender?._id === user?._id
         ? "Me: "
         : data.lastMessage.sender.name.split(" ").pop() + ": ") +
       (data.lastMessage?.text ?? "Send File")
@@ -43,15 +43,17 @@ const ContactCard: FC<ContactCardProps> = ({ data }) => {
         }
       );
       roomId = res.data.data._id;
-      setPersons(
-        persons.map((p) =>
-          p._id === data._id ? { ...p, _id: roomId, isNew: false } : p
-        )
+
+      const newPersons = persons.map((p) =>
+        p._id === data._id ? { ...p, _id: roomId, isNew: false } : p
       );
+
+      setPersons(newPersons);
     }
     setCurrentRoomId(roomId);
 
-    navigate(`/chat/messages/` + roomId + "?_type=" + data.type);
+    const redirectUrl = `/chat/messages/` + roomId + "?_type=" + data.type;
+    navigate(redirectUrl);
   };
 
   useEffect(() => {
