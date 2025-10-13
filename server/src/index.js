@@ -52,12 +52,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.listen(ENV_CONFIG.PORT, function () {
-  console.log(`Server is running on port:: `, ENV_CONFIG.PORT);
-});
-
 // router
 app.use("/api/v1", routerV1);
 app.use("/api/v2", routerV2);
 
 app.use(handleError);
+
+if (!ENV_CONFIG.IS_PRODUCTION) {
+  app.listen(ENV_CONFIG.PORT, function () {
+    console.log(`Server is running on port:: `, ENV_CONFIG.PORT);
+  });
+}
+
+export default app;
